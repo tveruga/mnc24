@@ -1,0 +1,50 @@
+# Подписывает DIR HELPER на addons.mozilla.org (личная, без публикации) и выкладывает обновление.
+# Запускается сам при каждом изменении папки ext/ (или вручную: Actions → Release → Run workflow).
+name: Release
+on:
+  push:
+    branches: [main]
+    paths: ['ext/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: release
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Версия
+        id: v
+        run: |
+          V=$(node -p "require('./ext/manifest.json').version")
+          echo "version=$V" >> $GITHUB_OUTPUT
+          if gh release view "v$V" >/dev/null 2>&1; then echo "skip=1" >> $GITHUB_OUTPUT; fi
+        env: { GH_TOKEN: '${{ github.token }}' }
+      - name: Адрес обновлений
+        if: steps.v.outputs.skip != '1'
+        run: sed -i "s#__OWNER__/dir-helper#${GITHUB_REPOSITORY}#" ext/manifest.json
+      - name: Подпись на addons.mozilla.org
+        if: steps.v.outputs.skip != '1'
+        run: npx --yes web-ext@8 sign --source-dir ext --artifacts-dir dist --channel unlisted --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET" --approval-timeout 1800000
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+      - name: Релиз и updates.json
+        if: steps.v.outputs.skip != '1'
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          V=${{ steps.v.outputs.version }}
+          F=dir-helper-v$V.xpi
+          mv dist/*.xpi "$F"
+          gh release create "v$V" "$F" --title "DIR HELPER $V" --notes "Подписанная версия $V"
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/v$V/$F"
+          node -e "
+            const fs=require('fs'); const p='updates.json';
+            const j=JSON.parse(fs.readFileSync(p,'utf8')); const a=j.addons['mnc-otdat-mastery@local'];
+            a.updates=a.updates.filter(u=>u.version!=='$V'); a.updates.push({version:'$V', update_link:'$URL'});
+            a.updates=a.updates.slice(-10); fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');"
+          git config user.name "dir-helper-bot"; git config user.email "actions@users.noreply.github.com"
+          git add updates.json; git commit -m "updates.json: $V [skip ci]"; git push
