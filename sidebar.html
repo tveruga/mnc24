@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>DIR HELPER</title>
+<link rel="stylesheet" href="sidebar.css">
+</head>
+<body>
+<header>
+  <div class="brand"><b>DIR</b><span>HELPER</span></div>
+  <nav>
+    <button data-go="list" title="Заявки">☰</button>
+    <button data-mode="an" title="Аналитика"><svg viewBox="0 0 16 16" width="14" height="14"><rect x="2" y="9" width="3" height="5" rx=".5" fill="#a7dfbe"/><rect x="6.5" y="5" width="3" height="9" rx=".5" fill="#5cc58a"/><rect x="11" y="2" width="3" height="12" rx=".5" fill="#fff"/></svg></button>
+    <button data-mode="zp" title="Зарплата директора">₽</button>
+    <button data-mode="ad" title="Реклама"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 1.5h5.5L13 5v9.5H4z" fill="#a7dfbe"/><path d="M9.5 1.5V5H13" fill="#5cc58a"/><path d="M6 8h5M6 10.2h5M6 12.4h3" stroke="#0f3d2b" stroke-width="1" stroke-linecap="round"/></svg></button>
+    <button data-mode="rt" title="Рейтинг городов" class="t">TOP</button>
+  </nav>
+  <div class="zoom"><button data-z="-">−</button><span id="zv">70%</span><button data-z="+">+</button></div>
+  <button id="tab" title="Открыть CRM во вкладке">↗</button>
+</header>
+<main><iframe id="crm" src="https://mnc-lead-centre.ru/admin/domain/customer-request/index"></iframe></main>
+<script src="sidebar.js"></script>
+</body>
+</html>

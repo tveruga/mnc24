@@ -1,0 +1,224 @@
+#mnc-dash{position:fixed;top:0;right:0;bottom:0;width:min(760px,62vw);z-index:2147483647;display:flex;flex-direction:column;background:#f2f6f3;color:#10231a;font:14px/1.45 "Segoe UI",system-ui,Arial,sans-serif;text-align:left;box-shadow:-18px 0 50px rgba(11,46,32,.25);transform:translateX(104%);opacity:.4;transition:transform .45s cubic-bezier(.22,1,.36,1),opacity .35s ease,width .4s cubic-bezier(.22,1,.36,1);will-change:transform}
+#mnc-dash.on{transform:none;opacity:1}
+#mnc-dash:not(.on) main{opacity:0}
+#mnc-dash main{transition:opacity .4s ease .15s}
+#mnc-dash.wide{width:min(1200px,92vw)}
+#mnc-dash *{box-sizing:border-box}
+#mnc-dash button{font-family:inherit}
+#mnc-dash .sub2{display:flex;justify-content:space-between;padding:7px 18px;background:#0b2e20;color:#a7dfbe;font-size:12px;flex:none}
+#mnc-dash{--g900:#0b2e20;--g800:#0f3d2b;--g700:#14532d;--g600:#166534;--g500:#15803d;--g300:#5cc58a;--g200:#a7dfbe;--g100:#e3f4ea;--g50:#f4faf6;
+--ink:#10231a;--muted:#6b7f73;--line:#e1ebe5;--bg:#f2f6f3}
+#mnc-dash *{box-sizing:border-box}
+#mnc-dash .top{padding:0 14px !important;gap:10px !important;position:sticky;top:0;flex:none;z-index:5;display:flex;align-items:center;gap:16px;padding:0 24px;height:62px;background:var(--g800);color:#fff}
+#mnc-dash .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+#mnc-dash .logo{background:#fff;color:var(--g800);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:800;letter-spacing:.8px}
+#mnc-dash .sub{font-weight:400;font-size:13px;color:var(--g200);margin-left:6px}
+#mnc-dash .period{margin-left:auto;display:flex;background:var(--g900);border-radius:10px;padding:4px}
+#mnc-dash .period button{all:unset;cursor:pointer;padding:7px 18px;border-radius:7px;color:var(--g200);font-weight:600;font-size:13px;transition:background .2s,color .2s}
+#mnc-dash .period button.on{background:#fff;color:var(--g800)}
+#mnc-dash .upd{font-size:12px;color:var(--g200);min-width:90px}
+#mnc-dash .ic{all:unset;cursor:pointer;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.1);font-size:16px;transition:background .2s}
+#mnc-dash .ic:hover{background:rgba(255,255,255,.22)}
+#mnc-dash main{padding:16px 18px 40px;overflow:auto;flex:1}
+#mnc-dash .loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:90px;color:var(--muted)}
+#mnc-dash .spin{width:34px;height:34px;border:3px solid var(--g100);border-top-color:var(--g500);border-radius:50%;animation:mncsp .8s linear infinite}
+@keyframes mncsp{to{transform:rotate(360deg)}}
+#mnc-dash .err{padding:24px;border-radius:12px;background:#fdf3f2;color:#b42318;border:1px solid #f4cdc8}
+#mnc-dash .note{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 16px;margin-bottom:14px;border-radius:10px;background:#fff8e6;border:1px solid #f3e1b0;color:#7a5a00;font-size:13px}
+#mnc-dash .lnk{all:unset;cursor:pointer;color:var(--g600);font-weight:600;text-decoration:underline}
+#mnc-dash .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+#mnc-dash .chips button{all:unset;cursor:pointer;padding:6px 12px;border-radius:20px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--muted)}
+#mnc-dash .chips button.on{background:var(--g600);border-color:var(--g600);color:#fff}
+#mnc-dash .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:14px;margin-bottom:16px}
+#mnc-dash .kpi{all:unset;cursor:pointer;display:block;background:#fff;border-radius:14px;padding:14px 16px 6px;box-shadow:0 1px 2px rgba(15,61,43,.06),0 0 0 1px var(--line);transition:box-shadow .2s,transform .2s;animation:mncup .45s cubic-bezier(.2,.8,.2,1) both}
+#mnc-dash .kpi:nth-child(2){animation-delay:.04s}
+#mnc-dash .kpi:nth-child(3){animation-delay:.08s}
+#mnc-dash .kpi:nth-child(4){animation-delay:.12s}
+#mnc-dash .kpi:nth-child(5){animation-delay:.16s}
+#mnc-dash .kpi:nth-child(n+6){animation-delay:.2s}
+#mnc-dash .kpi:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,61,43,.1),0 0 0 1px var(--line)}
+#mnc-dash .kpi.on{box-shadow:0 0 0 2px var(--g500),0 8px 20px rgba(21,128,61,.15)}
+#mnc-dash .kl{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mnc-dash .kv{font-size:27px;font-weight:700;color:var(--g800);margin-top:2px;font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+#mnc-dash .ks{font-size:11px;color:var(--muted)}
+#mnc-dash .kspark{height:46px;margin:4px -4px 0}
+#mnc-dash .spark{width:100%;height:100%;display:block}
+#mnc-dash .dl{font-size:12px;font-weight:700;padding:2px 7px;border-radius:10px}
+#mnc-dash .dl.up{background:#e3f4ea;color:#15803d}
+#mnc-dash .dl.down{background:#fdecea;color:#b42318}
+#mnc-dash .dl.eq{background:#eef2ef;color:var(--muted)}
+#mnc-dash .card{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 1px 2px rgba(15,61,43,.06),0 0 0 1px var(--line);margin-bottom:16px;animation:mncup .5s cubic-bezier(.2,.8,.2,1) both}
+#mnc-dash .ch{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+#mnc-dash .ct{font-size:16px;font-weight:700;color:var(--g800)}
+#mnc-dash .cs{font-size:12px;color:var(--muted);margin-top:2px}
+#mnc-dash .leg{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+#mnc-dash .leg i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+#mnc-dash .leg i.dash{background:repeating-linear-gradient(90deg,#9aa9a0 0 5px,transparent 5px 9px)}
+#mnc-dash svg.smooth{width:100%;height:auto;display:block}
+#mnc-dash svg .gl{stroke:#edf3ef}
+#mnc-dash svg .ax{font:11px "Segoe UI",system-ui,sans-serif;fill:#8a9b91}
+#mnc-dash svg .area{opacity:0;transition:opacity 1s ease .2s}
+#mnc-dash svg .area.on{opacity:1}
+#mnc-dash svg .guide{stroke:#b9cdbf;stroke-dasharray:3 3;opacity:0}
+#mnc-dash svg .dot{opacity:0;transition:cx .08s,cy .08s}
+#mnc-dash .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:900px){#mnc-dash .row2{grid-template-columns:1fr}}
+#mnc-dash .donut-wrap{display:flex;align-items:center;gap:20px}
+#mnc-dash svg.donut{width:200px;flex:none}
+#mnc-dash svg .dv{font:700 24px "Segoe UI",system-ui,sans-serif;fill:var(--g800)}
+#mnc-dash .dlegend{flex:1;display:flex;flex-direction:column;gap:7px;font-size:13px;min-width:0}
+#mnc-dash .dlegend div{display:flex;align-items:center;gap:8px}
+#mnc-dash .dlegend i{width:10px;height:10px;border-radius:50%;flex:none}
+#mnc-dash .dlegend span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mnc-dash .dlegend em{font-style:normal;color:var(--muted);width:46px;text-align:right}
+#mnc-dash .rk{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px}
+#mnc-dash .rn{width:22px;height:22px;border-radius:50%;background:var(--g100);color:var(--g700);display:grid;place-items:center;font-size:11px;font-weight:700;flex:none}
+#mnc-dash .rl{width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mnc-dash .rb{flex:1;height:8px;background:#eef4f0;border-radius:6px;overflow:hidden}
+#mnc-dash .rb i{display:block;height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#5cc58a,#15803d);transition:width 1s cubic-bezier(.4,0,.2,1)}
+#mnc-dash #top:not(.on) .rb i{width:0 !important}
+#mnc-dash .rk b{min-width:60px;text-align:right;font-variant-numeric:tabular-nums}
+#mnc-dash details summary{cursor:pointer;font-weight:700;color:var(--g800);font-size:15px}
+#mnc-dash .scroll{max-height:460px;overflow:auto;margin-top:12px}
+#mnc-dash table.t{width:100%;border-collapse:collapse;font-size:13px}
+#mnc-dash table.t th{position:sticky;top:0;background:#fff;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)}
+#mnc-dash table.t td{padding:7px 10px;border-bottom:1px solid #eef3f0}
+#mnc-dash table.t .n{text-align:right;font-variant-numeric:tabular-nums}
+#mnc-dash table.t tr.tot td{font-weight:700;background:var(--g50)}
+#mnc-dash .muted{color:var(--muted)}
+#mnc-tip{position:fixed;pointer-events:none;background:var(--g900);color:#fff;padding:8px 11px;border-radius:9px;font-size:12px;opacity:0;transition:opacity .12s;z-index:10;box-shadow:0 6px 18px rgba(0,0,0,.18);line-height:1.6}
+#mnc-tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+@keyframes mncup{from{opacity:0;transform:translateY(8px)}}
+#mnc-tip{position:fixed;pointer-events:none;background:#0b2e20;color:#fff;padding:8px 11px;border-radius:9px;font:12px/1.6 "Segoe UI",system-ui,sans-serif;opacity:0;transition:opacity .12s;z-index:2147483647;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+#mnc-tip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+
+#mnc-dash .sub2{align-items:center}
+#mnc-dash .cmp{display:flex;align-items:center;gap:6px}
+#mnc-dash .cmp span{margin-right:4px}
+#mnc-dash .cmp button{all:unset;cursor:pointer;padding:4px 11px;border-radius:14px;border:1px solid rgba(167,223,190,.35);color:#a7dfbe;font-size:12px;font-weight:600;transition:background .2s,color .2s}
+#mnc-dash .cmp button.on{background:#a7dfbe;color:#0b2e20;border-color:#a7dfbe}
+#mnc-dash .kpi{cursor:default}
+#mnc-dash .kpi.main{background:linear-gradient(135deg,#14532d,#15803d);box-shadow:0 8px 22px rgba(21,128,61,.25)}
+#mnc-dash .kpi.main .kl,#mnc-dash .kpi.main .ks{color:#c9ecd7}
+#mnc-dash .kpi.main .kv{color:#fff}
+#mnc-dash .kpi.main .dl.up{background:rgba(255,255,255,.2);color:#fff}
+#mnc-dash .kpi.main .dl.down{background:#fdecea;color:#b42318}
+#mnc-dash .kv small{font-size:15px;font-weight:600;opacity:.6;margin-left:2px}
+#mnc-dash .kpi{padding-bottom:14px}
+#mnc-dash .dlegend .dli{display:grid;grid-template-columns:10px minmax(80px,1fr) auto 48px;align-items:center;gap:8px}
+#mnc-dash .dlegend .dlt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#10231a}
+#mnc-dash .tag{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px;vertical-align:1px}
+#mnc-dash .tag.in{background:#16a34a}#mnc-dash .tag.out{background:#dc6b4a}#mnc-dash .tag.sum{background:#0f3d2b}#mnc-dash .tag.oth{background:#9aa9a0}
+#mnc-dash table.rep td{padding:8px 10px}
+#mnc-dash table.rep tr.k-in td:first-child{box-shadow:inset 3px 0 0 #16a34a}
+#mnc-dash table.rep tr.k-out td:first-child{box-shadow:inset 3px 0 0 #dc6b4a}
+#mnc-dash table.rep tr.k-sum td{background:#eef6f1;font-weight:700;color:#0f3d2b}
+#mnc-dash table.rep tr.k-sum td:first-child{box-shadow:inset 3px 0 0 #0f3d2b}
+#mnc-dash table.rep tr.k-in td.n b{color:#15803d}
+#mnc-dash table.rep tr.k-out td.n b{color:#b4472b}
+#mnc-dash table.rep td.bar{width:30%}
+#mnc-dash .tb{display:block;height:9px;background:#eef4f0;border-radius:6px;overflow:hidden}
+#mnc-dash .tb i{display:block;height:100%;border-radius:6px;transform-origin:left;transform:scaleX(0);transition:transform .9s cubic-bezier(.22,1,.36,1)}
+#mnc-dash .tb.on i{transform:scaleX(1)}
+#mnc-dash .tb i.in,#mnc-dash .rb i.in{background:linear-gradient(90deg,#86efac,#16a34a)}
+#mnc-dash .tb i.out,#mnc-dash .rb i.out{background:linear-gradient(90deg,#f6c3b2,#dc6b4a)}
+#mnc-dash .tb i.oth,#mnc-dash .rb i.oth{background:linear-gradient(90deg,#cbd5d0,#8a9b91)}
+#mnc-dash td.sh{color:#6b7f73;font-size:12px}
+#mnc-dash td.cm{color:#6b7f73}
+#mnc-dash .scroll{max-height:none}
+#mnc-dash .dates{flex:none;padding:8px 18px;background:#fff;border-bottom:1px solid #e1ebe5;font-size:13px;color:#10231a}
+#mnc-dash .dates b{color:#0f3d2b}
+#mnc-dash .dates em{font-style:normal;font-size:11px;color:#fff;background:#15803d;border-radius:10px;padding:1px 7px;margin-left:4px}
+#mnc-dash .dates .vs{color:#6b7f73;margin-left:12px}
+#mnc-dash .tb.two{position:relative;height:12px}
+#mnc-dash .tb.two i{position:absolute;left:0;top:0;height:7px}
+#mnc-dash .tb.two i.prev{top:8px;height:4px;background:#b9c7be}
+#mnc-dash table.rep td.cr{white-space:nowrap}
+#mnc-dash table.mst td{padding:9px 10px;vertical-align:middle}
+#mnc-dash table.mst td.nm{font-weight:600;white-space:nowrap}
+#mnc-dash table.mst td.rn2{color:#6b7f73;width:28px}
+#mnc-dash table.mst tbody tr:nth-child(1) td.rn2,#mnc-dash table.mst tbody tr:nth-child(2) td.rn2,#mnc-dash table.mst tbody tr:nth-child(3) td.rn2{color:#15803d;font-weight:700}
+#mnc-dash td.zp{min-width:210px;white-space:nowrap;text-align:right}
+#mnc-dash td.zp .tb{display:inline-block;width:70px;vertical-align:middle;margin-right:10px}
+#mnc-dash td.zp b{display:inline-block;min-width:90px}
+#mnc-dash td.zp .dl{margin-left:6px}
+#mnc-dash .rf{display:inline-flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
+#mnc-dash .rf em{font-style:normal;color:#6b7f73;font-size:12px}
+#mnc-dash .rf.bad{color:#b42318;font-weight:700}
+#mnc-dash .rf.bad em{color:#b42318}
+#mnc-dash i.dot,#mnc-dash .leg i.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 3px rgba(229,72,77,.18);animation:mncpulse 2s ease-in-out infinite;margin-right:6px;vertical-align:1px}
+@keyframes mncpulse{50%{box-shadow:0 0 0 5px rgba(229,72,77,.06)}}
+#mnc-dash .rf .of{color:#6b7f73;font-size:12px;font-weight:400}
+#mnc-dash .rf.bad .of{color:#b42318}
+#mnc-dash table.mst td.n:nth-child(7){white-space:nowrap}
+#mnc-dash .motiv .mz{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+#mnc-dash .motiv .mzv{flex:1;min-width:200px;background:linear-gradient(135deg,#14532d,#15803d);color:#fff;border-radius:12px;padding:14px 16px}
+#mnc-dash .motiv .mzv.fc{background:#eef6f1;color:#0f3d2b}
+#mnc-dash .motiv .mzv .kl,#mnc-dash .motiv .mzv .ks{color:inherit;opacity:.8}
+#mnc-dash .motiv .big{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums}
+#mnc-dash table.mk td{padding:7px 10px}
+#mnc-dash table.mk b.up{color:#15803d}#mnc-dash table.mk b.down{color:#b42318}
+#mnc-dash .mset{margin-top:10px}
+#mnc-dash .mset summary{cursor:pointer;font-weight:600;color:#166534;font-size:13px}
+#mnc-dash .mset .ctrl{margin-top:10px}
+#mnc-dash .mset .ctrl input,#mnc-dash .mset .ctrl select{min-width:150px}
+#mnc-dash .mset label.chk{flex-direction:row;align-items:center;gap:6px}
+#mnc-dash .mset label.chk input{min-width:0}
+#mnc-dash.zp .period,#mnc-dash.zp .dates{display:none}
+#mnc-dash .dh{display:inline-flex;align-items:baseline;gap:5px;font-family:Bahnschrift,"DIN Alternate","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;font-size:17px;letter-spacing:1.6px;padding-right:12px;margin-right:4px;border-right:1px solid rgba(167,223,190,.3)}
+#mnc-dash .dh-a{font-weight:700;color:#fff}
+#mnc-dash .dh-b{font-weight:300;color:#a7dfbe;letter-spacing:2.2px}
+#mnc-dash #ttl{font-weight:600;font-size:15px}
+#mnc-dash h2.sec{font-size:15px;text-transform:none;letter-spacing:0;color:#0f3d2b;margin:22px 0 10px}
+#mnc-dash h2.sec:first-child{margin-top:0}
+
+/* --- правки интерфейса: ничего не переносится и не обрезается --- */
+#mnc-dash .row2{grid-template-columns:repeat(auto-fit,minmax(360px,1fr))}
+#mnc-dash.wide .row2{grid-template-columns:1.3fr 1fr}
+#mnc-dash .card{overflow:hidden}
+#mnc-dash table.t td.n,#mnc-dash table.t th.n,#mnc-dash table.t td.n b{white-space:nowrap}
+#mnc-dash .dl{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;line-height:1.3}
+#mnc-dash table.rep{table-layout:auto}
+#mnc-dash table.rep td,#mnc-dash table.rep th{padding:9px 8px}
+#mnc-dash table.rep td.cr{white-space:nowrap;width:1%}
+#mnc-dash table.rep td.bar{width:auto;min-width:60px}
+#mnc-dash table.rep th:last-child,#mnc-dash table.rep td:last-child{text-align:right;padding-right:4px}
+#mnc-dash .donut-wrap{flex-wrap:wrap;justify-content:center}
+#mnc-dash svg.donut{width:190px}
+#mnc-dash .dlegend{min-width:180px}
+#mnc-dash .dlegend .dli{grid-template-columns:10px 1fr auto auto}
+#mnc-dash .dlegend .dlt{white-space:normal;overflow:visible;line-height:1.25}
+#mnc-dash .dlegend em{width:auto;min-width:40px}
+#mnc-dash .kv{flex-wrap:wrap;row-gap:4px}
+#mnc-dash .goalin input{font-size:20px;font-weight:700;min-width:240px;color:#0f3d2b}
+#mnc-dash .goal .ctrl input{min-width:120px;width:130px}
+#mnc-dash .btn-l{all:unset;cursor:pointer;align-self:end;padding:7px 12px;border-radius:6px;border:1px solid #d9e6de;color:#166534;font-size:12px;font-weight:600}
+#mnc-dash .btn-l:hover{background:#eef6f1}
+#mnc-dash .goal b.up{color:#15803d}#mnc-dash .goal b.down{color:#b42318}
+#mnc-dash .goal table.mk td{vertical-align:middle}
+
+/* калькулятор цели — поля и кнопки */
+#mnc-dash .goalin{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+#mnc-dash .gbig{display:flex;align-items:center;border:2px solid #d9e6de;border-radius:14px;padding:4px 16px;background:#f7fbf8;transition:border-color .2s,box-shadow .2s;max-width:380px}
+#mnc-dash .gbig:focus-within{border-color:#22a35a;box-shadow:0 0 0 4px rgba(34,163,90,.14);background:#fff}
+#mnc-dash .gbig input{all:unset;flex:1;min-width:0;font:700 28px/1.3 "Segoe UI",system-ui,sans-serif;color:#0f3d2b;padding:6px 0;font-variant-numeric:tabular-nums}
+#mnc-dash .gbig input::placeholder{color:#9db3a6;font-weight:500;font-size:18px}
+#mnc-dash .gbig span{font:700 22px "Segoe UI",sans-serif;color:#5f7468;margin-left:6px}
+#mnc-dash .chips{display:flex;flex-wrap:wrap;gap:6px}
+#mnc-dash .chips button{all:unset;cursor:pointer;padding:6px 12px;border-radius:20px;background:#fff;border:1px solid #d9e6de;color:#166534;font-size:12px;font-weight:600;transition:all .15s}
+#mnc-dash .chips button:hover{border-color:#22a35a;background:#f3faf6}
+#mnc-dash .chips button.on{background:#166534;border-color:#166534;color:#fff}
+#mnc-dash .nfrow{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+#mnc-dash .nfl{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:#5f7468}
+#mnc-dash .nf{display:flex;align-items:stretch;border:1px solid #d9e6de;border-radius:10px;overflow:hidden;background:#fff;transition:border-color .2s,box-shadow .2s}
+#mnc-dash .nf:focus-within{border-color:#22a35a;box-shadow:0 0 0 3px rgba(34,163,90,.14)}
+#mnc-dash .nf input{all:unset;width:64px;text-align:center;font:700 15px "Segoe UI",sans-serif;color:#0f3d2b;padding:8px 4px}
+#mnc-dash .nf button{all:unset;cursor:pointer;width:32px;display:grid;place-items:center;font-size:18px;font-weight:600;color:#166534;background:#f3faf6;user-select:none;transition:background .15s}
+#mnc-dash .nf button:hover{background:#dcefe3}
+#mnc-dash .nf button:active{background:#c5e5d0}
+#mnc-dash .nfl .hint{font-size:10px;font-weight:500;color:#8a9b91}
+#mnc-dash .goal .btn-l{align-self:flex-end;margin-bottom:14px;padding:9px 14px;border-radius:10px;background:#fff}
+#mnc-dash .gtab td{white-space:nowrap}
+#mnc-dash .gtab td:nth-child(4){font-size:12px;color:#166534;white-space:normal}
+#mnc-dash .goal .scrollx{overflow-x:auto}
+@media (max-width:760px){#mnc-dash,#mnc-dash.wide{width:100% !important}}

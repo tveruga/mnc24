@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>DIR HELPER — настройки</title>
+<style>
+body{font:15px "Segoe UI",system-ui,sans-serif;max-width:680px;margin:30px auto;padding:0 16px;color:#10231a;background:#f4f8f5}
+h1{font:700 22px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:1.5px;color:#0f3d2b}h1 span{font-weight:300;color:#22a35a}
+.card{background:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(15,61,43,.08),0 0 0 1px #e1ebe5}
+h2{margin:0 0 10px;font-size:17px;color:#0f3d2b}
+input[type=text]{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #dbe8df;border-radius:10px;font:14px Consolas,monospace}
+button{margin-top:10px;padding:9px 16px;border:0;border-radius:9px;background:#166534;color:#fff;font-weight:600;cursor:pointer}
+.ok{color:#15803d}.err{color:#b42318}.muted{color:#6b8577;font-size:13px}
+label.chk{display:flex;gap:8px;align-items:center;margin:6px 0}
+ol{padding-left:20px;line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:14px}select{padding:6px;border:1.5px solid #dbe8df;border-radius:8px;font:13px 'Segoe UI',sans-serif;max-width:220px}td{padding:6px 4px;border-bottom:1px solid #eef3f0}
+textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
+</style></head><body>
+<h1>DIR <span>HELPER</span></h1>
+<div class="card">
+  <h2>Telegram-бот</h2>
+  <ol class="muted">
+    <li>В Telegram откройте <b>@BotFather</b> → <b>/newbot</b> → придумайте имя → получите <b>токен</b>.</li>
+    <li>Вставьте токен ниже и нажмите «Сохранить и проверить».</li>
+    <li>Напишите своему боту <b>/start</b> — он привяжется к вам (команды принимает только от вас).</li>
+    <li>Добавьте бота в группы мастеров и напишите в каждой <b>/start</b> — бот ответит «✅ группа привязана».<br>Чтобы бот видел сообщения в группе: @BotFather → /mybots → бот → Bot Settings → Group Privacy → <b>Turn off</b>.</li>
+  </ol>
+  <input id="tok" type="text" placeholder="123456789:AA…">
+  <button id="tsave">Сохранить и проверить</button> <span id="tmsg"></span>
+  <p id="owner" class="muted"></p><p id="diag" class="muted"></p>
+  <label class="chk"><input type="checkbox" id="o1"> Сообщать мне о новых заявках</label>
+  <label class="chk"><input type="checkbox" id="o2"> «Отдать мастеру» — отправлять текст заявки в чат мастера</label>
+  <label class="chk"><input type="checkbox" id="o3"> «Провести заявку» — отправлять «Сумму к сдаче» в чат мастера</label>
+  <h2 style="margin-top:14px">Группы мастеров ↔ мастера CRM</h2>
+  <p class="muted">Имена сопоставляются по похожести. Если мастера из группы нет в CRM, ему назначается свободный аккаунт CRM (мастер без своей группы): заявка ставится на этот аккаунт, а текст уходит в группу. Любую привязку можно поменять вручную.</p>
+  <table id="chats"></table>
+  <button id="reset" style="background:#9aa5b1">Отвязать меня (для повторного /start)</button>
+</div>
+<div class="card">
+  <h2>Ссылки на Telegram мастеров (необязательно)</h2>
+  <p class="muted">Формат: <b>Фамилия = username</b> — после раздачи откроется личный чат мастера.</p>
+  <textarea id="t" placeholder="Кудашов = kudashov_k"></textarea>
+  <button id="b">Сохранить</button> <span id="m"></span>
+</div>
+<script src="options.js"></script>
+</body></html>

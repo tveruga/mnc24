@@ -1,0 +1,152 @@
+/* ---- Панель ---- */
+#mnc-ext-panel{position:fixed;right:20px;bottom:20px;z-index:2147483646;width:290px;background:#fff;color:#10231a;border-radius:10px;box-shadow:0 10px 30px rgba(11,46,32,.22),0 0 0 1px #d9e6de;font:14px/1.35 "Segoe UI",system-ui,Arial,sans-serif;overflow:hidden}
+#mnc-ext-panel .mnc-h{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#0f3d2b;color:#fff;font-weight:700;letter-spacing:.2px}
+#mnc-ext-panel .mnc-logo{background:rgba(255,255,255,.22);border-radius:8px;padding:2px 7px;font-size:11px;font-weight:800;letter-spacing:.6px}
+#mnc-ext-panel .mnc-title{flex:1;font-size:15px}
+#mnc-ext-panel .mnc-x{cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:4px;background:rgba(255,255,255,.12)}
+#mnc-ext-panel .mnc-x:hover{background:rgba(255,255,255,.3)}
+#mnc-ext-panel .mnc-body{padding:14px;display:flex;flex-direction:column;gap:10px}
+#mnc-ext-panel .mnc-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#5f7468;margin-bottom:-6px}
+#mnc-ext-panel input.mnc-f,#mnc-ext-panel input.mnc-id,#mnc-ext-panel select.mnc-s,#mnc-ext-panel select.mnc-st{width:100%;box-sizing:border-box;background:#f3faf6;color:#10231a;border:1px solid #d9e6de;border-radius:6px;padding:8px 10px;font:inherit;outline:none;margin:0;height:auto}
+#mnc-ext-panel input.mnc-id{font-weight:700;font-size:16px;letter-spacing:.5px}
+#mnc-ext-panel input:focus,#mnc-ext-panel select:focus{border-color:#22a35a;box-shadow:0 0 0 3px rgba(34,163,90,.15)}
+#mnc-ext-panel select.mnc-s{padding:4px}
+#mnc-ext-panel select.mnc-s option{padding:6px 8px;border-radius:6px;color:#10231a;background:#fff}
+#mnc-ext-panel select.mnc-s option:checked{background:#166534 linear-gradient(#166534,#166534);color:#fff}
+#mnc-ext-panel .mnc-b{padding:11px;border:0;border-radius:6px;background:#166534;color:#fff;font-weight:700;font-size:14px;cursor:pointer;transition:transform .08s,filter .15s}
+#mnc-ext-panel .mnc-b:hover{filter:brightness(1.08)}
+#mnc-ext-panel .mnc-b:active{transform:scale(.98)}
+#mnc-ext-panel .mnc-b:disabled{background:#c8d6cd;color:#fff;cursor:default}
+#mnc-ext-panel .mnc-m{font-size:12px;color:#5f7468;min-height:1em}
+#mnc-ext-panel .mnc-m.ok{color:#15803d}
+#mnc-ext-panel .mnc-m.err{color:#b42318}
+
+/* ---- Колонка с галочками ---- */
+th.mnc-col,td.mnc-col{width:38px !important;min-width:38px !important;padding:0 !important;text-align:center !important;vertical-align:middle !important;cursor:pointer}
+input.mnc-cb{-moz-appearance:checkbox !important;appearance:checkbox !important;display:inline-block !important;position:static !important;opacity:1 !important;width:19px !important;height:19px !important;min-width:0 !important;margin:0 !important;padding:0 !important;border:0 !important;background:none !important;box-shadow:none !important;cursor:pointer;accent-color:#166534}
+tr.mnc-row > td{background:rgba(34,163,90,.12) !important}
+tr.mnc-row > td:first-child{box-shadow:inset 4px 0 0 #166534}
+
+/* ---- Баннер «Закройте заказ» ---- */
+#mnc-ext-banner{position:fixed;inset:0;z-index:2147483647;background:rgba(10,12,16,.55);backdrop-filter:blur(3px);display:grid;place-items:center;animation:mncfade .2s ease}
+#mnc-ext-banner .mnc-bn{background:#fff;color:#0f3d2b;border-radius:12px;padding:34px 40px 28px;min-width:380px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5);border-top:6px solid #166534;font-family:"Segoe UI",system-ui,Arial,sans-serif;animation:mncpop .25s cubic-bezier(.2,1.4,.4,1)}
+#mnc-ext-banner .mnc-bn-ic{width:56px;height:56px;margin:0 auto 14px;border-radius:50%;background:#0f3d2b;color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800}
+#mnc-ext-banner .mnc-bn-t{font-size:26px;font-weight:800;margin-bottom:22px}
+#mnc-ext-banner .mnc-bn-ok{border:0;border-radius:6px;padding:11px 34px;background:#166534;color:#fff;font:700 15px "Segoe UI",system-ui,sans-serif;cursor:pointer}
+#mnc-ext-banner .mnc-bn-ok:hover{filter:brightness(1.1)}
+@keyframes mncfade{from{opacity:0}}
+@keyframes mncpop{from{transform:scale(.85);opacity:0}}
+
+#mnc-ext-badge{position:fixed;right:20px;bottom:20px;z-index:2147483647;background:#dc2626;color:#fff;padding:10px 14px;border-radius:10px;font:13px "Segoe UI",system-ui,sans-serif}
+#mnc-ext-panel .mnc-an{cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:4px;background:rgba(255,255,255,.12)}
+#mnc-ext-panel .mnc-an:hover,#mnc-ext-panel .mnc-x:hover{background:rgba(255,255,255,.28)}
+
+/* плавное сворачивание */
+#mnc-ext-panel{transition:width .4s cubic-bezier(.22,1,.36,1),box-shadow .3s ease,border-radius .3s ease}
+#mnc-ext-panel .mnc-wrap{display:grid;grid-template-rows:1fr;transition:grid-template-rows .45s cubic-bezier(.22,1,.36,1)}
+#mnc-ext-panel .mnc-wrap > .mnc-body{min-height:0;overflow:hidden;opacity:1;transition:opacity .3s ease .1s,padding .45s cubic-bezier(.22,1,.36,1)}
+#mnc-ext-panel.mnc-min{width:232px}
+#mnc-ext-panel.mnc-min .mnc-wrap{grid-template-rows:0fr}
+#mnc-ext-panel.mnc-min .mnc-wrap > .mnc-body{opacity:0;padding-top:0;padding-bottom:0;transition:opacity .15s ease,padding .45s cubic-bezier(.22,1,.36,1)}
+#mnc-ext-panel .mnc-x svg{transition:transform .4s cubic-bezier(.22,1,.36,1)}
+#mnc-ext-panel.mnc-min .mnc-x svg{transform:rotate(180deg)}
+#mnc-ext-panel .mnc-title,#mnc-ext-panel .mnc-logo{cursor:pointer;user-select:none}
+#mnc-ext-panel.mnc-min .mnc-title{white-space:nowrap}
+#mnc-ext-panel .mnc-zp{cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:4px;background:rgba(255,255,255,.12);color:#fff;font-weight:800;font-size:14px;line-height:1}
+#mnc-ext-panel .mnc-zp:hover{background:rgba(255,255,255,.28)}
+#mnc-ext-panel.mnc-min{width:262px}
+
+/* название DIR HELPER */
+#mnc-ext-panel .mnc-title{flex:1;display:flex;align-items:baseline;gap:5px;white-space:nowrap;font-family:Bahnschrift,"DIN Alternate","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;font-size:16px;line-height:1;letter-spacing:1.6px;text-transform:uppercase}
+#mnc-ext-panel .dh-a{font-weight:700;color:#fff}
+#mnc-ext-panel .dh-b{font-weight:300;color:#a7dfbe;letter-spacing:2.2px}
+#mnc-ext-panel .mnc-h{padding:12px 12px 12px 16px}
+#mnc-ext-panel .mnc-ad{cursor:pointer;width:24px;height:24px;display:grid;place-items:center;border-radius:4px;background:rgba(255,255,255,.12)}
+#mnc-ext-panel .mnc-ad:hover{background:rgba(255,255,255,.28)}
+#mnc-ext-panel.mnc-min{width:292px}
+#mnc-ext-panel{width:292px}
+#mnc-ext-panel .mnc-h{gap:6px}
+#mnc-ext-panel .mnc-top{cursor:pointer;height:24px;padding:0 5px;display:grid;place-items:center;border-radius:4px;background:rgba(255,255,255,.12);color:#fff;font:800 10px/1 Bahnschrift,"Segoe UI",sans-serif;letter-spacing:.6px}
+#mnc-ext-panel .mnc-top:hover{background:rgba(255,255,255,.28)}
+#mnc-ext-panel,#mnc-ext-panel.mnc-min{width:330px}
+
+/* вкладки панели: Отдать / Закрыть заявку */
+#mnc-ext-panel .mnc-tabs{display:flex;background:#eef6f1;border-radius:8px;padding:3px;gap:3px}
+#mnc-ext-panel .mnc-tabs button{all:unset;flex:1;text-align:center;cursor:pointer;padding:6px 4px;border-radius:6px;font-size:12px;font-weight:700;color:#166534}
+#mnc-ext-panel .mnc-tabs button.on{background:#166534;color:#fff}
+#mnc-ext-panel .mnc-give,#mnc-ext-panel .mnc-close{display:flex;flex-direction:column;gap:10px}
+#mnc-ext-panel [hidden]{display:none !important}
+#mnc-ext-panel .mnc-sum{width:100%;box-sizing:border-box;border:2px solid #d9e6de;border-radius:10px;padding:8px 10px;font:700 18px "Segoe UI",sans-serif;color:#0f3d2b;background:#f7fbf8;outline:none}
+#mnc-ext-panel .mnc-sum:focus{border-color:#22a35a;background:#fff}
+#mnc-ext-panel .mnc-drop{border:2px dashed #b9d6c4;border-radius:10px;min-height:70px;display:grid;place-items:center;text-align:center;font-size:12px;color:#5f7468;cursor:pointer;background:#f7fbf8;overflow:hidden;outline:none}
+#mnc-ext-panel .mnc-drop.ov,#mnc-ext-panel .mnc-drop:focus{border-color:#22a35a;background:#eef6f1}
+#mnc-ext-panel .mnc-drop img{max-width:100%;max-height:120px;display:block}
+#mnc-ext-panel .mnc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#mnc-ext-panel .mnc-grid .mnc-lbl{display:flex;flex-direction:column;gap:4px;margin:0;text-transform:none;letter-spacing:0;font-size:11px;font-weight:600}
+#mnc-ext-panel .mnc-grid select,#mnc-ext-panel .mnc-grid input{width:100%;box-sizing:border-box;border:1px solid #d9e6de;border-radius:6px;padding:6px;font:13px "Segoe UI",sans-serif;background:#fff;color:#10231a}
+/* баннер «Сумма к сдаче» */
+#mnc-ext-banner .mnc-bn-s{white-space:pre-line;font-size:22px;font-weight:800;line-height:1.4;margin-bottom:8px}
+#mnc-ext-banner .mnc-bn-note{font-size:13px;color:#5f7468;margin-bottom:18px}
+#mnc-ext-banner .mnc-bn-btns{display:flex;gap:10px;justify-content:center}
+#mnc-ext-banner .mnc-bn-cp{border:1px solid #166534;border-radius:6px;padding:11px 24px;background:#fff;color:#166534;font:700 15px "Segoe UI",sans-serif;cursor:pointer}
+#mnc-ext-panel .mnc-sub{display:flex;flex-direction:column;gap:6px;padding:8px;border-radius:10px;background:#f3faf6;border:1px solid #d9e6de}
+#mnc-ext-panel .mnc-drop.act{border-color:#22a35a}
+#mnc-ext-panel .mnc-thumbs{display:flex;flex-wrap:wrap;gap:6px;padding:6px;justify-content:center}
+#mnc-ext-panel .mnc-th{position:relative;width:64px;height:64px;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+#mnc-ext-panel .mnc-th img{width:100%;height:100%;object-fit:cover;max-height:none}
+#mnc-ext-panel .mnc-th b{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;line-height:16px;text-align:center;cursor:pointer}
+#mnc-ext-panel .mnc-body{max-height:calc(100vh - 120px);overflow-y:auto}
+
+/* ================= DIR HELPER — стильная панель ================= */
+#mnc-ext-panel{width:340px !important;border-radius:18px !important;background:#fbfdfc !important;box-shadow:0 24px 60px -12px rgba(11,46,32,.35),0 0 0 1px rgba(15,61,43,.08) !important;font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif !important;overflow:hidden}
+#mnc-ext-panel.mnc-min{width:340px !important}
+#mnc-ext-panel .mnc-h{background:linear-gradient(135deg,#0b2e20 0%,#14532d 60%,#166534 100%) !important;padding:13px 12px 13px 18px !important;position:relative}
+#mnc-ext-panel .mnc-h::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(167,223,190,.45),transparent)}
+#mnc-ext-panel .mnc-an,#mnc-ext-panel .mnc-zp,#mnc-ext-panel .mnc-ad,#mnc-ext-panel .mnc-top,#mnc-ext-panel .mnc-x{height:26px !important;min-width:26px;border-radius:8px !important;background:rgba(255,255,255,.08) !important;box-shadow:inset 0 0 0 1px rgba(167,223,190,.18);transition:background .2s,transform .15s,box-shadow .2s !important}
+#mnc-ext-panel .mnc-an:hover,#mnc-ext-panel .mnc-zp:hover,#mnc-ext-panel .mnc-ad:hover,#mnc-ext-panel .mnc-top:hover,#mnc-ext-panel .mnc-x:hover{background:rgba(167,223,190,.22) !important;box-shadow:inset 0 0 0 1px rgba(167,223,190,.5);transform:translateY(-1px)}
+#mnc-ext-panel .mnc-body{padding:16px !important;gap:12px !important;scrollbar-width:thin;scrollbar-color:#c8dccf transparent}
+
+/* вкладки — сегменты */
+#mnc-ext-panel .mnc-tabs{background:#eaf3ed !important;border-radius:12px !important;padding:4px !important;box-shadow:inset 0 1px 2px rgba(15,61,43,.08)}
+#mnc-ext-panel .mnc-tabs button{padding:8px 6px !important;border-radius:9px !important;font-size:12.5px !important;color:#3f6150 !important;transition:all .2s}
+#mnc-ext-panel .mnc-tabs button:hover{color:#0f3d2b !important}
+#mnc-ext-panel .mnc-tabs button.on{background:#fff !important;color:#0f3d2b !important;box-shadow:0 2px 6px rgba(15,61,43,.12),0 0 0 1px rgba(15,61,43,.06)}
+
+/* подписи */
+#mnc-ext-panel .mnc-lbl{font-size:10.5px !important;font-weight:700 !important;letter-spacing:.9px !important;text-transform:uppercase !important;color:#6b8577 !important;margin-bottom:-6px}
+#mnc-ext-panel .mnc-grid .mnc-lbl{margin-bottom:0}
+
+/* поля */
+#mnc-ext-panel input.mnc-f,#mnc-ext-panel input.mnc-id,#mnc-ext-panel select.mnc-st,#mnc-ext-panel .mnc-grid select,#mnc-ext-panel .mnc-grid input{border:1.5px solid #dbe8df !important;border-radius:11px !important;background:#fff !important;padding:9px 12px !important;font-size:13.5px !important;color:#10231a !important;transition:border-color .2s,box-shadow .2s !important}
+#mnc-ext-panel input.mnc-id{font-size:15px !important;font-weight:700 !important;background:#f5faf7 !important}
+#mnc-ext-panel input:focus,#mnc-ext-panel select:focus{border-color:#22a35a !important;box-shadow:0 0 0 4px rgba(34,163,90,.12) !important;outline:none}
+#mnc-ext-panel select.mnc-s{border:1.5px solid #dbe8df !important;border-radius:12px !important;padding:5px !important;background:#fff !important}
+#mnc-ext-panel select.mnc-s option{padding:7px 10px !important;border-radius:8px;margin:1px 0}
+#mnc-ext-panel .mnc-sum{border:1.5px solid #dbe8df !important;border-radius:14px !important;background:linear-gradient(180deg,#f8fcf9,#f1f8f4) !important;padding:11px 14px !important;font-size:22px !important;letter-spacing:.3px}
+#mnc-ext-panel .mnc-sum:focus{background:#fff !important}
+
+/* окна для фото */
+#mnc-ext-panel .mnc-drop{min-height:78px !important;border:1.5px dashed #b7d3c2 !important;border-radius:14px !important;background:#f7fbf8 !important;color:#6b8577 !important;font-size:11.5px !important;transition:all .2s;position:relative}
+#mnc-ext-panel .mnc-drop span::before{content:"";display:block;width:26px;height:26px;margin:0 auto 6px;border-radius:8px;background:#dcefe3 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23166534' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/%3E%3Ccircle cx='12' cy='13' r='4'/%3E%3C/svg%3E") center/15px no-repeat}
+#mnc-ext-panel .mnc-drop:hover,#mnc-ext-panel .mnc-drop.act{border-color:#22a35a !important;background:#f0f8f3 !important}
+#mnc-ext-panel .mnc-drop.act{box-shadow:0 0 0 4px rgba(34,163,90,.10)}
+#mnc-ext-panel .mnc-drop.ov{border-style:solid !important;background:#e3f4ea !important}
+#mnc-ext-panel .mnc-th{width:60px !important;height:60px !important;border-radius:10px !important;box-shadow:0 2px 8px rgba(15,61,43,.18) !important}
+
+/* блоки «Фото отзыва» / «Чеки» */
+#mnc-ext-panel .mnc-sub{background:#f2f9f5 !important;border:1px solid #d6e9dd !important;border-radius:14px !important;padding:10px !important;animation:mncin .25s ease}
+@keyframes mncin{from{opacity:0;transform:translateY(-4px)}}
+
+/* главная кнопка */
+#mnc-ext-panel .mnc-b{padding:13px !important;border-radius:13px !important;background:linear-gradient(135deg,#15803d,#166534 55%,#14532d) !important;font-size:14px !important;letter-spacing:.3px;box-shadow:0 8px 18px -6px rgba(21,128,61,.55),inset 0 1px 0 rgba(255,255,255,.15) !important;transition:transform .12s,box-shadow .2s,filter .2s !important}
+#mnc-ext-panel .mnc-b:hover:not(:disabled){filter:brightness(1.07);box-shadow:0 12px 24px -8px rgba(21,128,61,.6),inset 0 1px 0 rgba(255,255,255,.18) !important}
+#mnc-ext-panel .mnc-b:active:not(:disabled){transform:translateY(1px) scale(.99)}
+#mnc-ext-panel .mnc-b:disabled{background:#cfdcd4 !important;box-shadow:none !important;color:#fff !important}
+
+/* сообщения */
+#mnc-ext-panel .mnc-m{font-size:12px !important;padding:2px 2px 0;line-height:1.4}
+#mnc-ext-panel .mnc-m.ok{color:#15803d !important}
+#mnc-ext-panel .mnc-m.err{color:#b42318 !important;background:#fdf1ef;border-radius:8px;padding:7px 9px}
+#mnc-ext-panel .mnc-set{cursor:pointer;height:26px;min-width:26px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(167,223,190,.18);color:#fff;font-size:14px;transition:background .2s,transform .15s}
+#mnc-ext-panel .mnc-set:hover{background:rgba(167,223,190,.22);transform:translateY(-1px)}
+#mnc-ext-panel,#mnc-ext-panel.mnc-min{width:368px !important}
