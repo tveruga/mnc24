@@ -45,7 +45,7 @@ jobs:
             a.updates=a.updates.filter(u=>u.version!=='$V'); a.updates.push({version:'$V', update_link:'$URL'});
             a.updates=a.updates.slice(-10); fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');"
           git config user.name "dir-helper-bot"; git config user.email "actions@users.noreply.github.com"
-          git add updates.json; git commit -m "updates.json: $V [skip ci]"; git push
+          git add updates.json; git commit -m "updates.json: $V [skip ci]"; git pull --rebase origin main; git push
 
   # страница установки: https://<логин>.github.io/<репозиторий>/  (Settings → Pages → Source: GitHub Actions)
   pages:
