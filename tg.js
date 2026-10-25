@@ -276,8 +276,6 @@ const HELP = `DIR HELPER — кнопки внизу чата или коман�
 
 В группе мастера: /стат — его статистика, /сдача — его сдача за сегодня, «Сдал 3000» — сдача денег (вы подтверждаете)
 /ждет — ожидающие заявки на сегодня
-/отдай 1087478 Кутузов — отдать мастеру (статус «В пути»)
-/отдай 1087478 Кутузов в работе — с другим статусом
 /сегодня — показатели за сегодня
 /месяц — показатели за месяц`;
 
@@ -333,11 +331,6 @@ async function tgCommand(text) {
     await Promise.all(show.filter((r) => !r.master).map(async (r) => { r.master = await reqMaster(r.id); }));
     for (const r of show) await tgReply(`№${r.id} · ${r.st || '—'}\n👷 ${r.master || 'мастер не назначен'}${r.time ? '\n🕒 ' + r.time : ''}${r.addr ? '\n📍 ' + r.addr : ''}`, stBtn(r.id, r.st));
     return;
-  }
-  if ((m = t.match(/^\/отдай\s+(\d{5,})\s+(\S+)(?:\s+(.+))?$/i))) {
-    tgReply(`⏳ Отдаю №${m[1]} → ${m[2]}…`);
-    const r = await crmCall({ dhAssign: { id: m[1], surname: m[2], st: m[3] || 'В пути' } }).catch((e) => ({ err: e.message }));
-    return r && r.err ? tgReply(`❌ №${m[1]}: ${r.err}`) : null;
   }
   if ((m = t.match(/^(?:\/(?:провести|закрыть|close)(?:@\w+)?|✅\s*провести)(?:\s+(\d{5,}))?\s*$/i))) {
     if (m[1]) return wizStartChecked(REPLY_TO || TG.owner, m[1]);
@@ -875,10 +868,10 @@ async function listRows(page) {
   }).filter((r) => r.id);
 }
 tgLoad().then(async () => {
-  const r = await browser.storage.local.get(['tgHello', 'tgHello7']);
-  if ((!r.tgHello || !r.tgHello7) && TG.token && TG.owner) {
+  const r = await browser.storage.local.get(['tgHello', 'tgHello8']);
+  if ((!r.tgHello || !r.tgHello8) && TG.token && TG.owner) {
     const res = await tgOwner('✅ DIR HELPER подключён.\n\n' + HELP, MENU);
-    if (res.some(Boolean)) browser.storage.local.set({ tgHello: true, tgHello7: true });
+    if (res.some(Boolean)) browser.storage.local.set({ tgHello: true, tgHello8: true });
   }
   tgPoll();
 });
