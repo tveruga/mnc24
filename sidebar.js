@@ -22,3 +22,8 @@ document.getElementById('tab').onclick = () => {
   try { url = crm.contentWindow.location.href; } catch (e) {}
   browser.tabs.create({ url });
 };
+
+// версия рядом с названием
+try { document.getElementById('ver').textContent = browser.runtime.getManifest().version; } catch (e) {}
+// выдвинуть панель выдачи заявки внутри окна
+document.getElementById('give').onclick = () => { try { crm.contentWindow.postMessage({ dirHelper: 'panel' }, BASE); } catch (e) {} };

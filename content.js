@@ -153,6 +153,10 @@
         <div class="mnc-m"></div>
       </div></div>`;
     document.body.appendChild(p);
+    // версия рядом с названием
+    try { const v = document.createElement('span'); v.className = 'dh-ver'; v.textContent = browser.runtime.getManifest().version; p.querySelector('.mnc-title').appendChild(v); } catch (e) {}
+    // в окне расширения (боковая панель) — без нижнего меню: выдвигается сверху кнопкой в шапке окна
+    if (window !== window.top) p.classList.add('dh-side');
     const toggle = () => p.classList.toggle('mnc-min');
     p.querySelector('.mnc-x').onclick = (e) => { e.stopPropagation(); toggle(); };
     p.querySelector('.mnc-title').onclick = toggle;
@@ -950,7 +954,9 @@
   }
 
   window.addEventListener('message', (e) => {
-    if (!e.data || e.data.dirHelper !== 'toggle' || !/^moz-extension:/.test(e.origin)) return;
+    if (!e.data || !/^moz-extension:/.test(e.origin)) return;
+    if (e.data.dirHelper === 'panel') { const pp = document.getElementById('mnc-ext-panel'); if (pp) pp.classList.toggle('mnc-min'); return; }
+    if (e.data.dirHelper !== 'toggle') return;
     window.__mncDash && window.__mncDash.toggle(e.data.mode || 'an');
   });
   if (window === window.top) browser.runtime.onMessage.addListener((m) => {

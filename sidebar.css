@@ -12,3 +12,5 @@ button.t{font:800 9.5px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:.5px}
 .zoom span{font-size:11px;color:#a7dfbe;width:34px;text-align:center}
 main{position:absolute;top:46px;left:0;right:0;bottom:0;overflow:hidden}
 iframe{border:0;transform-origin:0 0;display:block;background:#fff}
+
+.brand i{font:600 10px Bahnschrift,"Segoe UI",sans-serif;font-style:normal;color:#a7dfbe;opacity:.8;letter-spacing:.5px;margin-left:2px}
