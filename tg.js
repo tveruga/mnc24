@@ -355,7 +355,7 @@ async function tgCommand(text) {
     return tgReply('📊 Чью статистику за месяц показать?', { inline_keyboard: rows });
   }
   if (/^\/(код|code)(@\w+)?\s*$/i.test(t)) {
-    const code = 'DH1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ token: TG.token, owner: TG.owner, users: TG.users, opts: TG.opts }))));
+    const code = 'DH1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ token: TG.token, owner: TG.owner, users: TG.users, opts: TG.opts, cfg: TG.cfg }))));
     const to = REPLY_TO || TG.owner;
     await tgReply('🔑 Код настроек для другого компьютера. Там: about:addons → DIR HELPER → Настройки → «Перенос на другой компьютер» → вставить → «Применить».\nКод содержит токен бота — никому не пересылайте. Это сообщение удалится через 5 минут.');
     const m = await tgSend(to, code);
@@ -910,6 +910,17 @@ browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-morning') tgMorni
 const CTL_KEY = 'tgCtl';
 async function ctlGet() { const r = await browser.storage.local.get(CTL_KEY); const c = r[CTL_KEY] || {}; c.acc = c.acc || {}; c.way = c.way || {}; c.paid = c.paid || {}; c.pend = c.pend || {}; return c; }
 const ctlSet = (c) => browser.storage.local.set({ [CTL_KEY]: c });
+// клик по уведомлению — открыть заявку в CRM
+try {
+  browser.notifications.onClicked.addListener(async (nid) => {
+    const m = String(nid).match(/^dh-wait-(\d+)$/); if (!m) return;
+    const url = 'https://mnc-lead-centre.ru/admin/domain/customer-request/update?id=' + m[1];
+    const tabs = await browser.tabs.query({ url: '*://*.mnc-lead-centre.ru/*' });
+    if (tabs[0]) { await browser.tabs.update(tabs[0].id, { url, active: true }); browser.windows.update(tabs[0].windowId, { focused: true }).catch(() => {}); }
+    else browser.tabs.create({ url });
+    browser.notifications.clear(nid);
+  });
+} catch (e) {}
 const todayKey = () => new Date().toDateString();
 // заявка ушла мастеру «В пути»: ждём «Принял» и «В работе»
 async function ctlAssigned(id, chatId, person) {
@@ -1053,13 +1064,13 @@ const CFG_DEF = {
 };
 const cfg = () => Object.assign({}, CFG_DEF, TG.cfg || {});
 const hm = (t) => { const m = String(t || '').match(/(\d{1,2})[:.](\d{2})/); return m ? +m[1] * 60 + +m[2] : 0; };
-const CFG_TOG = [['onMorning', '☀️ Утро мастерам'], ['onReport', '📋 Утренняя сводка мне'], ['onCash', '💵 Сводка сдачи'], ['onAccept', '✅ Контроль «Принял»'], ['onWay', '🚕 Контроль «В пути»'], ['onWait', '⏳ Неразданные заявки'], ['onLoad', '👷 Загрузка мастеров']];
+const CFG_TOG = [['onMorning', '☀️ Утро мастерам'], ['onReport', '📋 Утренняя сводка мне'], ['onCash', '💵 Сводка сдачи'], ['onAccept', '✅ Контроль «Принял»'], ['onWay', '🚕 Контроль «В пути»'], ['onWait', '⏳ Неразданные (на др. ПК)'], ['onLoad', '👷 Загрузка мастеров']];
 function cfgText() {
   const c = cfg();
   return `⚙️ Настройки бота\n\n` +
     `Тексты:\n• утро: «${c.tMorning}»\n• принял: «${c.tAccept}»\n• работа: «${c.tWork}»\n\n` +
     `Время:\n• утро мастерам: ${c.atMorning}\n• сводка мне: ${c.atReport}\n• сдача: ${c.atCash}\n\n` +
-    `Минуты:\n• напомнить «Принял»: ${c.mAccRemind}\n• сообщить мне «не принял»: ${c.mAccOwner}\n• долго «В пути»: ${c.mWay}\n• не раздана заявка: ${c.mWait}\n\n` +
+    `Минуты:\n• напомнить «Принял»: ${c.mAccRemind}\n• сообщить мне «не принял»: ${c.mAccOwner}\n• долго «В пути»: ${c.mWay}\n• не раздана заявка (уведомление на других ПК): ${c.mWait}\n\n` +
     `Изменить:\n/текст утро Новый текст\n/текст принял Новый текст\n/текст работа Новый текст\n/время утро 9:30 · /время сводка 9:00 · /время сдача 22:00\n/минуты принял 10 · /минуты директор 20 · /минуты впути 60 · /минуты ожидает 15\n/сброс — вернуть всё как было\n\nВкл/выкл — кнопками:`;
 }
 const cfgKb = () => { const c = cfg(); const b = CFG_TOG.map(([k, n]) => ({ text: (c[k] ? '🟢 ' : '⚪ ') + n, callback_data: 'cf:' + k })); const rows = []; for (let i = 0; i < b.length; i += 2) rows.push(b.slice(i, i + 2)); return { inline_keyboard: rows }; };
@@ -1083,8 +1094,9 @@ async function cfgCallback(q) {
 }
 
 // ================= 2. Неразданные заявки: «Ожидает» дольше N минут =================
+// уведомление показывается в самом дополнении на НЕ главных компьютерах (в Telegram не отправляется)
 async function ctlWaiting() {
-  if (!TG.token || !tgActive() || !cfg().onWait) return;
+  if (TG_HERE || !cfg().onWait) return;
   const rows = await waitingRows().catch(() => null); if (!rows) return;
   const today = rows.filter((r) => isToday(r.time));
   const c = await ctlGet(); c.wait = c.wait || {}; const now = Date.now(); let ch = false;
@@ -1093,7 +1105,10 @@ async function ctlWaiting() {
     const w = c.wait[r.id] || (c.wait[r.id] = { t: now, sent: false }, ch = true, c.wait[r.id]);
     if (!w.sent && now - w.t >= cfg().mWait * 60e3) {
       w.sent = true; ch = true;
-      tgOwner(`⏳ Заявка №${r.id} ждёт раздачи уже ${Math.round((now - w.t) / 60e3)} мин${r.time ? '\n🕒 ' + r.time : ''}${r.addr ? '\n📍 ' + r.addr : ''}`, assignBtn(r.id));
+      try {
+        browser.notifications.create('dh-wait-' + r.id, { type: 'basic', title: `⏳ Заявка №${r.id} не роздана ${Math.round((now - w.t) / 60e3)} мин`, message: [r.time, r.addr, r.client].filter(Boolean).join(' · ') || 'Нажмите, чтобы открыть заявку', iconUrl: browser.runtime.getURL('icon.svg') });
+      } catch (e) {}
+      try { sound.currentTime = 0; sound.play().catch(() => {}); } catch (e) {}
     }
   }
   if (ch) await ctlSet(c);

@@ -50,7 +50,7 @@ const unpack = (c) => JSON.parse(decodeURIComponent(escape(atob(String(c).trim()
 $('exp').onclick = async () => {
   const r = await browser.storage.local.get('tg'); const t = r.tg || {};
   if (!t.token) { $('expmsg').textContent = 'на этом компьютере нет токена'; return; }
-  const code = pack({ token: t.token, owner: t.owner, users: t.users, opts: t.opts, groups: t.groups, common: t.common });
+  const code = pack({ token: t.token, owner: t.owner, users: t.users, opts: t.opts, cfg: t.cfg, groups: t.groups, common: t.common });
   try { await navigator.clipboard.writeText(code); $('expmsg').textContent = '✓ код скопирован — вставьте его на другом компьютере'; }
   catch (e) { $('imp').value = code; $('expmsg').textContent = 'скопируйте код из поля ниже'; }
 };
