@@ -9,6 +9,10 @@
         {
           "version": "11.5",
           "update_link": "https://github.com/tveruga/mnc24/releases/download/v11.5/dir-helper-v11.5.xpi"
+        },
+        {
+          "version": "11.7",
+          "update_link": "https://github.com/tveruga/mnc24/releases/download/v11.7/dir-helper-v11.7.xpi"
         }
       ]
     }
