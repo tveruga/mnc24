@@ -26,7 +26,7 @@ jobs:
         run: sed -i "s#__OWNER__/dir-helper#${GITHUB_REPOSITORY}#" manifest.json
       - name: Подпись на addons.mozilla.org
         if: steps.v.outputs.skip != '1'
-        run: npx --yes web-ext@8 sign --source-dir . --artifacts-dir dist --ignore-files README.md updates.json dist --channel unlisted --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET" --approval-timeout 1800000
+        run: npx --yes web-ext@8 sign --source-dir . --artifacts-dir dist --ignore-files README.md CLAUDE.md updates.json dist site --channel unlisted --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET" --approval-timeout 1800000
         env:
           AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
           AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
