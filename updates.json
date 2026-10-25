@@ -1,1 +1,12 @@
-{ "addons": { "mnc-otdat-mastery@local": { "updates": [] } } }
+{
+  "addons": {
+    "mnc-otdat-mastery@local": {
+      "updates": [
+        {
+          "version": "11.3",
+          "update_link": "https://github.com/tveruga/mnc24/releases/download/v11.3/dir-helper-v11.3.xpi"
+        }
+      ]
+    }
+  }
+}
