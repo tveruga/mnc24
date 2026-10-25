@@ -14,3 +14,6 @@ main{position:absolute;top:46px;left:0;right:0;bottom:0;overflow:hidden}
 iframe{border:0;transform-origin:0 0;display:block;background:#fff}
 
 .brand i{font:600 10px Bahnschrift,"Segoe UI",sans-serif;font-style:normal;color:#a7dfbe;opacity:.8;letter-spacing:.5px;margin-left:2px}
+#upd.spin{animation:dhspin .8s linear infinite}@keyframes dhspin{to{transform:rotate(360deg)}}
+#toast{position:absolute;top:52px;right:10px;z-index:5;background:#0f3d2b;color:#fff;padding:8px 12px;border-radius:10px;font-size:12px;box-shadow:0 6px 18px rgba(11,46,32,.35);opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none;max-width:260px}
+#toast.on{opacity:1;transform:none}

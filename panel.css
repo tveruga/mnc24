@@ -159,3 +159,7 @@ tr.mnc-row > td:first-child{box-shadow:inset 4px 0 0 #166534}
 #mnc-ext-panel.dh-side.mnc-min{transform:translateY(-110%);opacity:0;pointer-events:none}
 #mnc-ext-panel.dh-side.mnc-min .mnc-wrap{grid-template-rows:1fr}
 #mnc-ext-panel.dh-side.mnc-min .mnc-wrap > .mnc-body{opacity:1}
+
+#mnc-ext-panel .mnc-upd{cursor:pointer;height:26px;min-width:26px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(167,223,190,.18);color:#fff;font-size:14px}
+#mnc-ext-panel .mnc-upd.spin{animation:dhspin .8s linear infinite}@keyframes dhspin{to{transform:rotate(360deg)}}
+.dh-toast{position:fixed;right:20px;bottom:90px;z-index:2147483647;background:#0f3d2b;color:#fff;padding:9px 13px;border-radius:10px;font:13px "Segoe UI",sans-serif;box-shadow:0 6px 18px rgba(11,46,32,.35)}

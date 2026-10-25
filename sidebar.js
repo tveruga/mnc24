@@ -27,3 +27,18 @@ document.getElementById('tab').onclick = () => {
 try { document.getElementById('ver').textContent = browser.runtime.getManifest().version; } catch (e) {}
 // выдвинуть панель выдачи заявки внутри окна
 document.getElementById('give').onclick = () => { try { crm.contentWindow.postMessage({ dirHelper: 'panel' }, BASE); } catch (e) {} };
+
+// ⟳ — проверить обновление и сразу обновиться
+const upd = document.getElementById('upd');
+upd.onclick = async () => {
+  upd.classList.add('spin'); upd.title = 'Проверяю…';
+  const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((e) => ({ text: e.message }));
+  upd.classList.remove('spin');
+  upd.title = (r && r.text) || 'Проверить обновление';
+  toast((r && r.text) || 'Ошибка проверки');
+};
+function toast(t) {
+  let el = document.getElementById('toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); }
+  el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 4000);
+}

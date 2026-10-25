@@ -119,3 +119,19 @@ checkNew();
 setInterval(checkNew, 45000);
 
 browser.runtime.onMessage.addListener((m) => { if (m && m.openOptions) browser.runtime.openOptionsPage(); });
+
+// ================= Проверка обновлений (кнопка ⟳) =================
+// Firefox сам проверяет обновления раз в сутки; кнопка — проверить сейчас и сразу перезапустить дополнение с новой версией
+browser.runtime.onUpdateAvailable.addListener((d) => {
+  browser.storage.local.set({ dhUpdating: { v: d && d.version, at: Date.now() } }).finally(() => browser.runtime.reload());
+});
+async function dhUpdateCheck() {
+  try {
+    const [status, det] = await browser.runtime.requestUpdateCheck();
+    const cur = browser.runtime.getManifest().version;
+    if (status === 'update_available') return { status, cur, next: det && det.version, text: `Найдена ${det && det.version ? 'версия ' + det.version : 'новая версия'} — обновляю…` };
+    if (status === 'throttled') return { status, cur, text: 'Проверка недавно уже была — попробуйте через минуту' };
+    return { status, cur, text: `Установлена последняя версия ${cur}` };
+  } catch (e) { return { status: 'error', text: 'Не удалось проверить: ' + e.message }; }
+}
+browser.runtime.onMessage.addListener((m) => { if (m && m.dhUpdate) return dhUpdateCheck(); });

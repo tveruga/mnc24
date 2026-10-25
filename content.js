@@ -143,7 +143,7 @@
     p.id = 'mnc-ext-panel';
     p.className = 'mnc-min'; // при заходе на страницу — свёрнуто
     p.innerHTML = `
-      <div class="mnc-h"><span class="mnc-title"><span class="dh-a">DIR</span><span class="dh-b">HELPER</span></span><span class="mnc-an" title="Аналитика по отчётам"><svg viewBox="0 0 16 16" width="14" height="14"><rect x="2" y="9" width="3" height="5" rx=".5" fill="#a7dfbe"/><rect x="6.5" y="5" width="3" height="9" rx=".5" fill="#5cc58a"/><rect x="11" y="2" width="3" height="12" rx=".5" fill="#fff"/></svg></span><span class="mnc-zp" title="Зарплата директора">₽</span><span class="mnc-ad" title="Аналитика рекламы"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 1.5h5.5L13 5v9.5H4z" fill="#a7dfbe"/><path d="M9.5 1.5V5H13" fill="#5cc58a"/><path d="M6 8h5M6 10.2h5M6 12.4h3" stroke="#0f3d2b" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mnc-top" title="Рейтинг городов">TOP</span><span class="mnc-set" title="Настройки и Telegram">⚙</span><span class="mnc-x" title="Развернуть / свернуть"><svg viewBox="0 0 12 12" width="11" height="11"><path d="M2 4.5 6 8.5 10 4.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      <div class="mnc-h"><span class="mnc-title"><span class="dh-a">DIR</span><span class="dh-b">HELPER</span></span><span class="mnc-an" title="Аналитика по отчётам"><svg viewBox="0 0 16 16" width="14" height="14"><rect x="2" y="9" width="3" height="5" rx=".5" fill="#a7dfbe"/><rect x="6.5" y="5" width="3" height="9" rx=".5" fill="#5cc58a"/><rect x="11" y="2" width="3" height="12" rx=".5" fill="#fff"/></svg></span><span class="mnc-zp" title="Зарплата директора">₽</span><span class="mnc-ad" title="Аналитика рекламы"><svg viewBox="0 0 16 16" width="14" height="14"><path d="M4 1.5h5.5L13 5v9.5H4z" fill="#a7dfbe"/><path d="M9.5 1.5V5H13" fill="#5cc58a"/><path d="M6 8h5M6 10.2h5M6 12.4h3" stroke="#0f3d2b" stroke-width="1" stroke-linecap="round"/></svg></span><span class="mnc-top" title="Рейтинг городов">TOP</span><span class="mnc-set" title="Настройки и Telegram">⚙</span><span class="mnc-upd" title="Проверить обновление">⟳</span><span class="mnc-x" title="Развернуть / свернуть"><svg viewBox="0 0 12 12" width="11" height="11"><path d="M2 4.5 6 8.5 10 4.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
       <div class="mnc-wrap"><div class="mnc-body">
         ${withId ? '<input class="mnc-id" type="text" inputmode="numeric" placeholder="№ заявки (галочка в списке)">' : ''}
         <input class="mnc-f" type="text" placeholder="Фамилия мастера…" autocomplete="off">
@@ -161,6 +161,12 @@
     p.querySelector('.mnc-x').onclick = (e) => { e.stopPropagation(); toggle(); };
     p.querySelector('.mnc-title').onclick = toggle;
     p.querySelector('.mnc-an').onclick = (e) => { e.stopPropagation(); window.__mncDash && window.__mncDash.toggle('an'); };
+    p.querySelector('.mnc-upd').onclick = async (e) => {
+      e.stopPropagation(); const u = e.currentTarget; u.classList.add('spin');
+      const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((er) => ({ text: er.message }));
+      u.classList.remove('spin'); u.title = (r && r.text) || 'Проверить обновление';
+      const t = document.createElement('div'); t.className = 'dh-toast'; t.textContent = (r && r.text) || 'Ошибка проверки'; document.body.appendChild(t); setTimeout(() => t.remove(), 4500);
+    };
     p.querySelector('.mnc-set').onclick = (e) => { e.stopPropagation(); browser.runtime.sendMessage({ openOptions: true }).catch(() => {}); };
     p.querySelector('.mnc-top').onclick = (e) => { e.stopPropagation(); window.__mncDash && window.__mncDash.toggle('rt'); };
     p.querySelector('.mnc-ad').onclick = (e) => { e.stopPropagation(); window.__mncDash && window.__mncDash.toggle('ad'); };
