@@ -46,3 +46,28 @@ jobs:
             a.updates=a.updates.slice(-10); fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');"
           git config user.name "dir-helper-bot"; git config user.email "actions@users.noreply.github.com"
           git add updates.json; git commit -m "updates.json: $V [skip ci]"; git push
+
+  # страница установки: https://<логин>.github.io/<репозиторий>/  (Settings → Pages → Source: GitHub Actions)
+  pages:
+    needs: sign
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Сборка страницы
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          V=$(node -p "require('./manifest.json').version")
+          mkdir -p _site && cp site/* _site/
+          sed -i "s/__VERSION__/$V/" _site/index.html
+          gh release download "v$V" -R "$GITHUB_REPOSITORY" -p '*.xpi' -O _site/dir-helper.xpi
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+      - id: deploy
+        uses: actions/deploy-pages@v4
