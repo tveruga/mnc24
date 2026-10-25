@@ -7,7 +7,11 @@ let tgPolling = false;
 // несколько копий DIR HELPER на одном боте: работает одна «главная», остальные молчат
 let tgOkSince = 0, tgLastConflict = 0, tgConflicts = [];
 const tgLeader = () => tgOkSince && Date.now() - tgOkSince > 120000;
-const tgActive = () => Date.now() - tgLastConflict > 15 * 60e3;
+// бот (приём команд, уведомления, напоминания) работает только на компьютере, где это включено в настройках
+let TG_HERE = true;
+browser.storage.local.get('tgHere').then((r) => { TG_HERE = r.tgHere !== false; }).catch(() => {});
+browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) TG_HERE = ch.tgHere.newValue !== false; });
+const tgActive = () => TG_HERE && Date.now() - tgLastConflict > 15 * 60e3;
 
 // бот и владелец, указанные при сборке (можно поменять в настройках ⚙)
 const TG_DEFAULT = { token: '' /* токен хранится только в настройках Firefox */, owner: 7191750835, users: [7191750835, 7892790601] };
@@ -355,10 +359,18 @@ async function tgCommand(text) {
     const rows = []; for (let i = 0; i < list.length; i += 2) rows.push(list.slice(i, i + 2).map((x) => ({ text: x.name.split(' ').slice(0, 2).join(' '), callback_data: 'st:' + x.id })));
     return tgReply('📊 Чью статистику за месяц показать?', { inline_keyboard: rows });
   }
+  if (/^\/(код|code)(@\w+)?\s*$/i.test(t)) {
+    const code = 'DH1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ token: TG.token, owner: TG.owner, users: TG.users, opts: TG.opts }))));
+    const to = REPLY_TO || TG.owner;
+    await tgReply('🔑 Код настроек для другого компьютера. Там: about:addons → DIR HELPER → Настройки → «Перенос на другой компьютер» → вставить → «Применить».\nКод содержит токен бота — никому не пересылайте. Это сообщение удалится через 5 минут.');
+    const m = await tgSend(to, code);
+    if (m) setTimeout(() => tgApi('deleteMessage', { chat_id: to, message_id: m.message_id }).catch(() => {}), 5 * 60e3);
+    return;
+  }
   if (/^\/(версия|version)/i.test(t)) {
     let inst = (await browser.storage.local.get('dhInstance')).dhInstance;
     if (!inst) { inst = Math.random().toString(36).slice(2, 7).toUpperCase(); browser.storage.local.set({ dhInstance: inst }); }
-    return tgReply(`DIR HELPER ${browser.runtime.getManifest().version} · компьютер ${inst}`, MENU);
+    return tgReply(`DIR HELPER ${browser.runtime.getManifest().version} · компьютер ${inst}\n(бот отвечает с этого компьютера)`, MENU);
   }
   if (/^\/(группы|groups)|^👥/i.test(t)) {
     await tgRelink();
@@ -474,7 +486,7 @@ async function tgPoll() {
   if (tgPolling) return; tgPolling = true;
   while (true) {
     await tgLoad();
-    if (!TG.token) { await new Promise((r) => setTimeout(r, 10000)); continue; }
+    if (!TG.token || !TG_HERE) { await new Promise((r) => setTimeout(r, 10000)); continue; }
     try {
       const ups = await tgApi('getUpdates', { offset: TG.offset || 0, timeout: 25, allowed_updates: ['message', 'my_chat_member', 'channel_post', 'callback_query'] });
       if (!tgOkSince) tgOkSince = Date.now();
@@ -1017,3 +1029,12 @@ async function ctlCrmState(ok, why) {
 }
 browser.alarms.create('dh-ctl', { delayInMinutes: 1, periodInMinutes: 1 });
 browser.alarms.onAlarm.addListener(async (a) => { if (a.name !== 'dh-ctl') return; try { await tgLoad(); await ctlTick(); await ctlSchedule(); } catch (e) {} });
+// код компьютера (показывается в /версия и в настройках)
+browser.storage.local.get('dhInstance').then((r) => { if (!r.dhInstance) browser.storage.local.set({ dhInstance: Math.random().toString(36).slice(2, 7).toUpperCase() }); }).catch(() => {});
+
+// новая установка (не обновление) — бот по умолчанию выключен: включается галочкой в настройках на главном компьютере
+browser.runtime.onInstalled.addListener(async (d) => {
+  if (d.reason !== 'install') return;
+  const r = await browser.storage.local.get(['tg', 'tgHere']);
+  if (r.tgHere === undefined && !(r.tg && r.tg.token)) browser.storage.local.set({ tgHere: false });
+});

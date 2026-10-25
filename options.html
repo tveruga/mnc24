@@ -22,6 +22,8 @@ textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
     <li>Напишите своему боту <b>/start</b> — он привяжется к вам (команды принимает только от вас).</li>
     <li>Добавьте бота в группы мастеров и напишите в каждой <b>/start</b> — бот ответит «✅ группа привязана».<br>Чтобы бот видел сообщения в группе: @BotFather → /mybots → бот → Bot Settings → Group Privacy → <b>Turn off</b>.</li>
   </ol>
+  <label class="chk" style="background:#eef7f1;padding:10px;border-radius:10px"><input type="checkbox" id="here"> <b>Бот работает на этом компьютере</b></label>
+  <p class="muted" id="hereinfo">Включайте только на ОДНОМ компьютере (который чаще всего включён). На остальных снимите галочку — там панель и аналитика работают как обычно, а бот не мешает.</p>
   <input id="tok" type="text" placeholder="123456789:AA…">
   <button id="tsave">Сохранить и проверить</button> <span id="tmsg"></span>
   <p id="owner" class="muted"></p><p id="diag" class="muted"></p>
@@ -32,6 +34,13 @@ textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
   <p class="muted">Имена сопоставляются по похожести. Если мастера из группы нет в CRM, ему назначается свободный аккаунт CRM (мастер без своей группы): заявка ставится на этот аккаунт, а текст уходит в группу. Любую привязку можно поменять вручную.</p>
   <table id="chats"></table>
   <button id="reset" style="background:#9aa5b1">Отвязать меня (для повторного /start)</button>
+</div>
+<div class="card">
+  <h2>Перенос на другой компьютер</h2>
+  <p class="muted">На главном компьютере нажмите «Скопировать код» (или напишите боту <b>/код</b>). На другом компьютере вставьте код сюда и нажмите «Применить» — токен, группы мастеров и настройки перенесутся, а бот там будет выключен.</p>
+  <button id="exp">Скопировать код</button> <span id="expmsg" class="muted"></span>
+  <input id="imp" type="text" placeholder="DH1:…" style="margin-top:10px">
+  <button id="impb">Применить</button> <span id="impmsg"></span>
 </div>
 <div class="card">
   <h2>Ссылки на Telegram мастеров (необязательно)</h2>
