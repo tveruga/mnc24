@@ -33,7 +33,7 @@ async function tgApi(method, params) {
   if (!j.ok) throw new Error(j.error_code === 409 ? 'бот одновременно запущен в другом Firefox (другой компьютер или вторая копия расширения) — оставьте DIR HELPER только в одном месте' : (j.description || 'ошибка Telegram'));
   return j.result;
 }
-const MENU = { keyboard: [[{ text: '⏳ Ждут' }, { text: '📊 Сегодня' }, { text: '📅 Месяц' }], [{ text: '🔄 Статус' }, { text: '✅ Провести' }, { text: '💰 Сдача' }], [{ text: '👥 Группы' }, { text: '❓ Помощь' }]], resize_keyboard: true, is_persistent: true };
+const MENU = { keyboard: [[{ text: '⏳ Ждут' }, { text: '📊 Сегодня' }, { text: '📅 Месяц' }], [{ text: '🔄 Статус' }, { text: '✅ Провести' }, { text: '💰 Сдача' }], [{ text: '👥 Группы' }, { text: '⚙️ Настройки' }, { text: '❓ Помощь' }]], resize_keyboard: true, is_persistent: true };
 const tgSend = (chat_id, text, markup) => tgApi('sendMessage', Object.assign({ chat_id, text: String(text).slice(0, 4000), disable_web_page_preview: true }, markup ? { reply_markup: markup } : {})).catch(() => null);
 async function tgToGroup(chatId, text) {
   const send = (id) => tgApi('sendMessage', { chat_id: id, text: String(text).slice(0, 4000), disable_web_page_preview: true });
@@ -102,7 +102,7 @@ async function tgAskAccept(chatId, customTail, reqId) {
   const g = (TG.groups || {})[chatId] || {};
   if (g.tgUser && tgIgnored(g.tgUser)) { delete g.tgUser; tgSave(); }
   const u = g.tgUser;
-  const tail = customTail || 'Пиши принял';
+  const tail = customTail || cfg().tAccept;
   const kb = reqId ? { reply_markup: { inline_keyboard: [[{ text: '✅ Принял', callback_data: 'ac:' + reqId }]] } } : {};
   try {
     if (u && u.username) return await tgApi('sendMessage', Object.assign({ chat_id: chatId, text: `@${u.username} ${tail}` }, kb));
@@ -126,7 +126,7 @@ async function tgTestCb(q) {
   tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {});
   const T = (t, kb) => tgSend(chat, '🧪 ' + t, kb);
   if (a === 't:req') { const id = (g.lastReq && g.lastReq.id) || '1000000'; const tag = g.tgUser ? (g.tgUser.username ? '@' + g.tgUser.username : g.tgUser.name) : 'мастер'; return T(`Так мастер получает заявку №${id} (текст из CRM), затем сообщение:\n«${tag} Пиши принял» (в тесте мастер не тегается)`, { inline_keyboard: [[{ text: '✅ Принял', callback_data: 'ta:acc' }]] }); }
-  if (a === 't:acc' || a === 'ta:acc') return T('Как зайдешь в квартиру пиши "В работе"');
+  if (a === 't:acc' || a === 'ta:acc') return T(cfg().tWork);
   if (a === 't:work') {
     const rows = await listRows().catch(() => []);
     const mine = rows.filter((r) => /^в пути/i.test(r.st) && r.master && g.person && nameScore(g.person, r.master) >= 1);
@@ -135,7 +135,7 @@ async function tgTestCb(q) {
     return T(id ? `На «В работе» бот поставил бы заявку №${id} и ответил: ✅ №${id} — статус «В работе»` : (mine.length > 1 ? `Несколько заявок «В пути» (${mine.map((r) => '№' + r.id).join(', ')}) — бот попросит номер` : 'Заявки «В пути» у этого мастера нет — бот попросит номер'));
   }
   if (a === 't:paid') return T('🕓 Сдача 1 000 р. — ждёт подтверждения директора\n(директору пришли бы кнопки «Подтвердить» / «Не сдал»)');
-  if (a === 't:morn') return T(MORNING_TEXT);
+  if (a === 't:morn') return T(cfg().tMorning);
   if (a === 't:rem') return T(`Через 10 мин без «Принял»: «№… — Пиши принял» с кнопкой, через 20 мин — сообщение директору`);
   if (a === 't:stat') return (TG.common || {})[chat] ? tgDayStat({ id: chat }) : tgGroupStat(q.message.chat);
   if (a === 't:sd') return tgGroupSdacha(q.message.chat);
@@ -149,7 +149,7 @@ async function tgAcceptBtn(q) {
   tgApi('editMessageText', { chat_id: chat, message_id: q.message.message_id, text: `✅ ${who} принял заявку №${id}` }).catch(() => {});
   await ctlAccepted(chat).catch(() => {});
   if (g.lastReq) { g.lastReq.acc = Date.now(); tgSave(); }
-  tgSend(chat, 'Как зайдешь в квартиру пиши "В работе"');
+  tgSend(chat, cfg().tWork);
 }
 function tgLearnChat(chat, announce) {
   if (!chat || !chat.title || chat.type === 'private' || chat.type === 'channel') return;
@@ -271,6 +271,8 @@ const HELP = `DIR HELPER — кнопки внизу чата или коман�
 /версия — какая версия отвечает
 /стат — статистика мастера за месяц
 /сдача — сколько каждый мастер должен сдать за сегодня
+/настройки — тексты, время, напоминания
+Поиск: просто напишите адрес, телефон, фамилию клиента или номер заявки
 /провести — провести (закрыть) заявку: сумма, фото БСО, отзыв, ЗПЧ
 /провести 1087208 — провести конкретную заявку
 
@@ -379,6 +381,8 @@ async function tgCommand(text) {
     const r = await crmCall({ dhSummary: month ? 'month' : 'today' }).catch((e) => ({ err: e.message }));
     return tgReply(r && r.text ? r.text : '❌ ' + ((r && r.err) || 'нет данных'), MENU);
   }
+  const cr = await cfgCommand(t); if (cr !== null) return cr;
+  if (!/^\//.test(t)) return tgSearch(t);
   return tgReply('Не понял. Нажмите кнопку внизу или ❓ Помощь.', MENU);
 }
 // «ℹ️ Инфо»: текст заявки (как «Копировать информацию») во всплывающем окне
@@ -404,6 +408,7 @@ async function tgCallback(q) {
   } catch (e) {}
   const chat = q.message.chat.id, mid = q.message.message_id, data = q.data || '';
   if (/^i:/.test(data)) return tgInfo(q);
+  if (/^cf:/.test(data)) return cfgCallback(q);
   if (/^p[dn]:/.test(data)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); return ctlPaidCb(q, (text, kb) => tgApi('editMessageText', Object.assign({ chat_id: q.message.chat.id, message_id: q.message.message_id, text }, kb ? { reply_markup: kb } : {})).catch(() => {})); }
   if (/^w:s:\d+$/.test(data)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); return wizStartChecked(q.message.chat.id, data.slice(4)); }
   if (/^w:/.test(data)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); return wizCallback(q, (text, kb) => tgApi('editMessageText', Object.assign({ chat_id: q.message.chat.id, message_id: q.message.message_id, text }, kb ? { reply_markup: kb } : {})).catch(() => {})); }
@@ -417,9 +422,14 @@ async function tgCallback(q) {
     const people = Object.values(TG.groups || {}).filter((g) => g.empId).map((g) => ({ id: g.empId, name: g.person })).sort((x, y) => x.name.localeCompare(y.name, 'ru'));
     const list = people.length ? people : ms;
     if (!list.length) return edit(base + '\n\n⚠️ Список мастеров ещё не загружен — откройте любую заявку в CRM');
-    const rows = []; for (let i = 0; i < list.length; i += 2) rows.push(list.slice(i, i + 2).map((x) => ({ text: x.name.split(' ').slice(0, 2).join(' '), callback_data: `m:${m[1]}:${x.id}` })));
+    // загрузка: 🚕 в пути, 🔧 в работе; свободные — первыми
+    let ld = null; if (cfg().onLoad) { await edit(base + '\n\n👷 Смотрю загрузку мастеров…'); ld = await masterLoad().catch(() => null); }
+    const items = list.map((x) => { const l = ld ? ld(x.name) : null; const busy = l ? l.way + l.work : 0; return { x, l, busy }; });
+    if (ld) items.sort((p, q2) => p.busy - q2.busy || p.x.name.localeCompare(q2.x.name, 'ru'));
+    const lbl = ({ x, l }) => x.name.split(' ').slice(0, 2).join(' ') + (l ? (l.way || l.work ? ` · ${l.way ? '🚕' + l.way : ''}${l.work ? '🔧' + l.work : ''}` : ' · ✅') : '');
+    const rows = []; for (let i = 0; i < items.length; i += 2) rows.push(items.slice(i, i + 2).map((it) => ({ text: lbl(it), callback_data: `m:${m[1]}:${it.x.id}` })));
     rows.push([{ text: '✕ Отмена', callback_data: 'x:' + m[1] }]);
-    return edit(base + '\n\n👷 Кому отдать?', { inline_keyboard: rows });
+    return edit(base + '\n\n👷 Кому отдать?' + (ld ? '\n✅ свободен · 🚕 в пути · 🔧 в работе' : ''), { inline_keyboard: rows });
   }
   if ((m = data.match(/^m:(\d+):(\d+)$/))) {
     const ms = await tgMasters(); const ch = tgMasterChat('', m[2]); const who = ch ? ch.person : ((ms.find((x) => x.id === m[2]) || {}).name || m[2]);
@@ -666,7 +676,7 @@ const tgWorkBusy = {};
 async function tgGroupWork(msg) {
   const chatId = msg.chat.id, text = String(msg.text || '');
   const say = (t) => tgApi('sendMessage', { chat_id: chatId, text: t, reply_to_message_id: msg.message_id, allow_sending_without_reply: true }).catch(() => null);
-  if (/^\s*принял/i.test(text)) { ctlAccepted(chatId).catch(() => {}); return say('Как зайдешь в квартиру пиши "В работе"'); }
+  if (/^\s*принял/i.test(text)) { ctlAccepted(chatId).catch(() => {}); return say(cfg().tWork); }
   if (tgWorkBusy[chatId] && Date.now() - tgWorkBusy[chatId] < 2 * 60e3) return;
   tgWorkBusy[chatId] = Date.now();
   try {
@@ -864,25 +874,25 @@ async function listRows(page) {
     const c = (i) => (i >= 0 && tr.cells[i] ? n(tr.cells[i].textContent) : '');
     const rowTxt = n(tr.textContent);
     const time = c(iT) || ((rowTxt.match(/\d{1,2}\.\d{1,2}\.\d{2,4}(\s+\d{1,2}:\d{2})?/) || [''])[0]);
-    return { id: (c(0).match(/\d{5,}/) || [])[0], st: c(iSt), time, addr: c(iA), type: c(iTp), client: c(iN), master: c(iM) };
+    return { id: (c(0).match(/\d{5,}/) || [])[0], st: c(iSt), time, addr: c(iA), type: c(iTp), client: c(iN), master: c(iM), txt: rowTxt };
   }).filter((r) => r.id);
 }
 tgLoad().then(async () => {
-  const r = await browser.storage.local.get(['tgHello', 'tgHello8']);
-  if ((!r.tgHello || !r.tgHello8) && TG.token && TG.owner) {
+  const r = await browser.storage.local.get(['tgHello', 'tgHello9']);
+  if ((!r.tgHello || !r.tgHello9) && TG.token && TG.owner) {
     const res = await tgOwner('✅ DIR HELPER подключён.\n\n' + HELP, MENU);
-    if (res.some(Boolean)) browser.storage.local.set({ tgHello: true, tgHello8: true });
+    if (res.some(Boolean)) browser.storage.local.set({ tgHello: true, tgHello9: true });
   }
   tgPoll();
 });
 
 // ================= 9:00 — пожелание доброго утра в группы мастеров =================
-const MORNING_TEXT = 'Доброе утро, дорогой мастер, сегодня у тебя все получится';
+const MORNING_TEXT_DEF = 'Доброе утро, дорогой мастер, сегодня у тебя все получится';
 async function tgMorning() {
   try {
     const now = new Date();
     const mins = now.getHours() * 60 + now.getMinutes();
-    if (mins < 9 * 60 || mins > 11 * 60) return; // с 9:00; если компьютер включили позже — до 11:00
+    const st = hm(cfg().atMorning); if (!cfg().onMorning || mins < st || mins > st + 120) return; // с заданного времени; если компьютер включили позже — ещё 2 часа
     const day = now.toDateString();
     const r = await browser.storage.local.get('tgMorningDay');
     if (r.tgMorningDay === day) return;
@@ -890,7 +900,7 @@ async function tgMorning() {
     if (!TG.token || !tgActive()) return;
     await browser.storage.local.set({ tgMorningDay: day }); // сразу отмечаем, чтобы не было повторов
     const ids = Object.keys(TG.groups || {}).filter((id) => !(TG.common || {})[id]);
-    for (const id of ids) { await tgToGroup(id, MORNING_TEXT).catch(() => {}); await new Promise((res) => setTimeout(res, 400)); }
+    for (const id of ids) { await tgToGroup(id, cfg().tMorning).catch(() => {}); await new Promise((res) => setTimeout(res, 400)); }
   } catch (e) {}
 }
 browser.alarms.create('dh-morning', { delayInMinutes: 1, periodInMinutes: 1 });
@@ -922,11 +932,12 @@ async function ctlTick() {
   for (const [id, a] of Object.entries(c.acc)) {
     const m = (now - a.t) / 60e3;
     if (m > 180) { delete c.acc[id]; changed = true; continue; }
-    if (a.step === 0 && m >= 10) { a.step = 1; changed = true; await tgAskAccept(a.chat, `№${id} — Пиши принял`, id); }
-    else if (a.step === 1 && m >= 20) { a.step = 2; changed = true; tgOwner(`⏰ ${a.person}: заявку №${id} не принял (20 мин без «Принял»)`); delete c.acc[id]; }
+    if (!cfg().onAccept) { delete c.acc[id]; changed = true; continue; }
+    if (a.step === 0 && m >= cfg().mAccRemind) { a.step = 1; changed = true; await tgAskAccept(a.chat, `№${id} — ${cfg().tAccept}`, id); }
+    else if (a.step === 1 && m >= cfg().mAccOwner) { a.step = 2; changed = true; tgOwner(`⏰ ${a.person}: заявку №${id} не принял (${cfg().mAccOwner} мин без «Принял»)`); delete c.acc[id]; }
   }
   // 2) «В работе»: больше часа «В пути» — сообщить директору (сверяем статус в CRM)
-  const late = Object.entries(c.way).filter(([, w]) => !w.warned && now - w.t >= 60 * 60e3);
+  const late = cfg().onWay ? Object.entries(c.way).filter(([, w]) => !w.warned && now - w.t >= cfg().mWay * 60e3) : [];
   const old = Object.entries(c.way).filter(([, w]) => now - w.t > 8 * 3600e3);
   old.forEach(([id]) => { delete c.way[id]; changed = true; });
   if (late.length) {
@@ -935,7 +946,7 @@ async function ctlTick() {
       const r = rows.find((x) => x.id === id); const st = r ? r.st : await reqStatus(id);
       if (st && !/^в пути/i.test(st)) { delete c.way[id]; changed = true; continue; }
       w.warned = true; changed = true;
-      tgOwner(`⚠️ ${w.person}: №${id} уже больше часа «В пути», «В работе» не было.\nВозможно, опаздывает или клиент отменил.`);
+      tgOwner(`⚠️ ${w.person}: №${id} уже больше ${cfg().mWay} мин «В пути», «В работе» не было.\nВозможно, опаздывает или клиент отменил.`);
     }
   }
   if (changed) await ctlSet(c);
@@ -1010,8 +1021,8 @@ async function ctlSchedule() {
   if (!TG.token || !tgActive()) return;
   const now = new Date(), mins = now.getHours() * 60 + now.getMinutes(), day = todayKey();
   const r = await browser.storage.local.get(['ctlMorningDay', 'ctlEveningDay']);
-  if (mins >= 9 * 60 && mins <= 11 * 60 && r.ctlMorningDay !== day) { await browser.storage.local.set({ ctlMorningDay: day }); tgOwner(await ctlMorningReport().catch((e) => '❌ Утренняя сводка: ' + e.message), MENU); }
-  if (mins >= 22 * 60 && mins <= 23 * 60 + 30 && r.ctlEveningDay !== day) { await browser.storage.local.set({ ctlEveningDay: day }); tgOwner(await ctlCashReport().catch((e) => '❌ Сдача: ' + e.message)); }
+  if (cfg().onReport && mins >= hm(cfg().atReport) && mins <= hm(cfg().atReport) + 120 && r.ctlMorningDay !== day) { await browser.storage.local.set({ ctlMorningDay: day }); tgOwner(await ctlMorningReport().catch((e) => '❌ Утренняя сводка: ' + e.message), MENU); }
+  if (cfg().onCash && mins >= hm(cfg().atCash) && mins <= hm(cfg().atCash) + 90 && r.ctlEveningDay !== day) { await browser.storage.local.set({ ctlEveningDay: day }); tgOwner(await ctlCashReport().catch((e) => '❌ Сдача: ' + e.message)); }
 }
 // 15) CRM недоступна — сообщить один раз, и когда снова заработает
 let crmDownSince = 0, crmDownSent = false;
@@ -1031,3 +1042,112 @@ browser.runtime.onInstalled.addListener(async (d) => {
   const r = await browser.storage.local.get(['tg', 'tgHere']);
   if (r.tgHere === undefined && !(r.tg && r.tg.token)) browser.storage.local.set({ tgHere: false });
 });
+
+
+// ================= /настройки — тексты, время, напоминания без новой версии =================
+const CFG_DEF = {
+  tMorning: MORNING_TEXT_DEF, tAccept: 'Пиши принял', tWork: 'Как зайдешь в квартиру пиши "В работе"',
+  atMorning: '9:00', atReport: '9:00', atCash: '22:00',
+  mAccRemind: 10, mAccOwner: 20, mWay: 60, mWait: 15,
+  onMorning: true, onReport: true, onCash: true, onAccept: true, onWay: true, onWait: true, onLoad: true,
+};
+const cfg = () => Object.assign({}, CFG_DEF, TG.cfg || {});
+const hm = (t) => { const m = String(t || '').match(/(\d{1,2})[:.](\d{2})/); return m ? +m[1] * 60 + +m[2] : 0; };
+const CFG_TOG = [['onMorning', '☀️ Утро мастерам'], ['onReport', '📋 Утренняя сводка мне'], ['onCash', '💵 Сводка сдачи'], ['onAccept', '✅ Контроль «Принял»'], ['onWay', '🚕 Контроль «В пути»'], ['onWait', '⏳ Неразданные заявки'], ['onLoad', '👷 Загрузка мастеров']];
+function cfgText() {
+  const c = cfg();
+  return `⚙️ Настройки бота\n\n` +
+    `Тексты:\n• утро: «${c.tMorning}»\n• принял: «${c.tAccept}»\n• работа: «${c.tWork}»\n\n` +
+    `Время:\n• утро мастерам: ${c.atMorning}\n• сводка мне: ${c.atReport}\n• сдача: ${c.atCash}\n\n` +
+    `Минуты:\n• напомнить «Принял»: ${c.mAccRemind}\n• сообщить мне «не принял»: ${c.mAccOwner}\n• долго «В пути»: ${c.mWay}\n• не раздана заявка: ${c.mWait}\n\n` +
+    `Изменить:\n/текст утро Новый текст\n/текст принял Новый текст\n/текст работа Новый текст\n/время утро 9:30 · /время сводка 9:00 · /время сдача 22:00\n/минуты принял 10 · /минуты директор 20 · /минуты впути 60 · /минуты ожидает 15\n/сброс — вернуть всё как было\n\nВкл/выкл — кнопками:`;
+}
+const cfgKb = () => { const c = cfg(); const b = CFG_TOG.map(([k, n]) => ({ text: (c[k] ? '🟢 ' : '⚪ ') + n, callback_data: 'cf:' + k })); const rows = []; for (let i = 0; i < b.length; i += 2) rows.push(b.slice(i, i + 2)); return { inline_keyboard: rows }; };
+async function cfgSet(patch) { TG.cfg = Object.assign({}, TG.cfg || {}, patch); await tgSave(); }
+async function cfgCommand(t) {
+  let m;
+  if (/^\/(настройки|settings)(@\w+)?\s*$|^⚙/i.test(t)) return tgReply(cfgText(), cfgKb());
+  if (/^\/сброс\s*$/i.test(t)) { TG.cfg = {}; await tgSave(); return tgReply('✅ Настройки сброшены', cfgKb()); }
+  if ((m = t.match(/^\/текст\s+(утро|принял|работа)\s+([\s\S]+)$/i))) { const k = { утро: 'tMorning', принял: 'tAccept', работа: 'tWork' }[m[1].toLowerCase()]; await cfgSet({ [k]: m[2].trim().slice(0, 500) }); return tgReply(`✅ Текст «${m[1]}» сохранён:\n${m[2].trim()}`); }
+  if ((m = t.match(/^\/время\s+(утро|сводка|сдача)\s+(\d{1,2})[:.](\d{2})\s*$/i))) { if (+m[2] > 23 || +m[3] > 59) return tgReply('Время в формате 9:30'); const k = { утро: 'atMorning', сводка: 'atReport', сдача: 'atCash' }[m[1].toLowerCase()]; await cfgSet({ [k]: `${+m[2]}:${m[3]}` }); return tgReply(`✅ Время «${m[1]}»: ${+m[2]}:${m[3]}`); }
+  if ((m = t.match(/^\/минуты\s+(принял|директор|впути|в пути|ожидает)\s+(\d{1,3})\s*$/i))) { const k = { принял: 'mAccRemind', директор: 'mAccOwner', впути: 'mWay', 'в пути': 'mWay', ожидает: 'mWait' }[m[1].toLowerCase()]; await cfgSet({ [k]: Math.max(1, +m[2]) }); return tgReply(`✅ «${m[1]}»: ${+m[2]} мин`); }
+  if (/^\/(текст|время|минуты)/i.test(t)) return tgReply('Не понял. Примеры есть в /настройки');
+  return null;
+}
+async function cfgCallback(q) {
+  const k = q.data.slice(3);
+  tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {});
+  if (!(k in CFG_DEF)) return;
+  await cfgSet({ [k]: !cfg()[k] });
+  return tgApi('editMessageText', { chat_id: q.message.chat.id, message_id: q.message.message_id, text: cfgText(), reply_markup: cfgKb() }).catch(() => {});
+}
+
+// ================= 2. Неразданные заявки: «Ожидает» дольше N минут =================
+async function ctlWaiting() {
+  if (!TG.token || !tgActive() || !cfg().onWait) return;
+  const rows = await waitingRows().catch(() => null); if (!rows) return;
+  const today = rows.filter((r) => isToday(r.time));
+  const c = await ctlGet(); c.wait = c.wait || {}; const now = Date.now(); let ch = false;
+  Object.keys(c.wait).forEach((id) => { if (!today.find((r) => r.id === id)) { delete c.wait[id]; ch = true; } });
+  for (const r of today) {
+    const w = c.wait[r.id] || (c.wait[r.id] = { t: now, sent: false }, ch = true, c.wait[r.id]);
+    if (!w.sent && now - w.t >= cfg().mWait * 60e3) {
+      w.sent = true; ch = true;
+      tgOwner(`⏳ Заявка №${r.id} ждёт раздачи уже ${Math.round((now - w.t) / 60e3)} мин${r.time ? '\n🕒 ' + r.time : ''}${r.addr ? '\n📍 ' + r.addr : ''}`, assignBtn(r.id));
+    }
+  }
+  if (ch) await ctlSet(c);
+}
+browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-ctl') ctlWaiting().catch(() => {}); });
+
+// ================= 3. Загрузка мастеров для «Отдать мастеру» =================
+async function masterLoad() {
+  const rows = await todayRows(4).catch(() => []);
+  const load = {};
+  rows.forEach((r) => { if (!r.master) return; const k = r.master.replace(/\s*\(.*$/, '').trim(); const o = load[k] = load[k] || { way: 0, work: 0, done: 0 }; if (/^в пути/i.test(r.st)) o.way++; else if (/^в работе/i.test(r.st)) o.work++; else if (/^готов/i.test(r.st)) o.done++; });
+  return (name) => { let best = null, sc = 0; Object.keys(load).forEach((k) => { const v = nameScore(name, k); if (v > sc) { sc = v; best = k; } }); return sc >= 1 ? load[best] : { way: 0, work: 0, done: 0 }; };
+}
+
+// ================= 4. Поиск заявки по адресу / телефону / фамилии / номеру =================
+async function tgSearch(q) {
+  const norm = (x) => String(x || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim();
+  const digits = q.replace(/\D/g, '');
+  const words = norm(q).split(' ').filter((w) => w.length >= 2);
+  if (!words.length && digits.length < 4) return tgReply('Напишите адрес, телефон, фамилию клиента или номер заявки (хотя бы 3 буквы).', MENU);
+  tgReply('🔎 Ищу…');
+  const found = []; const seen = new Set();
+  for (let p = 1; p <= 8 && found.length < 6; p++) {
+    const rows = await listRows(p).catch(() => []); if (!rows.length) break;
+    rows.forEach((r) => {
+      if (seen.has(r.id)) return; seen.add(r.id);
+      const txt = norm(r.txt); const d = String(r.txt || '').replace(/\D/g, '');
+      const ok = (digits.length >= 4 && (r.id.includes(digits) || d.includes(digits.slice(-7)))) || (words.length && words.every((w) => txt.includes(w)));
+      if (ok && found.length < 6) found.push(r);
+    });
+  }
+  if (!found.length) return tgReply('Ничего не нашёл в последних заявках. Уточните запрос.', MENU);
+  for (const r of found) {
+    const kb = /^ожидает/i.test(r.st) ? assignBtn(r.id) : (!LOCKED.test(r.st) ? stBtn(r.id, r.st) : { inline_keyboard: [[{ text: 'ℹ️ Инфо', callback_data: 'i:' + r.id }]] });
+    await tgReply(`№${r.id} · ${r.st || '—'}${r.master ? '\n👷 ' + r.master : ''}${r.time ? '\n🕒 ' + r.time : ''}${r.addr ? '\n📍 ' + r.addr : ''}${r.client ? '\n👤 ' + r.client : ''}`, kb);
+  }
+}
+
+// ================= 11. Активация: дополнение работает только с токеном вашего бота =================
+const DH_BOT_ID = 8824067385;
+async function dhCheckAct() {
+  try {
+    const r = await browser.storage.local.get(['tg', 'dhAct']); const tok = r.tg && r.tg.token;
+    if (!tok) { await browser.storage.local.set({ dhAct: { ok: false, at: Date.now() } }); return false; }
+    if (String(tok).split(':')[0] !== String(DH_BOT_ID)) { await browser.storage.local.set({ dhAct: { ok: false, at: Date.now() } }); return false; }
+    const res = await fetch(`https://api.telegram.org/bot${tok}/getMe`).then((x) => x.json()).catch(() => null);
+    if (!res) return r.dhAct ? !!r.dhAct.ok : true; // нет сети — оставляем как было (новый токен своего бота — пускаем)
+    const ok = !!(res.ok && res.result && res.result.id === DH_BOT_ID);
+    await browser.storage.local.set({ dhAct: { ok, at: Date.now() } });
+    return ok;
+  } catch (e) { return false; }
+}
+dhCheckAct();
+browser.storage.onChanged.addListener((ch) => { if (ch.tg && (!ch.tg.oldValue || !ch.tg.newValue || ch.tg.oldValue.token !== ch.tg.newValue.token)) dhCheckAct(); });
+browser.runtime.onMessage.addListener((m) => { if (m && m.dhCheckAct) return dhCheckAct(); });
+browser.alarms.create('dh-act', { delayInMinutes: 30, periodInMinutes: 360 });
+browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-act') dhCheckAct(); });

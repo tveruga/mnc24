@@ -1,7 +1,9 @@
 // МНЧ — Аналитика (выдвижное меню на странице CRM). Источник: Отчёты → Отчёт по городу
-(function () {
+(async function () {
 if (window.__mncDash) return;
 if (window !== window.top) { let p = false; try { p = window.parent.location.hostname === location.hostname; } catch (e) {} if (p) return; }
+// активация (см. content.js)
+{ let act = false; try { const r = await browser.storage.local.get('dhAct'); act = !!(r.dhAct && r.dhAct.ok); if (!act) act = !!(await browser.runtime.sendMessage({ dhCheckAct: true })); } catch (e) {} if (!act) return; }
 
 const BASE = location.origin;
 const CITY_REPORT = BASE + '/admin/domain/report-city-complex/index?city=3';

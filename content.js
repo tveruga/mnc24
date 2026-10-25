@@ -1,5 +1,5 @@
 // МНЧ — Отдать мастеру, v1.2
-(function () {
+(async function () {
   if (window.__mncExt) return;
   if (window !== window.top) {
     // скрытые окна внутри самой CRM — не трогаем; в боковой панели (родитель — расширение) — работаем
@@ -8,6 +8,19 @@
     if (parentIsCrm) return;
   }
   window.__mncExt = true;
+  // активация: без токена вашего бота дополнение не работает
+  let act = false;
+  try { const r = await browser.storage.local.get('dhAct'); act = !!(r.dhAct && r.dhAct.ok); if (!act) act = !!(await browser.runtime.sendMessage({ dhCheckAct: true })); } catch (e) {}
+  if (!act) {
+    if (window === window.top && document.body) {
+      const b = document.createElement('div');
+      b.textContent = 'DIR HELPER не активирован — вставьте код в настройках дополнения';
+      b.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:2147483647;background:#0f3d2b;color:#fff;font:600 13px Segoe UI,sans-serif;padding:10px 14px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;opacity:.92';
+      b.onclick = () => { try { browser.runtime.sendMessage({ openOptions: true }); } catch (e) {} };
+      document.body.appendChild(b);
+    }
+    return;
+  }
 
   const EMP = '[name="CustomerRequest[employee_id]"]';
   const ST = '[name="CustomerRequest[status]"]';

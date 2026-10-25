@@ -11,6 +11,8 @@ async function load() {
   $('here').checked = lc.tgHere !== false;
   $('hereinfo').textContent = `Код этого компьютера: ${lc.dhInstance || '—'} (его показывает бот на /версия). Включайте только на ОДНОМ компьютере. На остальных снимите галочку — там панель и аналитика работают как обычно.`;
   $('o1').checked = TG.opts.notifyNew; $('o2').checked = TG.opts.toMaster; $('o3').checked = TG.opts.sumToMaster;
+  const ac = (await browser.storage.local.get('dhAct')).dhAct;
+  $('act').innerHTML = ac && ac.ok ? '🟢 <b>DIR HELPER активирован</b>' : '🔴 <b>Не активирован</b> — вставьте код из бота (/код) в блок «Перенос на другой компьютер»';
   const dg = (await browser.storage.local.get('tgDiag')).tgDiag;
   $('diag').textContent = dg ? (dg.ok ? '🟢 связь с Telegram есть (' + new Date(dg.ok).toLocaleTimeString('ru-RU') + ')' : '🔴 ошибка Telegram: ' + dg.err) : '';
   $('owner').textContent = TG.owner ? '✅ Бот привязан к вашему чату' : (TG.token ? '⏳ Напишите боту /start' : '');
