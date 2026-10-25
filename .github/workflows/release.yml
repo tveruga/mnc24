@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - name: Версия
@@ -21,6 +22,13 @@ jobs:
           echo "version=$V" >> $GITHUB_OUTPUT
           if gh release view "v$V" >/dev/null 2>&1; then echo "skip=1" >> $GITHUB_OUTPUT; fi
         env: { GH_TOKEN: '${{ github.token }}' }
+      - name: Удалить старые версии (без активации)
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          V=${{ steps.v.outputs.version }}
+          gh release list --limit 100 --json tagName -q '.[].tagName' | while read t; do
+            if [ "$t" != "v$V" ] && gh release view "v$V" >/dev/null 2>&1; then gh release delete "$t" --yes --cleanup-tag || true; fi
+          done
       - name: Адрес обновлений
         if: steps.v.outputs.skip != '1'
         run: sed -i "s#__OWNER__/dir-helper#${GITHUB_REPOSITORY}#" manifest.json
@@ -45,7 +53,7 @@ jobs:
             a.updates=a.updates.filter(u=>u.version!=='$V'); a.updates.push({version:'$V', update_link:'$URL'});
             a.updates=a.updates.slice(-10); fs.writeFileSync(p, JSON.stringify(j,null,2)+'\n');"
           git config user.name "dir-helper-bot"; git config user.email "actions@users.noreply.github.com"
-          git add updates.json; git commit -m "updates.json: $V [skip ci]"; git pull --rebase origin main; git push
+          git add updates.json; git commit -m "updates.json: $V [skip ci]"; git push || (git pull --rebase origin main && git push)
 
   # страница установки: https://<логин>.github.io/<репозиторий>/  (Settings → Pages → Source: GitHub Actions)
   pages:
