@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DIR HELPER",
-  "version": "12.7",
+  "version": "12.8",
   "description": "DIR HELPER — раздача заявок CRM МНЧ мастерам, аналитика отчётов и зарплата директора.",
   "browser_specific_settings": {
     "gecko": {
