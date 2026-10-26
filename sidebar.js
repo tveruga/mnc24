@@ -16,7 +16,7 @@ document.querySelectorAll('[data-z]').forEach((b) => b.onclick = () => { zoom +=
 document.querySelectorAll('[data-mode]').forEach((b) => b.onclick = () => {
   try { crm.contentWindow.postMessage({ dirHelper: 'toggle', mode: b.dataset.mode }, BASE); } catch (e) {}
 });
-document.querySelector('[data-go="list"]').onclick = () => { crm.src = BASE + '/admin/domain/customer-request/index'; };
+const goList = document.querySelector('[data-go="list"]'); if (goList) goList.onclick = () => { crm.src = BASE + '/admin/domain/customer-request/index'; };
 document.getElementById('tab').onclick = () => {
   let url = BASE + '/admin/domain/customer-request/index';
   try { url = crm.contentWindow.location.href; } catch (e) {}
