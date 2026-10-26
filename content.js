@@ -1025,7 +1025,16 @@
       const cs = getComputedStyle(el);
       if (cs.position === 'fixed' && parseFloat(cs.top) < 8 && el.getBoundingClientRect().height < 200 && el.id !== 'mnc-ext-panel') { el.style.top = (parseFloat(cs.top) + 48) + 'px'; el.dataset.dhShift = '1'; }
     });
-    setTimeout(shift, 300); setTimeout(shift, 1500);
+    // если содержимое страницы всё равно ушло под закреплённое меню CRM — добавляем недостающий отступ
+    const fit = () => {
+      let navBottom = bar.getBoundingClientRect().bottom;
+      document.querySelectorAll('[data-dh-shift]').forEach((el) => { const r = el.getBoundingClientRect(); if (r.height && r.top < 200) navBottom = Math.max(navBottom, r.bottom); });
+      const first = [...document.body.children].find((el) => el !== bar && el.id !== 'mnc-ext-panel' && el.id !== 'mnc-dash' && getComputedStyle(el).position !== 'fixed' && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().height > 0);
+      if (!first || window.scrollY > 0) return;
+      const gap = navBottom - first.getBoundingClientRect().top;
+      if (gap > 1) { const pt = parseFloat(getComputedStyle(document.body).paddingTop) || 0; document.body.style.setProperty('padding-top', (pt + gap) + 'px', 'important'); }
+    };
+    setTimeout(() => { shift(); fit(); }, 300); setTimeout(() => { shift(); fit(); }, 1500);
     const toast = (t) => { const d = document.createElement('div'); d.className = 'dh-toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 4500); };
     const mark = () => { const p = document.getElementById('mnc-ext-panel'); bar.querySelector('[data-a="give"]').classList.toggle('on', !!(p && !p.classList.contains('mnc-min'))); };
     bar.addEventListener('click', async (e) => {
