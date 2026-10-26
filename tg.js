@@ -313,7 +313,7 @@ async function tgMasters() {
 }
 async function tgCommand(text) {
   const t = text.trim();
-  if (/^\/(start|help|помощь)|^❓/i.test(t)) return tgReply(HELP, MENU);
+  if (/^\/(start|help|помощь)|^❓/i.test(t)) return tgTemp(REPLY_TO || TG.owner, HELP, MENU);
   if (/^\/(ждет|ждёт|ожидает)|^⏳/i.test(t)) {
     const all = await waitingRows();
     const rows = all.filter((r) => isToday(r.time));
@@ -343,7 +343,7 @@ async function tgCommand(text) {
     return;
   }
   if (/^\/(сдача|sdacha)(@\w+)?(\s|$)|^💰/i.test(t)) {
-    tgReply('⏳ Считаю сдачу за сегодня…');
+    tgTemp(REPLY_TO || TG.owner, '⏳ Считаю сдачу за сегодня…');
     return tgReply(await ctlCashReport(), MENU);
   }
   if (/^\/(стат|stat)(\s|$)/i.test(t)) {
@@ -365,7 +365,7 @@ async function tgCommand(text) {
   if (/^\/(версия|version)/i.test(t)) {
     let inst = (await browser.storage.local.get('dhInstance')).dhInstance;
     if (!inst) { inst = Math.random().toString(36).slice(2, 7).toUpperCase(); browser.storage.local.set({ dhInstance: inst }); }
-    return tgReply(`DIR HELPER ${browser.runtime.getManifest().version} · компьютер ${inst}\n(бот отвечает с этого компьютера)`, MENU);
+    return tgTemp(REPLY_TO || TG.owner, `DIR HELPER ${browser.runtime.getManifest().version} · компьютер ${inst}\n(бот отвечает с этого компьютера)`, MENU);
   }
   if (/^\/(группы|groups)|^👥/i.test(t)) {
     await tgRelink();
@@ -377,7 +377,7 @@ async function tgCommand(text) {
   }
   if (/^\/(сегодня|месяц)|^📊|^📅/i.test(t)) {
     const month = /месяц|📅/i.test(t);
-    tgReply('⏳ Собираю отчёт…');
+    tgTemp(REPLY_TO || TG.owner, '⏳ Собираю отчёт…');
     const r = await crmCall({ dhSummary: month ? 'month' : 'today' }).catch((e) => ({ err: e.message }));
     return tgReply(r && r.text ? r.text : '❌ ' + ((r && r.err) || 'нет данных'), MENU);
   }
@@ -708,7 +708,7 @@ async function tgGroupWork(msg) {
 // /стат в группе мастера — его статистика за месяц
 // общий чат мастеров: /стат — статистика за день по всем мастерам (без заявок «Работа СД»)
 async function tgDayStat(chat) {
-  await tgSend(chat.id, '⏳ Считаю статистику за день…');
+  await tgTemp(chat.id, '⏳ Считаю статистику за день…');
   // оборот за сегодня (из «Отчёта по городу») — параллельно со списком заявок
   const turnP = crmCall({ dhDayTurn: true }, 90000).catch((e) => ({ err: e.message }));
   const rows = (await todayRows()).filter((r) => !/работа\s*сд/i.test(r.st) && r.master);
@@ -740,7 +740,7 @@ async function tgGroupStat(chat) {
   if (!g || !g.empId) return tgDayStat(chat); // не группа конкретного мастера — общий чат, статистика за день
   const ms = await tgMasters();
   const crm = (ms.find((m) => String(m.id) === String(g.empId)) || {}).name || '';
-  await tgSend(chat.id, '⏳ Считаю статистику за месяц…');
+  await tgTemp(chat.id, '⏳ Считаю статистику за месяц…');
   const r = await crmCall({ dhMasterStat: { empId: g.empId, name: crm, person: g.person } }).catch((e) => ({ err: e.message }));
   return tgSend(chat.id, r && r.text ? r.text : '❌ ' + ((r && r.err) || 'нет данных'));
 }
@@ -840,7 +840,7 @@ async function tgGroupSdacha(chat) {
   if (!g) return tgSend(chat.id, '⚠️ Группа не привязана к мастеру. Напишите /start и попробуйте снова.');
   const ms = await tgMasters();
   const crm = (ms.find((x) => String(x.id) === String(g.empId)) || {}).name || '';
-  tgSend(chat.id, '⏳ Считаю сдачу за сегодня…');
+  tgTemp(chat.id, '⏳ Считаю сдачу за сегодня…');
   const all = await tgSdacha();
   const keys = Object.keys(all).filter((k) => nameScore(g.person, k) >= 1 || (crm && nameScore(crm, k) >= 1));
   if (!keys.length) return tgSend(chat.id, `💰 ${g.person}: за сегодня проведённых заявок нет — сдавать нечего.`);
@@ -878,10 +878,11 @@ async function listRows(page) {
   }).filter((r) => r.id);
 }
 tgLoad().then(async () => {
-  const r = await browser.storage.local.get(['tgHello', 'tgHello9']);
-  if ((!r.tgHello || !r.tgHello9) && TG.token && TG.owner) {
-    const res = await tgOwner('✅ DIR HELPER подключён.\n\n' + HELP, MENU);
-    if (res.some(Boolean)) browser.storage.local.set({ tgHello: true, tgHello9: true });
+  // меню бота поменялось — короткое сообщение с новыми кнопками (без длинной справки), удалится само
+  const sig = JSON.stringify(MENU), r = await browser.storage.local.get('tgMenuSig');
+  if (r.tgMenuSig !== sig && TG.token && TG.owner && tgActive()) {
+    const res = await Promise.all(tgUsers().map((u) => tgTemp(u, `✅ DIR HELPER ${browser.runtime.getManifest().version} — меню обновлено. Справка: /help`, MENU)));
+    if (res.some(Boolean)) browser.storage.local.set({ tgMenuSig: sig });
   }
   tgPoll();
 });
@@ -1129,7 +1130,7 @@ async function tgSearch(q) {
   const digits = q.replace(/\D/g, '');
   const words = norm(q).split(' ').filter((w) => w.length >= 2);
   if (!words.length && digits.length < 4) return tgReply('Напишите адрес, телефон, фамилию клиента или номер заявки (хотя бы 3 буквы).', MENU);
-  tgReply('🔎 Ищу…');
+  tgTemp(REPLY_TO || TG.owner, '🔎 Ищу…');
   const found = []; const seen = new Set();
   for (let p = 1; p <= 8 && found.length < 6; p++) {
     const rows = await listRows(p).catch(() => []); if (!rows.length) break;
@@ -1166,3 +1167,32 @@ browser.storage.onChanged.addListener((ch) => { if (ch.tg && (!ch.tg.oldValue ||
 browser.runtime.onMessage.addListener((m) => { if (m && m.dhCheckAct) return dhCheckAct(); });
 browser.alarms.create('dh-act', { delayInMinutes: 30, periodInMinutes: 360 });
 browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-act') dhCheckAct(); });
+
+
+// ================= Служебные сообщения бота — удаляются сами =================
+// справка, «⏳ Считаю…», «🔎 Ищу…», /версия, «меню обновлено»: через 30 мин, проверка раз в час
+async function tgTemp(chat, text, markup) {
+  const m = await tgSend(chat, text, markup);
+  if (m && m.message_id) {
+    try { const r = await browser.storage.local.get('tgTempMsgs'); const L = r.tgTempMsgs || []; L.push({ c: chat, id: m.message_id, t: Date.now() }); await browser.storage.local.set({ tgTempMsgs: L.slice(-2000) }); } catch (e) {}
+  }
+  return m;
+}
+async function tgCleanTemp(force) {
+  if (!TG.token || !tgActive()) return;
+  const r = await browser.storage.local.get('tgTempMsgs'); const L = r.tgTempMsgs || []; if (!L.length) return;
+  const now = Date.now(), keep = [], by = {};
+  L.forEach((x) => {
+    if (now - x.t > 47 * 3600e3) return;                 // Telegram даёт боту удалять только за последние 48 ч
+    if (force || now - x.t > 30 * 60e3) (by[x.c] = by[x.c] || []).push(x.id); else keep.push(x);
+  });
+  for (const [c, ids] of Object.entries(by)) {
+    for (let i = 0; i < ids.length; i += 100) {
+      const part = ids.slice(i, i + 100);
+      await tgApi('deleteMessages', { chat_id: c, message_ids: part }).catch(async () => { for (const id of part) await tgApi('deleteMessage', { chat_id: c, message_id: id }).catch(() => {}); });
+    }
+  }
+  await browser.storage.local.set({ tgTempMsgs: keep });
+}
+browser.alarms.create('dh-clean', { delayInMinutes: 5, periodInMinutes: 60 });
+browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-clean') tgLoad().then(() => tgCleanTemp()).catch(() => {}); });
