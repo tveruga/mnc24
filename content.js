@@ -156,7 +156,7 @@
     // версия рядом с названием
     try { const v = document.createElement('span'); v.className = 'dh-ver'; v.textContent = browser.runtime.getManifest().version; p.querySelector('.mnc-title').appendChild(v); } catch (e) {}
     // в окне расширения (боковая панель) — без нижнего меню: выдвигается сверху кнопкой в шапке окна
-    if (window !== window.top) p.classList.add('dh-side');
+    p.classList.add('dh-side'); if (window === window.top) p.classList.add('dh-tab');
     const toggle = () => p.classList.toggle('mnc-min');
     p.querySelector('.mnc-x').onclick = (e) => { e.stopPropagation(); toggle(); };
     p.querySelector('.mnc-title').onclick = toggle;
@@ -1004,7 +1004,41 @@
     if (m && m.dhMasterStat) return (window.__mncDash && window.__mncDash.masterStat ? window.__mncDash.masterStat(m.dhMasterStat) : Promise.resolve({ err: 'аналитика не загружена' }));
     if (m && (m.dhSummary || m.dhSalary)) return (window.__mncDash && window.__mncDash.tgText ? window.__mncDash.tgText(m) : Promise.resolve({ err: 'аналитика не загружена' }));
   });
+
+  // ---------- Шапка DIR HELPER на вкладке CRM (в окне расширения шапка своя) ----------
+  function makeTopBar() {
+    if (window !== window.top || document.getElementById('dh-topbar')) return;
+    const bar = document.createElement('header');
+    bar.id = 'dh-topbar'; bar.className = 'dhb';
+    let ver = ''; try { ver = browser.runtime.getManifest().version; } catch (e) {}
+    bar.innerHTML = `<div class="dhb-brand"><b>DIR</b><span>HELPER</span><i>${ver}</i></div><div class="dhb-tools">
+      <button data-a="list" class="" title="Список заявок" aria-label="Список заявок"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 4h10M3 8h10M3 12h10"/></svg><span class="dhb-l">Заявки</span></button><button data-a="give" class="dhb-main" title="Выдача и проведение заявки" aria-label="Выдача и проведение заявки"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c.6-2.8 2.6-4.2 5-4.2s4.4 1.4 5 4.2"/></svg><span class="dhb-l">Выдача</span></button><button data-a="an" class="" title="Аналитика" aria-label="Аналитика"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 13V9M8 13V5M12 13V2.5"/></svg><span class="dhb-l">Аналитика</span></button><button data-a="zp" class="" title="Зарплата директора" aria-label="Зарплата директора">₽<span class="dhb-l">Зарплата</span></button><button data-a="ad" class="" title="Реклама" aria-label="Реклама"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 1.8h5.4L12.5 5v9.2H4z"/><path d="M6 8.5h4.5M6 11h3"/></svg><span class="dhb-l">Реклама</span></button><button data-a="rt" title="Рейтинг городов" aria-label="Рейтинг городов">TOP</button><span class="dhb-sep"></span><button data-a="set" class="" title="Настройки и Telegram" aria-label="Настройки и Telegram"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/></svg></button><button data-a="upd" class="" title="Проверить обновление" aria-label="Проверить обновление"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M11.5 7a4.5 4.5 0 1 1-1.3-3.2M11.5 2v2.5H9"/></svg></button>
+    </div>`;
+    document.body.prepend(bar);
+    document.documentElement.classList.add('dh-has-bar');
+    // закреплённые сверху элементы CRM сдвигаем под шапку
+    const shift = () => document.querySelectorAll('body *').forEach((el) => {
+      if (el === bar || bar.contains(el) || el.dataset.dhShift) return;
+      const cs = getComputedStyle(el);
+      if (cs.position === 'fixed' && parseFloat(cs.top) < 8 && el.getBoundingClientRect().height < 200 && el.id !== 'mnc-ext-panel') { el.style.top = (parseFloat(cs.top) + 48) + 'px'; el.dataset.dhShift = '1'; }
+    });
+    setTimeout(shift, 300); setTimeout(shift, 1500);
+    const toast = (t) => { const d = document.createElement('div'); d.className = 'dh-toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 4500); };
+    const mark = () => { const p = document.getElementById('mnc-ext-panel'); bar.querySelector('[data-a="give"]').classList.toggle('on', !!(p && !p.classList.contains('mnc-min'))); };
+    bar.addEventListener('click', async (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      const a = b.dataset.a;
+      if (a === 'list') location.href = '/admin/domain/customer-request/index';
+      else if (a === 'give') { const p = document.getElementById('mnc-ext-panel'); if (!p) return toast('Выдача работает на списке заявок и на странице заявки'); p.classList.toggle('mnc-min'); mark(); }
+      else if (a === 'set') browser.runtime.sendMessage({ openOptions: true }).catch(() => {});
+      else if (a === 'upd') { b.classList.add('spin'); const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((er) => ({ text: er.message })); b.classList.remove('spin'); toast((r && r.text) || 'Ошибка проверки'); }
+      else if (a) window.__mncDash && window.__mncDash.toggle(a);
+    });
+    new MutationObserver(mark).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+  }
+
   // ---------- Запуск ----------
+  try { makeTopBar(); } catch (e) {}
   if (isUpdate) {
     continueClosing();
     const start = () => { const e = document.querySelector(EMP); if (e && !document.getElementById('mnc-ext-panel')) { initUpdate(e); return true; } };

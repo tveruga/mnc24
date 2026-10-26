@@ -163,3 +163,26 @@ tr.mnc-row > td:first-child{box-shadow:inset 4px 0 0 #166534}
 #mnc-ext-panel .mnc-upd{cursor:pointer;height:26px;min-width:26px;display:grid;place-items:center;border-radius:8px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(167,223,190,.18);color:#fff;font-size:14px}
 #mnc-ext-panel .mnc-upd.spin{animation:dhspin .8s linear infinite}@keyframes dhspin{to{transform:rotate(360deg)}}
 .dh-toast{position:fixed;right:20px;bottom:90px;z-index:2147483647;background:#0f3d2b;color:#fff;padding:9px 13px;border-radius:10px;font:13px "Segoe UI",sans-serif;box-shadow:0 6px 18px rgba(11,46,32,.35)}
+
+#dh-topbar.dhb{height:48px;display:flex;align-items:center;background:#fff;border-bottom:2px solid #166534;padding:0 10px 0 16px;box-sizing:border-box;font:13px "Segoe UI",system-ui,sans-serif;color:#1d3a2c}
+#dh-topbar.dhb #dh-topbar.dhb-brand{display:flex;align-items:baseline;gap:6px;margin-right:auto;white-space:nowrap}
+#dh-topbar.dhb #dh-topbar.dhb-brand b{font:700 15px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:2px;color:#0f3d2b}
+#dh-topbar.dhb #dh-topbar.dhb-brand span{font:300 15px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:2px;color:#166534}
+#dh-topbar.dhb #dh-topbar.dhb-brand i{font-style:normal;font-size:11px;color:#4f6b5c}
+#dh-topbar.dhb #dh-topbar.dhb-tools{display:flex;align-items:center;gap:2px}
+#dh-topbar.dhb button{all:unset;box-sizing:border-box;height:32px;padding:0 10px;border:1px solid transparent;border-radius:8px;display:inline-flex;align-items:center;gap:6px;font:600 12px "Segoe UI",sans-serif;color:#1d3a2c;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s}
+#dh-topbar.dhb button:hover{background:#eaf5ee;border-color:#cfe6d8}
+#dh-topbar.dhb button#dh-topbar.dhb-main{background:#166534;color:#fff}
+#dh-topbar.dhb button#dh-topbar.dhb-main:hover{background:#14532d;border-color:#14532d}
+#dh-topbar.dhb button.on{background:#eaf5ee;border-color:#9fd3b2}
+#dh-topbar.dhb button#dh-topbar.dhb-main.on{background:#0f3d2b}
+#dh-topbar.dhb button.spin svg{animation:dhspin .8s linear infinite}
+@keyframes dhspin{to{transform:rotate(360deg)}}
+#dh-topbar.dhb #dh-topbar.dhb-sep{width:1px;height:22px;background:#d4e4da;margin:0 8px}
+#dh-topbar.dhb #dh-topbar.dhb-z{font-size:11px;color:#4f6b5c;width:34px;text-align:center}
+@media (max-width:980px){#dh-topbar.dhb button #dh-topbar.dhb-l{display:none}#dh-topbar.dhb button{padding:0 8px}}
+
+#dh-topbar.dhb{position:fixed;top:0;left:0;right:0;z-index:2147483645;box-shadow:0 2px 10px rgba(11,46,32,.08)}
+html.dh-has-bar body{padding-top:48px !important}
+#mnc-ext-panel.dh-side.dh-tab{top:48px !important;right:20px !important}
+html.dh-has-bar #mnc-dash{top:48px}
