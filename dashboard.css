@@ -222,3 +222,6 @@
 #mnc-dash .gtab td:nth-child(4){font-size:12px;color:#166534;white-space:normal}
 #mnc-dash .goal .scrollx{overflow-x:auto}
 @media (max-width:760px){#mnc-dash,#mnc-dash.wide{width:100% !important}}
+/* выдвигается слева */
+#mnc-dash{left:0;right:auto;transform:translateX(-104%);box-shadow:18px 0 50px rgba(11,46,32,.25)}
+#mnc-dash.on{transform:none}
