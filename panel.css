@@ -192,3 +192,6 @@ html.dh-has-bar #mnc-dash{top:48px}
 #dh-topbar.dhb{position:fixed}
 #dh-topbar.dhb .dhb-tools{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0}
 @media (max-width:1100px){#dh-topbar.dhb .dhb-tools{position:static;transform:none;margin-left:auto}}
+
+#dh-topbar.dhb .dhb-bot .dhb-dot{width:8px;height:8px;border-radius:50%;background:#b8c4bd;display:inline-block}
+#dh-topbar.dhb .dhb-bot.bot-on .dhb-dot{background:#22a35a;box-shadow:0 0 0 3px rgba(34,163,90,.18)}

@@ -42,3 +42,14 @@ function toast(t) {
   if (!el) { el = document.createElement('div'); el.id = 'toast'; document.body.appendChild(el); }
   el.textContent = t; el.classList.add('on'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 4000);
 }
+
+// кнопка «Бот»: Telegram-бот на этом компьютере вкл/выкл
+const bot = document.getElementById('bot');
+const botShow = (on) => { bot.classList.toggle('bot-on', on); bot.title = on ? 'Бот работает на этом компьютере — нажмите, чтобы выключить' : 'Бот выключен на этом компьютере — нажмите, чтобы включить'; };
+browser.storage.local.get('tgHere').then((r) => botShow(r.tgHere !== false));
+browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) botShow(ch.tgHere.newValue !== false); });
+bot.onclick = async () => {
+  const r = await browser.storage.local.get('tgHere'); const on = r.tgHere === false;
+  if (!on && !confirm('Выключить Telegram-бота на этом компьютере?')) return;
+  await browser.storage.local.set({ tgHere: on }); toast(on ? '🟢 Бот включён на этом компьютере' : '⚪ Бот выключен на этом компьютере');
+};
