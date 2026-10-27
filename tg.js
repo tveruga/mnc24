@@ -1060,7 +1060,7 @@ browser.runtime.onInstalled.addListener(async (d) => {
 const CFG_DEF = {
   tMorning: MORNING_TEXT_DEF, tAccept: 'Пиши принял', tWork: 'Как зайдешь в квартиру пиши "В работе"',
   atMorning: '9:00', atReport: '9:00', atCash: '22:00',
-  mAccRemind: 10, mAccOwner: 20, mWay: 60, mWait: 15,
+  mAccRemind: 10, mAccOwner: 20, mWay: 60, mWait: 30,
   onMorning: true, onReport: true, onCash: true, onAccept: true, onWay: true, onWait: true, onLoad: true,
 };
 const cfg = () => Object.assign({}, CFG_DEF, TG.cfg || {});
@@ -1071,7 +1071,7 @@ function cfgText() {
   return `⚙️ Настройки бота\n\n` +
     `Тексты:\n• утро: «${c.tMorning}»\n• принял: «${c.tAccept}»\n• работа: «${c.tWork}»\n\n` +
     `Время:\n• утро мастерам: ${c.atMorning}\n• сводка мне: ${c.atReport}\n• сдача: ${c.atCash}\n\n` +
-    `Минуты:\n• напомнить «Принял»: ${c.mAccRemind}\n• сообщить мне «не принял»: ${c.mAccOwner}\n• долго «В пути»: ${c.mWay}\n• не раздана заявка (уведомление на других ПК): ${c.mWait}\n\n` +
+    `Минуты:\n• напомнить «Принял»: ${c.mAccRemind}\n• сообщить мне «не принял»: ${c.mAccOwner}\n• долго «В пути»: ${c.mWay}\n• не роздана заявка — уведомить за (мин до заказа, на др. ПК): ${c.mWait}\n\n` +
     `Изменить:\n/текст утро Новый текст\n/текст принял Новый текст\n/текст работа Новый текст\n/время утро 9:30 · /время сводка 9:00 · /время сдача 22:00\n/минуты принял 10 · /минуты директор 20 · /минуты впути 60 · /минуты ожидает 15\n/сброс — вернуть всё как было\n\nВкл/выкл — кнопками:`;
 }
 const cfgKb = () => { const c = cfg(); const b = CFG_TOG.map(([k, n]) => ({ text: (c[k] ? '🟢 ' : '⚪ ') + n, callback_data: 'cf:' + k })); const rows = []; for (let i = 0; i < b.length; i += 2) rows.push(b.slice(i, i + 2)); return { inline_keyboard: rows }; };
@@ -1096,21 +1096,32 @@ async function cfgCallback(q) {
 
 // ================= 2. Неразданные заявки: «Ожидает» дольше N минут =================
 // уведомление показывается в самом дополнении на НЕ главных компьютерах (в Telegram не отправляется)
+// время заявки из списка CRM: «27.10.26 16:30» → Date
+function reqTime(t) {
+  const m = String(t || '').match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2,4})\s+(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
+  return new Date(y, +m[2] - 1, +m[1], +m[4], +m[5]);
+}
+// уведомление о неразданной заявке — за N минут (по умолчанию 30) до времени заказа, если она всё ещё «Ожидает»
 async function ctlWaiting() {
   if (TG_HERE || !cfg().onWait) return;
   const rows = await waitingRows().catch(() => null); if (!rows) return;
   const today = rows.filter((r) => isToday(r.time));
   const c = await ctlGet(); c.wait = c.wait || {}; const now = Date.now(); let ch = false;
   Object.keys(c.wait).forEach((id) => { if (!today.find((r) => r.id === id)) { delete c.wait[id]; ch = true; } });
+  const before = cfg().mWait * 60e3;
   for (const r of today) {
     const w = c.wait[r.id] || (c.wait[r.id] = { t: now, sent: false }, ch = true, c.wait[r.id]);
-    if (!w.sent && now - w.t >= cfg().mWait * 60e3) {
-      w.sent = true; ch = true;
-      try {
-        browser.notifications.create('dh-wait-' + r.id, { type: 'basic', title: `⏳ Заявка №${r.id} не роздана ${Math.round((now - w.t) / 60e3)} мин`, message: [r.time, r.addr, r.client].filter(Boolean).join(' · ') || 'Нажмите, чтобы открыть заявку', iconUrl: browser.runtime.getURL('icon.svg') });
-      } catch (e) {}
-      try { sound.currentTime = 0; sound.play().catch(() => {}); } catch (e) {}
-    }
+    const at = reqTime(r.time);
+    if (w.sent || !at || at - now > before) continue; // до заказа больше N минут — рано
+    w.sent = true; ch = true;
+    const left = Math.round((at - now) / 60e3);
+    const title = left > 0 ? `⏳ Через ${left} мин заказ №${r.id}, а он не роздан` : `⚠️ Заказ №${r.id} не роздан — время уже наступило`;
+    try {
+      browser.notifications.create('dh-wait-' + r.id, { type: 'basic', title, message: [r.time, r.addr, r.client].filter(Boolean).join(' · ') || 'Нажмите, чтобы открыть заявку', iconUrl: browser.runtime.getURL('icon.svg') });
+    } catch (e) {}
+    try { sound.currentTime = 0; sound.play().catch(() => {}); } catch (e) {}
   }
   if (ch) await ctlSet(c);
 }
