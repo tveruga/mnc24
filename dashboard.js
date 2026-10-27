@@ -252,9 +252,9 @@ const packT = (x) => x ? { title: x.title, heads: x.heads, rows: x.rows } : null
 async function memGet(key) { try { const r = await browser.storage.local.get('mncCache'); return (r.mncCache || {})[key] || null; } catch (e) { return null; } }
 // нужные сейчас периоды: сегодня, вчера, этот месяц, прошлый месяц (+ та же дата прошлого месяца)
 function liveKeys() {
-  const k = new Set(['salary', 'ads', 'rating', 'turnRank']);
+  const k = new Set(['salary', 'ads', 'ads-w', 'rating', 'turnRank']);
   try {
-    [ranges('today', 'day'), ranges('today', 'month'), ranges('month')].forEach((r) => { k.add(rkey(r.cur)); k.add(rkey(r.cmp)); });
+    [ranges('today', 'day'), ranges('today', 'month'), ranges('week'), ranges('month')].forEach((r) => { k.add(rkey(r.cur)); k.add(rkey(r.cmp)); });
   } catch (e) {}
   return k;
 }
@@ -352,6 +352,12 @@ function ranges(period, cmp) {
   if (period === 'today') {
     const t = new Date(y, m, d), c = cmp === 'month' ? addMonths(t, -1) : new Date(y, m, d - 1);
     return { cur: [t, t], cmp: [c, c], curName: 'Сегодня', cmpName: cmp === 'month' ? dd(c).slice(0, 5) : 'Вчера' };
+  }
+  if (period === 'week') {
+    // последние 7 дней (с той же даты неделю назад по сегодня) и неделя до них
+    const t = new Date(y, m, d), a = new Date(y, m, d - 7), p = new Date(y, m, d - 14);
+    const sh = (x) => dd(x).slice(0, 5);
+    return { cur: [a, t], cmp: [p, a], curName: `${sh(a)}–${sh(t)}`, cmpName: `${sh(p)}–${sh(a)}` };
   }
   const mn = (k) => { const s = new Date(y, m + k, 1).toLocaleDateString('ru-RU', { month: 'long' }); return s[0].toUpperCase() + s.slice(1); };
   return { cur: [new Date(y, m, 1), new Date(y, m + 1, 0)], cmp: [new Date(y, m - 1, 1), new Date(y, m, 0)], curName: mn(0), cmpName: mn(-1) };
@@ -755,13 +761,14 @@ function renderTop() {
   ROOT.querySelectorAll('#period button').forEach((b) => b.classList.toggle('on', b.dataset.p === PERIOD));
   const mr = ranges('month').cur;
   ROOT.querySelector('#period button[data-p="month"]').textContent = `За месяц · ${dd(mr[0]).slice(0, 5)}–${dd(mr[1]).slice(0, 5)}`;
+  const wr = ranges('week').cur; const wb = ROOT.querySelector('#period button[data-p="week"]'); if (wb) wb.textContent = `Неделя · ${dd(wr[0]).slice(0, 5)}–${dd(wr[1]).slice(0, 5)}`;
   const box = $('#cmp');
   box.innerHTML = PERIOD === 'today'
     ? `<button data-c="y" class="${CMPON ? 'on' : ''}">${CMPON ? '✓ Сравнение со вчера' : 'Сравнить со вчера'}</button>`
-    : '<span>Сравнение с прошлым месяцем</span>';
+    : PERIOD === 'week' ? '<span>Сравнение с прошлой неделей</span>' : '<span>Сравнение с прошлым месяцем</span>';
   box.querySelectorAll('button').forEach((b) => b.onclick = () => { CMPON = !CMPON; safeLoad(); });
-  const useCmp = PERIOD === 'month' || CMPON;
-  $('#dates').innerHTML = `<b>${span(rg.cur)}</b>${PERIOD === 'month' ? ` <em>${days(rg.cur)} дн.</em>` : ''}${useCmp ? ` <span class="vs">сравнение:</span> ${span(rg.cmp)}${PERIOD === 'month' ? ` <em>${days(rg.cmp)} дн.</em>` : ''}` : ''}`;
+  const useCmp = PERIOD !== 'today' || CMPON;
+  $('#dates').innerHTML = `<b>${span(rg.cur)}</b>${PERIOD !== 'today' ? ` <em>${days(rg.cur)} дн.</em>` : ''}${useCmp ? ` <span class="vs">сравнение:</span> ${span(rg.cmp)}${PERIOD !== 'today' ? ` <em>${days(rg.cmp)} дн.</em>` : ''}` : ''}`;
 }
 
 function salaryMetrics(sal) {
@@ -1031,20 +1038,24 @@ function adAnalyze(t) {
   const byDay = dateCol >= 0 ? (() => { const g = new Map(); rows.forEach((r) => { const m = String(r[dateCol]).match(/^(\d{1,2})[.\-/](\d{1,2})|^\d{4}-(\d{2})-(\d{2})/); if (!m) return; const day = +(m[1] || m[4]); const o = g.get(day) || {}; metrics.forEach((mm) => { o[mm.h] = (o[mm.h] || 0) + (parseNum(r[mm.i]) || 0); }); g.set(day, o); }); return g; })() : null;
   return { title: t.title, heads: H, rows, metrics, dateCol, textCols, totals, group, byDay, total: t.total, partial: t.partial, labelCol: textCols[0] ? textCols[0].i : 0 };
 }
-async function loadAds() {
+let ADS_PER = 'month'; // реклама: 'month' — месяц к прошлому, 'week' — 7 дней к прошлым 7
+const adsKey = () => ADS_PER === 'week' ? 'ads-w' : 'ads';
+async function loadAds(per) {
+  per = per || ADS_PER;
   const adUrl = adMenuUrl(/^реклама$/i), rkUrl = adMenuUrl(/^отч[её]т\s+по\s+рк$/i);
   if (!adUrl && !rkUrl) throw new Error('В меню CRM «Реклама» не найдены пункты «Реклама» и «Отчет по РК»');
-  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
-  const cur = [new Date(y, m, 1), new Date(y, m + 1, 0)], prev = [new Date(y, m - 1, 1), new Date(y, m, 0)];
+  const rg = ranges(per === 'week' ? 'week' : 'month');
+  const cur = rg.cur, prev = rg.cmp;
   const one = async (url, r) => { if (!url) return null; const d = await loadWithDates(url, r); const t = await adCollect(d); if (t) t.dated = !!d.mncDated; return t; };
   const [aC, aP, rC, rP] = await Promise.all([one(adUrl, cur), one(adUrl, prev).catch(() => null), one(rkUrl, cur).catch(() => null), one(rkUrl, prev).catch(() => null)]);
   const sameAs = (a, b) => a && b && JSON.stringify(a.rows) === JSON.stringify(b.rows);
-  return { ad: { cur: aC, prev: sameAs(aC, aP) || (aP && !aP.dated) ? null : aP }, rk: { cur: rC, prev: sameAs(rC, rP) || (rP && !rP.dated) ? null : rP } };
+  return { per, rg: { cur: cur.map((x) => +x), cmp: prev.map((x) => +x), curName: rg.curName, cmpName: rg.cmpName }, ad: { cur: aC, prev: sameAs(aC, aP) || (aP && !aP.dated) ? null : aP }, rk: { cur: rC, prev: sameAs(rC, rP) || (rP && !rP.dated) ? null : rP } };
 }
 let ADS = null, ADS_ERR = '';
 function adSection(name, src, opts) {
   const n = new Date();
-  const mn = (k) => { const s = new Date(n.getFullYear(), n.getMonth() + k, 1).toLocaleDateString('ru-RU', { month: 'long' }); return s[0].toUpperCase() + s.slice(1); };
+  const week = ADS && ADS.per === 'week' && ADS.rg;
+  const mn = (k) => { if (week) return k === 0 ? ADS.rg.curName : ADS.rg.cmpName; const s = new Date(n.getFullYear(), n.getMonth() + k, 1).toLocaleDateString('ru-RU', { month: 'long' }); return s[0].toUpperCase() + s.slice(1); };
   const A = adAnalyze(src.cur), P = adAnalyze(src.prev);
   if (!A) return `<div class="card"><div class="ct">${name}</div><div class="muted">нет данных</div></div>`;
   const id = opts.id;
@@ -1070,20 +1081,28 @@ function adSection(name, src, opts) {
   const chart = A.byDay ? `<div class="card big"><div class="ch"><div><div class="ct">${esc(name)} по дням</div><div class="cs">${A.metrics.slice(0, 3).map((m) => esc(m.h)).join(', ')} · ${mn(0)}${P && P.byDay ? ' и ' + mn(-1) + ' (пунктир)' : ''}</div></div></div><div id="${id}-c"></div></div>` : '';
   if (A.byDay) setTimeout(() => {
     const box = view.querySelector('#' + id + '-c'); if (!box) return;
-    const dim = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate();
-    const days = Array.from({ length: dim }, (_, i) => i + 1);
     const ms = A.metrics.slice(0, 3);
-    const series = ms.map((m, k) => ({ name: m.h, values: days.map((d) => (A.byDay.get(d) || {})[m.h] ?? (d <= n.getDate() ? 0 : null)), color: PALETTE[k] }));
-    if (P && P.byDay) series.push({ name: ms[0].h + ' · ' + mn(-1), values: days.map((d) => (P.byDay.get(d) || {})[ms[0].h] ?? null), color: '#5f7468', dashed: true });
-    smoothChart(box, days.map(String), series.map((s) => Object.assign(s, { values: s.values.map((v) => v == null ? null : v) })), { h: 260 });
+    let days, pdays, labels;
+    if (week) {
+      // по дням недели: та же позиция дня в прошлой неделе — пунктиром
+      const span = (r) => { const out = []; for (let t = new Date(r[0]); t <= new Date(r[1]); t = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1)) out.push(t.getDate()); return out; };
+      days = span(ADS.rg.cur); pdays = span(ADS.rg.cmp);
+      const c0 = new Date(ADS.rg.cur[0]); labels = days.map((d, i) => dd(new Date(c0.getFullYear(), c0.getMonth(), c0.getDate() + i)).slice(0, 5));
+    } else {
+      const dim = new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate();
+      days = Array.from({ length: dim }, (_, i) => i + 1); pdays = days; labels = days.map(String);
+    }
+    const series = ms.map((m, k) => ({ name: m.h, values: days.map((d) => (A.byDay.get(d) || {})[m.h] ?? (week || d <= n.getDate() ? 0 : null)), color: PALETTE[k] }));
+    if (P && P.byDay) series.push({ name: ms[0].h + ' · ' + mn(-1), values: pdays.map((d) => (P.byDay.get(d) || {})[ms[0].h] ?? null), color: '#5f7468', dashed: true });
+    smoothChart(box, labels, series.map((s) => Object.assign(s, { values: s.values.map((v) => v == null ? null : v) })), { h: 260 });
   }, 0);
-  return `<h2 class="sec">${esc(name)}${A.partial ? ' <span class="muted">(загружены не все страницы)</span>' : ''}${!P ? ' <span class="muted">· прошлый месяц недоступен</span>' : ''}</h2>
+  return `<h2 class="sec">${esc(name)}${A.partial ? ' <span class="muted">(загружены не все страницы)</span>' : ''}${!P ? ` <span class="muted">· ${week ? 'прошлая неделя' : 'прошлый месяц'} недоступен${week ? 'а' : ''}</span>` : ''}</h2>
     <div class="kpis">${kp}</div>
     ${chart}
     ${opts.donut ? `<div class="row2"><div class="card"><div class="ch"><div class="ct">Доли</div></div><div id="${id}-d"></div></div><div>${groupHTML}</div></div>` : groupHTML}`;
 }
 function renderAds() {
-  if (!ADS) { view.innerHTML = ADS_ERR ? `<div class="err">${esc(ADS_ERR)}</div>` : '<div class="loading"><div class="spin"></div>Собираю «Реклама» и «Отчет по РК» за этот и прошлый месяц…</div>'; return; }
+  if (!ADS) { view.innerHTML = ADS_ERR ? `<div class="err">${esc(ADS_ERR)}</div>` : `<div class="loading"><div class="spin"></div>Собираю «Реклама» и «Отчет по РК» за ${ADS_PER === 'week' ? 'эту и прошлую неделю' : 'этот и прошлый месяц'}…</div>`; return; }
   view.innerHTML = adSection('Реклама: выдано и разнесено', ADS.ad, { id: 'ad' }) +
     adSection('Отчёт по РК: заявки от рекламных кампаний', ADS.rk, { id: 'rk', donut: true, sortRe: /сво|наш/i });
   requestAnimationFrame(() => requestAnimationFrame(() => view.querySelectorAll('.tb').forEach((x) => x.classList.add('on'))));
@@ -1246,11 +1265,11 @@ async function load(force) {
   if (MODE === 'ad') {
     const seq = ++loadSeq;
     const tm = (x) => new Date(x).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-    if (!ADS && !force) { const m = await memGet('ads'); if (m) { ADS = m.data; renderAds(); $('#upd').textContent = 'из памяти · ' + tm(m.at); if (Date.now() - m.at < FRESH) return; } }
+    if (!ADS && !force) { const m = await memGet(adsKey()); if (m) { ADS = m.data; renderAds(); $('#upd').textContent = 'из памяти · ' + tm(m.at); if (Date.now() - m.at < FRESH) return; } }
     renderAds();
     if (!ADS || force || true) {
       if (ADS) $('#upd').textContent = 'обновляю…';
-      try { const x = await loadAds(); ADS = x; ADS_ERR = ''; memSet('ads', { data: x, at: Date.now() }); } catch (e) { if (e.message === 'cancelled') return; if (!ADS) ADS_ERR = e.message; }
+      try { const per = ADS_PER; const x = await loadAds(per); if (per !== ADS_PER) return; ADS = x; ADS_ERR = ''; memSet(per === 'week' ? 'ads-w' : 'ads', { data: x, at: Date.now() }); } catch (e) { if (e.message === 'cancelled') return; if (!ADS) ADS_ERR = e.message; }
       if (!ROOT || seq !== loadSeq) return;
       renderAds();
       $('#upd').textContent = 'обновлено ' + tm(Date.now());
@@ -1277,7 +1296,7 @@ async function load(force) {
     $('#upd').textContent = '';
     const guard = setTimeout(() => { if (seq === loadSeq && view && view.querySelector('.loading')) view.innerHTML = '<div class="err">Отчёт грузится слишком долго. Нажмите ⟳.</div>'; }, 40000);
     const rg = ranges(PERIOD, 'day');
-    const useCmp = PERIOD === 'month' || CMPON;
+    const useCmp = PERIOD !== 'today' || CMPON;
     const tm = (x) => new Date(x).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
     const [mc, mp] = await Promise.all([cachedAll(rg.cur), useCmp ? cachedAll(rg.cmp) : null]);
     if (mc) {
@@ -1311,7 +1330,7 @@ function open(mode) {
   ROOT = document.createElement('div'); ROOT.id = 'mnc-dash';
   ROOT.innerHTML = `<div class="top">
       <div class="brand"><span class="dh"><span class="dh-a">DIR</span><span class="dh-b">HELPER</span></span><span id="ttl">Аналитика</span></div>
-      <div class="period" id="period"><button data-p="today" class="on">Сегодня</button><button data-p="month">За месяц</button></div>
+      <div class="period" id="period"><button data-p="today" class="on">Сегодня</button><button data-p="week">Неделя</button><button data-p="month">За месяц</button></div>
       <button id="wide" class="ic" title="Шире / уже">⇔</button>
       <button id="reload" class="ic" title="Обновить">⟳</button>
       <button id="close" class="ic" title="Закрыть (Esc)">✕</button>
@@ -1342,7 +1361,9 @@ function setMode() {
     $('#dates').innerHTML = '';
   } else if (MODE === 'ad') {
     const n = new Date(), mn = (k) => new Date(n.getFullYear(), n.getMonth() + k, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
-    $('#cmp').innerHTML = `<span>${mn(0)} в сравнении с ${mn(-1)} · CRM → Реклама, Отчет по РК</span>`;
+    const w = ranges('week');
+    $('#cmp').innerHTML = `<button data-ap="month" class="${ADS_PER === 'month' ? 'on' : ''}">Месяц</button><button data-ap="week" class="${ADS_PER === 'week' ? 'on' : ''}">Неделя</button> <span>${ADS_PER === 'week' ? `${w.curName} в сравнении с ${w.cmpName}` : `${mn(0)} в сравнении с ${mn(-1)}`} · CRM → Реклама, Отчет по РК</span>`;
+    $('#cmp').querySelectorAll('[data-ap]').forEach((b) => b.onclick = () => { if (ADS_PER === b.dataset.ap) return; ADS_PER = b.dataset.ap; ADS = null; ADS_ERR = ''; setMode(); safeLoad(); });
     $('#dates').innerHTML = '';
   } else if (zp) {
     const n = new Date(), mn = (k) => new Date(n.getFullYear(), n.getMonth() + k, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
@@ -1374,7 +1395,7 @@ async function refreshAll() {
   try {
     const list = [[ranges('today', 'day'), true], [ranges('month'), true]];
     const jobs = [list[0][0].cur, list[1][0].cur].map((r) => [r, true])
-      .concat([ranges('today', 'day').cmp, ranges('today', 'month').cmp, ranges('month').cmp].map((r) => [r, false]));
+      .concat([ranges('today', 'day').cmp, ranges('today', 'month').cmp, ranges('month').cmp, ranges('week').cur, ranges('week').cmp].map((r) => [r, false]));
     for (const [r, need] of jobs) {
       const m = await memGet(rkey(r));
       if (m && Date.now() - m.at < FRESH - 5 * 60e3) continue;
@@ -1384,7 +1405,9 @@ async function refreshAll() {
     if (!rm || Date.now() - rm.at > FRESH - 5 * 60e3) { const x = await loadRating().catch(() => null); if (x) memSet('rating', { data: x, at: Date.now() }); }
     await ensureTurnRank(true).catch(() => null);
     const am = await memGet('ads');
-    if (!am || Date.now() - am.at > FRESH - 5 * 60e3) { const x = await loadAds().catch(() => null); if (x) memSet('ads', { data: x, at: Date.now() }); }
+    if (!am || Date.now() - am.at > FRESH - 5 * 60e3) { const x = await loadAds('month').catch(() => null); if (x) memSet('ads', { data: x, at: Date.now() }); }
+    const aw = await memGet('ads-w');
+    if (!aw || Date.now() - aw.at > FRESH - 5 * 60e3) { const x = await loadAds('week').catch(() => null); if (x) memSet('ads-w', { data: x, at: Date.now() }); }
     const sm = await memGet('salary');
     if (!sm || Date.now() - sm.at > FRESH - 5 * 60e3) { const x = await loadSalary().catch(() => null); if (x) memSet('salary', { data: x, at: Date.now() }); }
   } finally { refreshing = false; }
