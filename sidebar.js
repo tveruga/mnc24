@@ -30,6 +30,9 @@ document.getElementById('tab').onclick = () => {
 // выдвинуть панель выдачи заявки внутри окна
 document.getElementById('give').onclick = () => { try { crm.contentWindow.postMessage({ dirHelper: 'panel' }, BASE); } catch (e) {} };
 
+// ☀/☾ — светлая / тёмная тема
+dhThemeButton(document.getElementById('theme'));
+
 // «?» — что нового
 const news = document.getElementById('news');
 news.onclick = () => dhShowNews(document);

@@ -193,8 +193,10 @@ html.dh-has-bar #mnc-dash{top:48px}
 @media (max-width:1100px){#dh-topbar.dhb .dhb-tools{position:static;transform:none;margin-left:auto}}
 
 /* «?» — Что нового: круглая кнопка у правого края шапки */
-#dh-topbar.dhb button.dhb-new{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:26px;height:26px;padding:0;border:1.5px solid #166534;border-radius:50%;justify-content:center;font:700 13px "Segoe UI",sans-serif;color:#166534;background:#fff;box-shadow:0 1px 3px rgba(11,46,32,.15)}
-#dh-topbar.dhb button.dhb-new:hover{background:#166534;color:#fff;border-color:#166534}
+#dh-topbar.dhb button.dhb-new,#dh-topbar.dhb button.dhb-theme{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:26px;height:26px;padding:0;border:1.5px solid #166534;border-radius:50%;justify-content:center;font:700 13px "Segoe UI",sans-serif;color:#166534;background:#fff;box-shadow:0 1px 3px rgba(11,46,32,.15)}
+#dh-topbar.dhb button.dhb-theme{right:46px}
+#dh-topbar.dhb button.dhb-new:hover,#dh-topbar.dhb button.dhb-theme:hover{background:#166534;color:#fff;border-color:#166534}
+@media (max-width:1100px){#dh-topbar.dhb button.dhb-theme{position:relative;right:auto;top:auto;transform:none;margin-left:8px;flex:none}}
 #dh-topbar.dhb button.dhb-new.dhb-new-unseen::after{content:"";position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 2px #fff}
 @media (max-width:1100px){#dh-topbar.dhb button.dhb-new{position:relative;right:auto;top:auto;transform:none;margin-left:8px;flex:none}}
 #dh-topbar.dhb .dhb-bot .dhb-dot{width:8px;height:8px;border-radius:50%;background:#b8c4bd;display:inline-block}

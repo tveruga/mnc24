@@ -4,6 +4,7 @@
 .dhov-top button{all:unset;cursor:pointer;width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:16px;color:#fbfbfe}
 .dhov-top button:hover{background:#3a3944}
 body.ov .dhov-top{display:flex}
+html.dh-dark .dhov-top{filter:invert(1) hue-rotate(180deg)} /* полоса и так тёмная — в тёмной теме не переворачиваем */
 body.ov main{top:88px}
 body.ov #toast{top:94px}
 html,body{margin:0;height:100%;background:#f2f6f3;font:13px "Segoe UI",system-ui,sans-serif;overflow:hidden}
@@ -33,8 +34,9 @@ iframe{border:0;transform-origin:0 0;display:block;background:#fff}
 
 /* «?» — Что нового: круглая кнопка у правого края шапки */
 .dhb .dhb-tools{flex:1}
-.dhb button.dhb-new{margin-left:auto;width:26px;height:26px;padding:0;border:1.5px solid #166534;border-radius:50%;justify-content:center;font:700 13px "Segoe UI",sans-serif;color:#166534;background:#fff;box-shadow:0 1px 3px rgba(11,46,32,.15);position:relative;flex:none}
-.dhb button.dhb-new:hover{background:#166534;color:#fff;border-color:#166534}
+.dhb button.dhb-new,.dhb button.dhb-theme{margin-left:auto;width:26px;height:26px;padding:0;border:1.5px solid #166534;border-radius:50%;justify-content:center;font:700 13px "Segoe UI",sans-serif;color:#166534;background:#fff;box-shadow:0 1px 3px rgba(11,46,32,.15);position:relative;flex:none}
+.dhb button.dhb-theme + button.dhb-new{margin-left:6px}
+.dhb button.dhb-new:hover,.dhb button.dhb-theme:hover{background:#166534;color:#fff;border-color:#166534}
 .dhb button.dhb-new.dhb-new-unseen::after{content:"";position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 2px #fff}
 .dhb .dhb-bot .dhb-dot{width:8px;height:8px;border-radius:50%;background:#b8c4bd;display:inline-block}
 .dhb .dhb-bot.bot-on .dhb-dot{background:#22a35a;box-shadow:0 0 0 3px rgba(34,163,90,.18)}
