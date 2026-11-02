@@ -694,8 +694,9 @@ async function wizCallback(q, edit) {
 }
 
 // ---- события из расширения ----
-browser.runtime.onMessage.addListener(async (m) => {
-  if (!m || !m.tg) return;
+// ВАЖНО: обработчик не async — иначе он отвечал бы пустым ответом на ЧУЖИЕ сообщения (⟳ «Обновить», активация и т.п.)
+browser.runtime.onMessage.addListener((m) => { if (!m || !m.tg) return; return tgOnMsg(m); });
+async function tgOnMsg(m) {
   await tgLoad();
   if (TG_PAUSED && (m.tg === 'assigned' || m.tg === 'closed')) return { sent: false, paused: true }; // бот выключен @tveruga — мастерам из панели тоже не пишем
   if (m.tg === 'assigned') {
@@ -726,7 +727,7 @@ browser.runtime.onMessage.addListener(async (m) => {
   if (m.tg === 'relink') { await tgRelink(); return { ok: true }; }
   if (m.tg === 'setLink') { TG.groups = TG.groups || {}; const g = TG.groups[m.chatId]; if (g) { if (m.empId) { g.empId = String(m.empId); g.how = 'manual'; } else { delete g.empId; delete g.how; } await tgSave(); await tgRelink(); tgPushGroups(); } return { ok: true }; }
   if (m.tg === 'test') { try { const me = await tgApi('getMe'); return { ok: true, name: me.username }; } catch (e) { return { ok: false, err: e.message }; } }
-});
+}
 
 // мастер в своей группе: «Принял» → подсказка; «В работе» → статус «В пути» → «В работе»
 const tgWorkBusy = {};
