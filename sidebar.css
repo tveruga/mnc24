@@ -1,4 +1,13 @@
 *{box-sizing:border-box}
+/* открытие панели — как «джинн» в macOS: выплывает из точки у значка (справа сверху) и разворачивается */
+@keyframes dhGenie{
+  0%{clip-path:polygon(96% 0,100% 0,100% 2%,99% 2%);transform:scaleY(.3);opacity:.15}
+  40%{clip-path:polygon(62% 0,100% 0,100% 48%,93% 48%);transform:scaleY(.75);opacity:1}
+  70%{clip-path:polygon(12% 0,100% 0,100% 92%,45% 92%);transform:scaleY(.97)}
+  100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transform:none;opacity:1}
+}
+body{transform-origin:100% 0;animation:dhGenie .6s cubic-bezier(.2,.8,.25,1) both}
+@media (prefers-reduced-motion:reduce){body{animation-duration:.2s}}
 html,body{margin:0;height:100%;background:#f2f6f3;font:13px "Segoe UI",system-ui,sans-serif;overflow:hidden}
 header.dhb{position:relative;z-index:2}
 main{position:absolute;top:48px;left:0;right:0;bottom:0;overflow:hidden}

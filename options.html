@@ -23,7 +23,7 @@ textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
     <li>Добавьте бота в группы мастеров и напишите в каждой <b>/start</b> — бот ответит «✅ группа привязана».<br>Чтобы бот видел сообщения в группе: @BotFather → /mybots → бот → Bot Settings → Group Privacy → <b>Turn off</b>.</li>
   </ol>
   <label class="chk" style="background:#eef7f1;padding:10px;border-radius:10px"><input type="checkbox" id="here"> <b>Бот работает на этом компьютере</b></label>
-  <p class="muted" id="hereinfo">Включайте только на ОДНОМ компьютере (который чаще всего включён). На остальных снимите галочку — там панель и аналитика работают как обычно, а бот не мешает.</p>
+  <p class="muted" id="hereinfo">Можно оставить включённым на всех компьютерах: бот работает на одном, остальные ждут. Если тот компьютер выключат, примерно через 3 минуты бота подхватит другой. Сдачу мастерам отправляет только работающий бот.</p>
   <input id="tok" type="text" placeholder="123456789:AA…">
   <button id="tsave">Сохранить и проверить</button> <span id="tmsg"></span>
   <p id="act" class="muted"></p><p id="owner" class="muted"></p><p id="diag" class="muted"></p>
@@ -37,7 +37,7 @@ textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
 </div>
 <div class="card">
   <h2>Перенос на другой компьютер</h2>
-  <p class="muted">На главном компьютере нажмите «Скопировать код» (или напишите боту <b>/код</b>). На другом компьютере вставьте код сюда и нажмите «Применить» — токен, группы мастеров и настройки перенесутся, а бот там будет выключен.</p>
+  <p class="muted">На главном компьютере нажмите «Скопировать код» (или напишите боту <b>/код</b>). На другом компьютере вставьте код сюда и нажмите «Применить» — токен, группы мастеров и настройки перенесутся, а бот там будет ждущим (подхватит, если главный выключат).</p>
   <button id="exp">Скопировать код</button> <span id="expmsg" class="muted"></span>
   <input id="imp" type="text" placeholder="DH1:…" style="margin-top:10px">
   <button id="impb">Применить</button> <span id="impmsg"></span>

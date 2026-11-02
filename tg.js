@@ -5,13 +5,15 @@ const tgNorm = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е').trim();
 let TG = { token: '', owner: null, chats: {}, offset: 0, opts: { notifyNew: true, toMaster: true, sumToMaster: true } };
 let tgPolling = false;
 // несколько копий DIR HELPER на одном боте: работает одна «главная», остальные молчат
-let tgOkSince = 0, tgLastConflict = 0, tgConflicts = [];
+let tgOkSince = 0, tgLastConflict = 0;
 const tgLeader = () => tgOkSince && Date.now() - tgOkSince > 120000;
 // бот (приём команд, уведомления, напоминания) работает только на компьютере, где это включено в настройках
 let TG_HERE = true;
 browser.storage.local.get('tgHere').then((r) => { TG_HERE = r.tgHere !== false; }).catch(() => {});
 browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) TG_HERE = ch.tgHere.newValue !== false; });
-const tgActive = () => TG_HERE && Date.now() - tgLastConflict > 15 * 60e3;
+// бот можно включить на всех компьютерах: работает один (тот, что занял бота раньше), остальные ждут и раз в 2,5–4 мин
+// проверяют, жив ли он; если работающий выключили — следующая проверка проходит, и бота подхватывает ждущий
+const tgActive = () => TG_HERE && ((tgOkSince && Date.now() - tgOkSince > 30e3) || Date.now() - tgLastConflict > 5 * 60e3);
 
 // бот и владелец, указанные при сборке (можно поменять в настройках ⚙)
 const TG_DEFAULT = { token: '' /* токен хранится только в настройках Firefox */, owner: 7191750835, users: [7191750835, 7892790601] };
@@ -530,11 +532,11 @@ async function tgPoll() {
       browser.storage.local.set({ tgDiag: { ok: Date.now(), err: '' } });
     } catch (e) {
       if (e.conflict) {
-        if (tgLeader()) { await new Promise((r) => setTimeout(r, 300)); continue; } // главная — продолжает
-        tgConflicts = tgConflicts.filter((t) => Date.now() - t < 5 * 60e3).concat(Date.now());
-        if (tgConflicts.length >= 3) { tgLastConflict = Date.now(); tgOkSince = 0; } // постоянный конфликт — значит, есть другая копия
-        browser.storage.local.set({ tgDiag: { ok: 0, err: e.message, at: Date.now() } });
-        await new Promise((r) => setTimeout(r, tgConflicts.length >= 3 ? 60e3 : 3000));
+        if (tgLeader()) { await new Promise((r) => setTimeout(r, 300)); continue; } // работает здесь давно — оставляем бота себе
+        // бот занят другим компьютером — ждём; проверяем реже, чем за 2 мин, иначе мешали бы ему закрепиться
+        tgOkSince = 0; tgLastConflict = Date.now();
+        browser.storage.local.set({ tgDiag: { ok: 0, err: 'бот работает на другом компьютере — этот ждёт и подхватит, если тот выключат', at: Date.now(), standby: true } });
+        await new Promise((r) => setTimeout(r, 150e3 + Math.random() * 90e3));
         continue;
       }
       browser.storage.local.set({ tgDiag: { ok: 0, err: e.message, at: Date.now() } }); await new Promise((r) => setTimeout(r, 5000));
@@ -665,7 +667,8 @@ browser.runtime.onMessage.addListener(async (m) => {
     (REPLY_TO ? tgReply : tgOwner)(`✅ №${m.id} → ${who}, ${m.st}` + (TG.opts.toMaster ? (res.ok ? `\n📨 заявка отправлена в «${chat.title}»` : `\n⚠️ не отправлено мастеру: ${res.err}`) : ''));
     return { sent: res.ok };
   }
-  if (m.tg === 'closed') return tgSumToMaster(m.id, m.out, m.master, m.empId);
+  // сдачу шлёт только работающий бот (иначе с двух компьютеров уходило дважды); здесь — ждущий: бот на другом ПК увидит «Готов» и отправит сам
+  if (m.tg === 'closed') { if (!tgActive()) return { sent: false, standby: true }; return tgSumToMaster(m.id, m.out, m.master, m.empId); }
   if (m.tg === 'relink') { await tgRelink(); return { ok: true }; }
   if (m.tg === 'setLink') { TG.groups = TG.groups || {}; const g = TG.groups[m.chatId]; if (g) { if (m.empId) { g.empId = String(m.empId); g.how = 'manual'; } else { delete g.empId; delete g.how; } await tgSave(); await tgRelink(); tgPushGroups(); } return { ok: true }; }
   if (m.tg === 'test') { try { const me = await tgApi('getMe'); return { ok: true, name: me.username }; } catch (e) { return { ok: false, err: e.message }; } }
@@ -753,17 +756,24 @@ function tgSums(text) {
   if (give == null) return null;
   return { done, give, text: (done != null ? `Проведенная сумма по заявке: ${done} р.\n` : '') + `Сумма к сдаче: ${give} р.` };
 }
+// проведённые заявки: по ним сдача больше не отправляется (номер заявки не меняется) — помним год
+const SUM_KEEP = 365 * 864e5, SUM_MAX = 5000;
+async function tgSumDone(id) { const s = (await browser.storage.local.get('tgSumSent')).tgSumSent || {}; return !!s[String(id)]; }
+async function tgSumMark(ids) {
+  const s = (await browser.storage.local.get('tgSumSent')).tgSumSent || {}, now = Date.now();
+  [].concat(ids).forEach((id) => { if (!s[String(id)]) s[String(id)] = now; });
+  Object.keys(s).forEach((k) => { if (now - s[k] > SUM_KEEP) delete s[k]; });
+  const keys = Object.keys(s); if (keys.length > SUM_MAX) keys.sort((a, b) => s[a] - s[b]).slice(0, keys.length - SUM_MAX).forEach((k) => delete s[k]);
+  await browser.storage.local.set({ tgSumSent: s });
+}
 // «Сумма к сдаче» → в группу мастера (один раз на заявку)
 async function tgSumToMaster(id, out, master, empId) {
   await tgLoad();
   const sums = tgSums(out);
   if (!sums) return { sent: false, noSum: true };   // суммы ещё нет — не шлём пустое
   out = sums.text;
-  const sent = (await browser.storage.local.get('tgSumSent')).tgSumSent || {};
-  if (sent[id]) return { sent: true, dup: true };
-  sent[id] = Date.now();
-  Object.keys(sent).forEach((k) => { if (Date.now() - sent[k] > 14 * 864e5) delete sent[k]; });
-  await browser.storage.local.set({ tgSumSent: sent });
+  if (await tgSumDone(id)) return { sent: true, dup: true };
+  await tgSumMark(id);
   await tgRelink();
   let chat = master || empId ? tgMasterChat(master, empId) : null;
   if (!chat && (master || empId)) { await tgPullGroups(true); await tgRelink(); chat = tgMasterChat(master, empId); }
@@ -1048,12 +1058,9 @@ browser.alarms.onAlarm.addListener(async (a) => { if (a.name !== 'dh-ctl') retur
 // код компьютера (показывается в /версия и в настройках)
 browser.storage.local.get('dhInstance').then((r) => { if (!r.dhInstance) browser.storage.local.set({ dhInstance: Math.random().toString(36).slice(2, 7).toUpperCase() }); }).catch(() => {});
 
-// новая установка (не обновление) — бот по умолчанию выключен: включается галочкой в настройках на главном компьютере
-browser.runtime.onInstalled.addListener(async (d) => {
-  if (d.reason !== 'install') return;
-  const r = await browser.storage.local.get(['tg', 'tgHere']);
-  if (r.tgHere === undefined && !(r.tg && r.tg.token)) browser.storage.local.set({ tgHere: false });
-});
+// 13.3: бот включается на всех компьютерах (работает один, остальные ждут — см. tgActive).
+// Старый список слежения очищаем: на ждущих компьютерах в нём копились давно проведённые заявки, и при включении бота по ним снова уходила сдача.
+browser.storage.local.get('dhMig133').then((r) => { if (!r.dhMig133) browser.storage.local.set({ dhMig133: true, tgHere: true, tgTrack: {} }); }).catch(() => {});
 
 
 // ================= /настройки — тексты, время, напоминания без новой версии =================

@@ -53,22 +53,30 @@ async function checkNewRaw() {
       .sort((a, b) => b.filter(Boolean).length - a.filter(Boolean).length)[0] || [];
     const iSt = heads.findIndex((h) => /^статус$/i.test(h));
     const iM = heads.findIndex((h) => /^мастер$/i.test(h));
+    const iC = heads.findIndex((h) => /^закрыто/i.test(h));
+    // «02.11.26 20:33» → время
+    const when = (s) => { const m = String(s || '').match(/(\d{2})\.(\d{2})\.(\d{2,4})\s+(\d{1,2}):(\d{2})/); return m ? new Date(+m[3] < 100 ? 2000 + +m[3] : +m[3], m[2] - 1, +m[1], +m[4], +m[5]).getTime() : 0; };
     // слежение за заявками в работе: ушла в «Готов» или пропала — проверить «Сумму к сдаче»
     const now0 = {};
     table.querySelectorAll('tbody tr').forEach((tr) => {
       const id = (norm(tr.cells[0] && tr.cells[0].textContent).match(/\d{5,}/) || [])[0];
       if (!id) return;
-      now0[id] = { st: iSt >= 0 && tr.cells[iSt] ? norm(tr.cells[iSt].textContent) : '', m: iM >= 0 && tr.cells[iM] ? norm(tr.cells[iM].textContent) : '' };
+      now0[id] = { st: iSt >= 0 && tr.cells[iSt] ? norm(tr.cells[iSt].textContent) : '', m: iM >= 0 && tr.cells[iM] ? norm(tr.cells[iM].textContent) : '', cl: iC >= 0 && tr.cells[iC] ? when(tr.cells[iC].textContent) : 0 };
     });
     try {
       const prevT = (await browser.storage.local.get('tgTrack')).tgTrack || {};
       const track = {};
       Object.entries(now0).forEach(([id, v]) => { if (/^в пути|^в работе/i.test(v.st)) track[id] = { m: v.m, t: Date.now() }; });
       const done = Object.keys(prevT).filter((id) => !track[id] && (!now0[id] || /готов|выполн|закрыт/i.test(now0[id].st)));
-      for (const id of done) {
-        if (!tgActive()) { track[id] = prevT[id]; continue; } // запасная копия — не отправляет
+      if (!tgActive()) { if (done.length) await tgSumMark(done); } // бот работает на другом компьютере — сдачу шлёт он; здесь только запоминаем, ничего не копим
+      else for (const id of done) {
+        if (await tgSumDone(id)) continue;                         // по этой заявке сдача уже была
+        const st = now0[id] ? now0[id].st : await reqStatus(id).catch(() => '');
+        if (!/готов|выполн|закрыт/i.test(st)) continue;            // не проведена (отказ, вернули в «Ожидает», ушла далеко из списка) — не шлём
+        const cl = now0[id] && now0[id].cl;
+        if (cl && Date.now() - cl > 864e5) { await tgSumMark(id); continue; } // закрыта больше суток назад — старая, не шлём
         const ok = await tgCheckClosed(id, prevT[id].m);
-        if (!ok && Date.now() - prevT[id].t < 30 * 60e3 && !(now0[id] && /отказ|отмен/i.test(now0[id].st))) track[id] = prevT[id]; // сумма ещё не появилась — проверим позже
+        if (!ok && Date.now() - prevT[id].t < 30 * 60e3) track[id] = prevT[id]; // сумма ещё не появилась — проверим позже
       }
       await browser.storage.local.set({ tgTrack: track });
     } catch (e) {}
