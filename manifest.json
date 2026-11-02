@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DIR HELPER",
-  "version": "13.4",
+  "version": "13.5",
   "description": "DIR HELPER — раздача заявок CRM МНЧ мастерам, аналитика отчётов и зарплата директора.",
   "browser_specific_settings": {
     "gecko": {
@@ -35,6 +35,7 @@
         "*://*.mnc-lead-centre.ru/*"
       ],
       "js": [
+        "changelog.js",
         "charts.js",
         "dashboard.js",
         "content.js"
@@ -51,6 +52,7 @@
     "sidebar.html",
     "sidebar.css",
     "sidebar.js",
+    "changelog.js",
     "icon.svg"
   ],
   "options_ui": {

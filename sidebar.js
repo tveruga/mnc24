@@ -32,6 +32,11 @@ try { document.getElementById('upd').title = 'Проверить обновле�
 // выдвинуть панель выдачи заявки внутри окна
 document.getElementById('give').onclick = () => { try { crm.contentWindow.postMessage({ dirHelper: 'panel' }, BASE); } catch (e) {} };
 
+// «?» — что нового
+const news = document.getElementById('news');
+news.onclick = () => dhShowNews(document);
+dhNewsDot(news);
+
 // ⟳ — проверить обновление и сразу обновиться
 const upd = document.getElementById('upd');
 upd.onclick = async () => {

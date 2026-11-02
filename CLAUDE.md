@@ -6,7 +6,7 @@ CRM: https://mnc-lead-centre.ru/admin (Yii2). DIR HELPER — дополнени�
 ## Репозиторий и выпуск версий
 - Репо: tveruga/mnc24 (public). Файлы дополнения лежат в КОРНЕ (manifest.json, tg.js, content.js, dashboard.js, …).
 - Любой push в main → `.github/workflows/release.yml`: web-ext sign (AMO, unlisted, секреты AMO_JWT_ISSUER/AMO_JWT_SECRET) → GitHub Release `vX.Y` → запись в `updates.json` → GitHub Pages.
-- Чтобы выпустить версию — поднять `version` в manifest.json (иначе релиз пропускается). Firefox обновляется сам (update_url → raw updates.json; плейсхолдер `__OWNER__/dir-helper` в manifest подменяется в CI — не трогать).
+- Чтобы выпустить версию — поднять `version` в manifest.json (иначе релиз пропускается). И ОБЯЗАТЕЛЬНО добавить запись сверху в `changelog.js` (DH_CHANGELOG) — это «Что нового» (кнопка «?» справа в шапке) для админов: коротко, простым языком, что появилось и как пользоваться; технические правки без видимого эффекта не писать. Firefox обновляется сам (update_url → raw updates.json; плейсхолдер `__OWNER__/dir-helper` в manifest подменяется в CI — не трогать).
 - Страница установки: https://tveruga.github.io/mnc24/ (site/index.html).
 - gecko id `mnc-otdat-mastery@local` — НЕ менять (иначе слетят настройки/обновления).
 - Токена бота в коде НЕТ (репо публичный). Токен только в storage Firefox; перенос на другие ПК — командой боту `/код` → «Настройки → Перенос на другой компьютер».

@@ -1,0 +1,81 @@
+// «Что нового» — краткие патчноуты для админов (кнопка «?» справа в шапке).
+// При выпуске версии: добавить запись СВЕРХУ, коротко и понятным языком — что появилось и как этим пользоваться.
+var DH_CHANGELOG = [
+  { v: '13.5', d: '02.11.2026', items: [
+    'Кнопка «?» справа в шапке — здесь кратко описано, что появилось в новых версиях. Красная точка на ней — есть непрочитанные новости.',
+  ] },
+  { v: '13.4', d: '02.11.2026', items: [
+    'Значок DIR HELPER на любом сайте открывает CRM в окне справа, страница остаётся слева. Закрыть — ✕ или ещё раз на значок.',
+    'Бот: кнопка «⏯ Бот вкл/выкл» — выключить и включить бота может только @tveruga.',
+    'Бот после включения не выполняет старые команды и не рассылает накопившееся.',
+    'Настройки бота (тексты, время, кнопки в ⚙️) меняет только @tveruga.',
+  ] },
+  { v: '13.3', d: '02.11.2026', items: [
+    'Бот работает на любом включённом компьютере: если главный выключили, через несколько минут бота подхватывает другой.',
+    'Сумма к сдаче по проведённой заявке уходит мастеру один раз — по старым заказам повторов больше нет.',
+  ] },
+  { v: '13.2', d: '02.11.2026', items: [
+    'Боковая панель: кнопки меню начинаются слева, лишний логотип убран.',
+  ] },
+  { v: '13.1', d: '27.10.2026', items: [
+    'Уведомление о неразданной заявке — за 30 минут до времени заказа.',
+  ] },
+  { v: '13.0', d: '27.10.2026', items: [
+    'Аналитика и Реклама: сравнение с прошлой неделей.',
+  ] },
+  { v: '12.8', d: '26.10.2026', items: [
+    'Служебные сообщения бота удаляются сами, чтобы не засорять чат.',
+    'Шапка DIR HELPER больше не наезжает на страницу CRM.',
+  ] },
+  { v: '12.6', d: '26.10.2026', items: [
+    'Кнопка «Бот» в шапке — включить/выключить бота на этом компьютере.',
+  ] },
+  { v: '12.1', d: '25.10.2026', items: [
+    'Кнопка ⟳ — проверить обновление и сразу установить.',
+  ] },
+];
+
+// окно «Что нового»
+function dhShowNews(doc) {
+  doc = doc || document;
+  if (doc.getElementById('dh-news')) return;
+  if (!doc.getElementById('dh-news-css')) {
+    const st = doc.createElement('style'); st.id = 'dh-news-css';
+    st.textContent = `
+#dh-news{position:fixed;inset:0;z-index:2147483646;background:rgba(15,35,26,.35);display:flex;align-items:flex-start;justify-content:flex-end;padding:56px 14px 14px;box-sizing:border-box;font:13px "Segoe UI",system-ui,sans-serif;color:#10231a;animation:dhNewsFade .18s ease}
+#dh-news .dhn-card{background:#fff;border-radius:14px;box-shadow:0 18px 50px rgba(11,46,32,.3),0 0 0 1px #dbe8df;width:min(420px,100%);max-height:calc(100vh - 80px);display:flex;flex-direction:column;overflow:hidden;transform-origin:100% 0;animation:dhNewsPop .22s cubic-bezier(.2,.8,.25,1)}
+#dh-news .dhn-head{display:flex;align-items:center;justify-content:space-between;padding:12px 12px 10px 16px;border-bottom:1px solid #e6efe9}
+#dh-news .dhn-head b{font:700 15px "Segoe UI",sans-serif;color:#0f3d2b}
+#dh-news .dhn-x{all:unset;cursor:pointer;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-size:15px;color:#4f6b5c}
+#dh-news .dhn-x:hover{background:#eaf5ee}
+#dh-news .dhn-body{overflow:auto;padding:6px 16px 14px}
+#dh-news .dhn-ver{margin-top:12px}
+#dh-news .dhn-ver h4{margin:0 0 6px;font:700 13px "Segoe UI",sans-serif;color:#166534;display:flex;gap:8px;align-items:baseline}
+#dh-news .dhn-ver h4 span{font-weight:400;color:#6b8577;font-size:12px}
+#dh-news .dhn-ver h4 em{font-style:normal;font-size:10px;font-weight:700;background:#166534;color:#fff;border-radius:6px;padding:1px 6px}
+#dh-news ul{margin:0;padding-left:18px}
+#dh-news li{margin:3px 0;line-height:1.45}
+@keyframes dhNewsFade{from{opacity:0}}
+@keyframes dhNewsPop{from{opacity:0;transform:scale(.92)}}`;
+    (doc.head || doc.documentElement).appendChild(st);
+  }
+  let cur = ''; try { cur = browser.runtime.getManifest().version; } catch (e) {}
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const w = doc.createElement('div'); w.id = 'dh-news';
+  w.innerHTML = `<div class="dhn-card" role="dialog" aria-label="Что нового"><div class="dhn-head"><b>Что нового в DIR HELPER</b><button class="dhn-x" title="Закрыть" aria-label="Закрыть">✕</button></div><div class="dhn-body">` +
+    DH_CHANGELOG.map((r) => `<div class="dhn-ver"><h4>Версия ${esc(r.v)} <span>${esc(r.d)}</span>${r.v === cur ? '<em>у вас</em>' : ''}</h4><ul>${r.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('') + '</div></div>';
+  const close = () => { w.remove(); doc.removeEventListener('keydown', onKey, true); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  w.addEventListener('click', (e) => { if (e.target === w || e.target.closest('.dhn-x')) close(); });
+  doc.addEventListener('keydown', onKey, true);
+  (doc.body || doc.documentElement).appendChild(w);
+  try { browser.storage.local.set({ dhNewsSeen: DH_CHANGELOG[0].v }); } catch (e) {}
+}
+// красная точка на кнопке, пока последние новости не открывали
+function dhNewsDot(btn) {
+  const upd = (seen) => btn.classList.toggle('dhb-new-unseen', seen !== DH_CHANGELOG[0].v);
+  try {
+    browser.storage.local.get('dhNewsSeen').then((r) => upd(r.dhNewsSeen)).catch(() => {});
+    browser.storage.onChanged.addListener((ch) => { if (ch.dhNewsSeen) upd(ch.dhNewsSeen.newValue); });
+  } catch (e) {}
+}
