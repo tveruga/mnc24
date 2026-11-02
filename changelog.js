@@ -1,6 +1,9 @@
 // «Что нового» — краткие патчноуты для админов (кнопка «?» справа в шапке).
 // При выпуске версии: добавить запись СВЕРХУ, коротко и понятным языком — что появилось и как этим пользоваться.
 var DH_CHANGELOG = [
+  { v: '13.6', d: '02.11.2026', items: [
+    'В «Что нового» кнопка «⟳ Обновить» — проверяет и сразу ставит новую версию DIR HELPER.',
+  ] },
   { v: '13.5', d: '02.11.2026', items: [
     'Кнопка «?» справа в шапке — здесь кратко описано, что появилось в новых версиях. Красная точка на ней — есть непрочитанные новости.',
   ] },
@@ -53,6 +56,12 @@ function dhShowNews(doc) {
 #dh-news .dhn-ver h4{margin:0 0 6px;font:700 13px "Segoe UI",sans-serif;color:#166534;display:flex;gap:8px;align-items:baseline}
 #dh-news .dhn-ver h4 span{font-weight:400;color:#6b8577;font-size:12px}
 #dh-news .dhn-ver h4 em{font-style:normal;font-size:10px;font-weight:700;background:#166534;color:#fff;border-radius:6px;padding:1px 6px}
+#dh-news .dhn-foot{display:flex;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid #e6efe9;background:#f7fbf8}
+#dh-news .dhn-upd{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:8px;background:#166534;color:#fff;font:600 13px "Segoe UI",sans-serif;white-space:nowrap}
+#dh-news .dhn-upd:hover{background:#14532d}
+#dh-news .dhn-upd[disabled]{opacity:.6;cursor:default}
+#dh-news .dhn-msg{font-size:12px;color:#4f6b5c;line-height:1.4}
+#dh-news .dhn-msg a{color:#166534;cursor:pointer;text-decoration:underline}
 #dh-news ul{margin:0;padding-left:18px}
 #dh-news li{margin:3px 0;line-height:1.45}
 @keyframes dhNewsFade{from{opacity:0}}
@@ -63,7 +72,22 @@ function dhShowNews(doc) {
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const w = doc.createElement('div'); w.id = 'dh-news';
   w.innerHTML = `<div class="dhn-card" role="dialog" aria-label="Что нового"><div class="dhn-head"><b>Что нового в DIR HELPER</b><button class="dhn-x" title="Закрыть" aria-label="Закрыть">✕</button></div><div class="dhn-body">` +
-    DH_CHANGELOG.map((r) => `<div class="dhn-ver"><h4>Версия ${esc(r.v)} <span>${esc(r.d)}</span>${r.v === cur ? '<em>у вас</em>' : ''}</h4><ul>${r.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('') + '</div></div>';
+    DH_CHANGELOG.map((r) => `<div class="dhn-ver"><h4>Версия ${esc(r.v)} <span>${esc(r.d)}</span>${r.v === cur ? '<em>у вас</em>' : ''}</h4><ul>${r.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('') + '</div>' +
+    `<div class="dhn-foot"><button class="dhn-upd" title="Проверить и установить новую версию">⟳ Обновить</button><span class="dhn-msg">Сейчас у вас версия ${esc(cur)}</span></div></div>`;
+  // «Обновить»: то же, что about:addons → ⚙ → «Проверить наличие обновлений» (саму about:addons дополнениям открывать Firefox не даёт)
+  const ub = w.querySelector('.dhn-upd'), um = w.querySelector('.dhn-msg');
+  ub.onclick = async () => {
+    ub.disabled = true; um.textContent = 'Проверяю…';
+    const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((e) => ({ status: 'error', text: e.message }));
+    ub.disabled = false;
+    um.textContent = (r && r.text) || 'Не удалось проверить';
+    if (!r || r.status !== 'update_available') {
+      const a = doc.createElement('a'); a.textContent = 'Обновить вручную';
+      a.title = 'Скопирует адрес about:addons — вставьте его в адресную строку, затем ⚙ → «Проверить наличие обновлений»';
+      a.onclick = async () => { try { await navigator.clipboard.writeText('about:addons'); } catch (e) {} um.textContent = 'Адрес about:addons скопирован: вставьте его в адресную строку (Ctrl+V, Enter), затем ⚙ → «Проверить наличие обновлений».'; };
+      um.append(' · ', a);
+    }
+  };
   const close = () => { w.remove(); doc.removeEventListener('keydown', onKey, true); };
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   w.addEventListener('click', (e) => { if (e.target === w || e.target.closest('.dhn-x')) close(); });
