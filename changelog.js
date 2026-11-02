@@ -1,6 +1,9 @@
 // «Что нового» — краткие патчноуты для админов (кнопка «?» справа в шапке).
 // При выпуске версии: добавить запись СВЕРХУ, коротко и понятным языком — что появилось и как этим пользоваться.
 var DH_CHANGELOG = [
+  { v: '14.1', d: '03.11.2026', items: [
+    'Кнопка «⟳ Обновить» в «?» работает: если вышла новая версия, откроется её установка — нажмите «Разрешить» и «Добавить». Настройки сохраняются.',
+  ] },
   { v: '14.0', d: '03.11.2026', items: [
     'Из шапки окна DIR HELPER убрана кнопка ⟳. Обновиться: «?» → «⟳ Обновить».',
   ] },
@@ -93,7 +96,7 @@ function dhShowNews(doc) {
     const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((e) => ({ status: 'error', text: e.message }));
     ub.disabled = false;
     um.textContent = (r && r.text) || 'Не удалось проверить';
-    if (!r || r.status !== 'update_available') {
+    if (!r || r.status === 'error') {
       const a = doc.createElement('a'); a.textContent = 'Обновить вручную';
       a.title = 'Скопирует адрес about:addons — вставьте его в адресную строку, затем ⚙ → «Проверить наличие обновлений»';
       a.onclick = async () => { try { await navigator.clipboard.writeText('about:addons'); } catch (e) {} um.textContent = 'Адрес about:addons скопирован: вставьте его в адресную строку (Ctrl+V, Enter), затем ⚙ → «Проверить наличие обновлений».'; };

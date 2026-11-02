@@ -155,13 +155,17 @@ browser.runtime.onMessage.addListener((m) => { if (m && m.openOptions) browser.r
 browser.runtime.onUpdateAvailable.addListener((d) => {
   browser.storage.local.set({ dhUpdating: { v: d && d.version, at: Date.now() } }).finally(() => browser.runtime.reload());
 });
+// Firefox не умеет runtime.requestUpdateCheck (это только в Chrome) — сверяем версию с updates.json на GitHub сами
+// и, если вышла новая, открываем подписанный .xpi: Firefox предложит установить, настройки сохраняются (тот же id)
 async function dhUpdateCheck() {
   try {
-    const [status, det] = await browser.runtime.requestUpdateCheck();
     const cur = browser.runtime.getManifest().version;
-    if (status === 'update_available') return { status, cur, next: det && det.version, text: `Найдена ${det && det.version ? 'версия ' + det.version : 'новая версия'} — обновляю…` };
-    if (status === 'throttled') return { status, cur, text: 'Проверка недавно уже была — попробуйте через минуту' };
-    return { status, cur, text: `Установлена последняя версия ${cur}` };
+    const lt = await dhLatest();
+    if (!lt) return { status: 'error', cur, text: 'Не удалось узнать последнюю версию' };
+    if (verCmp(lt.version, cur) <= 0) return { status: 'no_update', cur, text: `Установлена последняя версия ${cur}` };
+    if (!lt.link) return { status: 'error', cur, text: `Есть версия ${lt.version}, но нет ссылки на установку` };
+    await browser.tabs.create({ url: lt.link });
+    return { status: 'update_available', cur, next: lt.version, text: `Найдена версия ${lt.version} — открыл установку: нажмите «Разрешить» и «Добавить»` };
   } catch (e) { return { status: 'error', text: 'Не удалось проверить: ' + e.message }; }
 }
 browser.runtime.onMessage.addListener((m) => { if (m && m.dhUpdate) return dhUpdateCheck(); });

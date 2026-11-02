@@ -973,16 +973,23 @@ async function tgMorning() {
 }
 // ================= «Доступно обновление» — бот сообщает, когда на GitHub вышла новая версия =================
 const verCmp = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; } return 0; };
+// последняя выпущенная версия из updates.json на GitHub: { version, link } (link — подписанный .xpi)
+async function dhLatest() {
+  const mf = browser.runtime.getManifest();
+  let url = ((mf.browser_specific_settings || {}).gecko || {}).update_url || '';
+  if (!url || /__OWNER__/.test(url)) url = 'https://raw.githubusercontent.com/tveruga/mnc24/main/updates.json';
+  const j = await (await fetch(url + '?t=' + Date.now(), { cache: 'no-store' })).json();
+  const list = (((j.addons || {})['mnc-otdat-mastery@local'] || {}).updates || []).filter((u) => u.version);
+  list.sort((a, b) => verCmp(a.version, b.version));
+  const top = list.pop();
+  return top ? { version: top.version, link: top.update_link } : null;
+}
 async function tgUpdateNote() {
   try {
     await tgLoad();
     if (!TG.token || !tgActive()) return;
-    const mf = browser.runtime.getManifest(), cur = mf.version;
-    let url = ((mf.browser_specific_settings || {}).gecko || {}).update_url || '';
-    if (!url || /__OWNER__/.test(url)) url = 'https://raw.githubusercontent.com/tveruga/mnc24/main/updates.json';
-    const j = await (await fetch(url + '?t=' + Date.now(), { cache: 'no-store' })).json();
-    const list = ((j.addons || {})['mnc-otdat-mastery@local'] || {}).updates || [];
-    const latest = list.map((u) => u.version).filter(Boolean).sort(verCmp).pop();
+    const cur = browser.runtime.getManifest().version;
+    const lt = await dhLatest(); const latest = lt && lt.version;
     if (!latest) return;
     const r = await browser.storage.local.get('dhUpdNoted');
     const noted = r.dhUpdNoted || cur;                         // первый запуск: о текущей версии не сообщаем
