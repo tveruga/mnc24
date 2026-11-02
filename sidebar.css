@@ -6,7 +6,7 @@ iframe{border:0;transform-origin:0 0;display:block;background:#fff}
 #toast{position:absolute;top:54px;right:10px;z-index:5;background:#0f3d2b;color:#fff;padding:8px 12px;border-radius:10px;font-size:12px;box-shadow:0 6px 18px rgba(11,46,32,.35);opacity:0;transform:translateY(-6px);transition:.25s;pointer-events:none;max-width:260px}
 #toast.on{opacity:1;transform:none}
 
-.dhb{height:48px;display:flex;align-items:center;background:#fff;border-bottom:2px solid #166534;padding:0 10px 0 16px;box-sizing:border-box;font:13px "Segoe UI",system-ui,sans-serif;color:#1d3a2c}
+.dhb{height:48px;display:flex;align-items:center;background:#fff;border-bottom:2px solid #166534;padding:0 10px 0 8px;box-sizing:border-box;font:13px "Segoe UI",system-ui,sans-serif;color:#1d3a2c}
 .dhb .dhb-brand{display:flex;align-items:baseline;gap:6px;margin-right:auto;white-space:nowrap}
 .dhb .dhb-brand b{font:700 15px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:2px;color:#0f3d2b}
 .dhb .dhb-brand span{font:300 15px Bahnschrift,"Segoe UI",sans-serif;letter-spacing:2px;color:#166534}

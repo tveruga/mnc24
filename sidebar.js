@@ -23,8 +23,8 @@ document.getElementById('tab').onclick = () => {
   browser.tabs.create({ url });
 };
 
-// версия рядом с названием
-try { document.getElementById('ver').textContent = browser.runtime.getManifest().version; } catch (e) {}
+// версия — во всплывающей подсказке кнопки «Проверить обновление»
+try { document.getElementById('upd').title = 'Проверить обновление (сейчас ' + browser.runtime.getManifest().version + ')'; } catch (e) {}
 // выдвинуть панель выдачи заявки внутри окна
 document.getElementById('give').onclick = () => { try { crm.contentWindow.postMessage({ dirHelper: 'panel' }, BASE); } catch (e) {} };
 
