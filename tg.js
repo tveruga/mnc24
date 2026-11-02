@@ -970,6 +970,30 @@ async function tgMorning() {
     for (const id of ids) { await tgToGroup(id, cfg().tMorning).catch(() => {}); await new Promise((res) => setTimeout(res, 400)); }
   } catch (e) {}
 }
+// ================= «Доступно обновление» — бот сообщает, когда на GitHub вышла новая версия =================
+const verCmp = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (let i = 0; i < Math.max(x.length, y.length); i++) { const d = (x[i] || 0) - (y[i] || 0); if (d) return d; } return 0; };
+async function tgUpdateNote() {
+  try {
+    await tgLoad();
+    if (!TG.token || !tgActive()) return;
+    const mf = browser.runtime.getManifest(), cur = mf.version;
+    let url = ((mf.browser_specific_settings || {}).gecko || {}).update_url || '';
+    if (!url || /__OWNER__/.test(url)) url = 'https://raw.githubusercontent.com/tveruga/mnc24/main/updates.json';
+    const j = await (await fetch(url + '?t=' + Date.now(), { cache: 'no-store' })).json();
+    const list = ((j.addons || {})['mnc-otdat-mastery@local'] || {}).updates || [];
+    const latest = list.map((u) => u.version).filter(Boolean).sort(verCmp).pop();
+    if (!latest) return;
+    const r = await browser.storage.local.get('dhUpdNoted');
+    const noted = r.dhUpdNoted || cur;                         // первый запуск: о текущей версии не сообщаем
+    if (!r.dhUpdNoted) await browser.storage.local.set({ dhUpdNoted: noted });
+    if (verCmp(latest, noted) <= 0) return;
+    await browser.storage.local.set({ dhUpdNoted: latest });   // сразу отмечаем — без повторов
+    tgOwner(`🆕 Доступно обновление DIR HELPER ${latest}\nОбновить: в шапке DIR HELPER «?» → «⟳ Обновить» (или кнопка ⟳). Там же — что нового.`);
+  } catch (e) {}
+}
+browser.alarms.create('dh-updnote', { delayInMinutes: 3, periodInMinutes: 10 });
+browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-updnote') tgUpdateNote(); });
+
 browser.alarms.create('dh-morning', { delayInMinutes: 1, periodInMinutes: 1 });
 browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-morning') tgMorning(); });
 
