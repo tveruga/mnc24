@@ -41,6 +41,7 @@ CRM: https://mnc-lead-centre.ru/admin (Yii2). DIR HELPER — дополнени�
 - Пользователи бота: owner 7191750835, 7892790601.
 
 ## Подводные камни
+- В Firefox НЕТ runtime.requestUpdateCheck. Кнопка «Обновить» (dhUpdateCheck) сама сверяет версию с updates.json (dhLatest в tg.js) и открывает .xpi из релиза.
 - runtime.onMessage: НЕ делать обработчик `async` — он вернёт Promise на любое сообщение и «перехватит» ответ у других обработчиков (так ломались ⟳ «Обновить» и т.п.). Нужное сообщение → `return promise`, чужое → `return` без значения.
 - В регулярках с кириллицей не использовать `\b`.
 - Не использовать spread по URLSearchParams в content script.
