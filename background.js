@@ -1,19 +1,41 @@
 // Значок на панели Firefox:
 //  • на вкладке CRM — открыть/закрыть аналитику;
-//  • на любой другой вкладке — боковая панель с мини-CRM.
+//  • на обычной вкладке — окно с мини-CRM справа поверх страницы, плавно «вытекает» из значка (overlay.js);
+//  • на служебных страницах Firefox (новая вкладка, about:, addons.mozilla.org) встраиваться нельзя — там боковая панель.
+const OV_DENY = /^https?:\/\/([^/]*\.)?(addons\.mozilla\.org|accounts\.firefox\.com|support\.mozilla\.org|accounts-static\.cdn\.mozilla\.net)(\/|$)/i;
 browser.browserAction.onClicked.addListener((tab) => {
-  if (tab && /mnc-lead-centre\.ru/.test(tab.url || '')) {
+  const url = (tab && tab.url) || '';
+  if (/mnc-lead-centre\.ru/.test(url)) {
     browser.tabs.executeScript(tab.id, { code: 'window.__mncDash && window.__mncDash.toggle();' }).catch(() => {});
+  } else if (/^https?:/i.test(url) && !OV_DENY.test(url)) {
+    dhPartCookies(url).finally(() => browser.tabs.executeScript(tab.id, { file: 'overlay.js' }).catch(() => {}));
   } else {
     browser.sidebarAction.toggle();
   }
 });
+// Firefox держит куки сайтов, открытых внутри чужой страницы, отдельно для каждого сайта (защита от слежки),
+// поэтому CRM в окне поверх, например, YouTube не видела бы ваш вход. Копируем вход в CRM в «отсек» этого сайта.
+async function dhPartCookies(pageUrl) {
+  try {
+    const u = new URL(pageUrl), parts = u.hostname.split('.');
+    const sites = [...new Set([parts.slice(-2).join('.'), parts.slice(-3).join('.')])].map((h) => u.protocol + '//' + h);
+    const cs = await browser.cookies.getAll({ domain: 'mnc-lead-centre.ru' });
+    for (const site of sites) for (const c of cs) {
+      await browser.cookies.set({
+        url: 'https://' + c.domain.replace(/^\./, '') + c.path, name: c.name, value: c.value, path: c.path,
+        domain: c.hostOnly ? undefined : c.domain, secure: true, httpOnly: c.httpOnly, sameSite: 'no_restriction',
+        expirationDate: c.session ? undefined : c.expirationDate, partitionKey: { topLevelSite: site },
+      }).catch(() => {});
+    }
+  } catch (e) {}
+}
 
-// CRM запрещает показывать себя внутри других страниц — разрешаем только для боковой панели DIR HELPER
+// CRM запрещает показывать себя внутри других страниц — разрешаем только внутри окна DIR HELPER (боковая панель / окно поверх вкладки)
 const EXT = browser.runtime.getURL('');
 browser.webRequest.onHeadersReceived.addListener((d) => {
-  const from = d.frameAncestors && d.frameAncestors.length ? d.frameAncestors[d.frameAncestors.length - 1].url : (d.documentUrl || d.originUrl || '');
-  if (!from || !from.startsWith(EXT)) return {};
+  const anc = d.frameAncestors || [];
+  const ok = anc.length ? anc.some((a) => a.url.startsWith(EXT)) : (d.documentUrl || d.originUrl || '').startsWith(EXT); // где-то в цепочке родителей — страница DIR HELPER (и скрытые окна CRM внутри неё)
+  if (!ok) return {};
   const headers = d.responseHeaders.filter((h) => {
     const n = h.name.toLowerCase();
     if (n === 'x-frame-options') return false;

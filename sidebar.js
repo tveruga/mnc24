@@ -1,5 +1,9 @@
-// Мини-CRM в боковой панели Firefox
+// Мини-CRM в боковой панели Firefox или в окне поверх вкладки (#ov — открыто через overlay.js)
 const crm = document.getElementById('crm');
+if (location.hash === '#ov') {
+  document.body.classList.add('ov');
+  document.getElementById('ovx').onclick = () => parent.postMessage({ dhOv: 'close' }, '*');
+}
 const BASE = 'https://mnc-lead-centre.ru';
 let zoom = 0.7;
 try { const z = parseFloat(localStorage.getItem('dhZoom')); if (z) zoom = z; } catch (e) {}

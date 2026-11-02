@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DIR HELPER",
-  "version": "13.3",
+  "version": "13.4",
   "description": "DIR HELPER — раздача заявок CRM МНЧ мастерам, аналитика отчётов и зарплата директора.",
   "browser_specific_settings": {
     "gecko": {
@@ -26,6 +26,7 @@
     "*://*.mnc-lead-centre.ru/*",
     "webRequest",
     "webRequestBlocking",
+    "cookies",
     "https://api.telegram.org/*"
   ],
   "content_scripts": [
@@ -45,6 +46,12 @@
       "run_at": "document_idle",
       "all_frames": true
     }
+  ],
+  "web_accessible_resources": [
+    "sidebar.html",
+    "sidebar.css",
+    "sidebar.js",
+    "icon.svg"
   ],
   "options_ui": {
     "page": "options.html",

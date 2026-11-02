@@ -13,7 +13,42 @@ browser.storage.local.get('tgHere').then((r) => { TG_HERE = r.tgHere !== false; 
 browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) TG_HERE = ch.tgHere.newValue !== false; });
 // бот можно включить на всех компьютерах: работает один (тот, что занял бота раньше), остальные ждут и раз в 2,5–4 мин
 // проверяют, жив ли он; если работающий выключили — следующая проверка проходит, и бота подхватывает ждущий
-const tgActive = () => TG_HERE && ((tgOkSince && Date.now() - tgOkSince > 30e3) || Date.now() - tgLastConflict > 5 * 60e3);
+const tgActive = () => TG_HERE && !TG_PAUSED && ((tgOkSince && Date.now() - tgOkSince > 30e3) || Date.now() - tgLastConflict > 5 * 60e3);
+// при включении бота (запуск Firefox, бот подхвачен с другого компьютера, включена галочка) старые накопившиеся команды не выполняем
+let tgFresh = true;
+
+// ---- пауза бота: «⏯ Бот вкл/выкл» (менять может только @tveruga) ----
+// общая для всех компьютеров: хранится закреплённым сообщением бота в личном чате — его видят все копии DIR HELPER
+let TG_PAUSED = false;
+const PAUSE_MARK = '⏸ DIR HELPER выключен';
+const tgBoss = (from) => !!(from && ((from.username && String(from.username).toLowerCase() === 'tveruga') || (TG.bossId && from.id === TG.bossId)));
+const tgPauseChats = () => [...new Set([...tgUsers(), TG.bossId].filter(Boolean).map(Number))];
+async function tgPauseFind() {
+  const out = [];
+  for (const u of tgPauseChats()) {
+    try { const c = await tgApi('getChat', { chat_id: u }); const pm = c.pinned_message; if (pm && pm.from && pm.from.is_bot && String(pm.text || '').startsWith(PAUSE_MARK)) out.push({ chat: u, mid: pm.message_id }); } catch (e) {}
+  }
+  return out;
+}
+async function tgPauseLoad() { if (!TG.token) return; TG_PAUSED = (await tgPauseFind()).length > 0; }
+async function tgBotToggle(from, chatId) {
+  if (!tgBoss(from)) return tgSend(chatId, '⛔ Включать и выключать бота может только @tveruga');
+  if (TG.bossId !== from.id) { TG.bossId = from.id; await tgSave(); }
+  const pins = await tgPauseFind();
+  if (!pins.length) {
+    const m = await tgApi('sendMessage', { chat_id: from.id, text: PAUSE_MARK + '\nНичего не отправляет сам (сдача, утро, сводки, напоминания), команды и кнопки не выполняет.\nВключить: «⏯ Бот вкл/выкл» или /бот', reply_markup: MENU }).catch(() => null);
+    if (!m) return;
+    await tgApi('pinChatMessage', { chat_id: from.id, message_id: m.message_id, disable_notification: true }).catch(() => {});
+    TG_PAUSED = true;
+    tgUsers().filter((u) => Number(u) !== from.id).forEach((u) => tgSend(u, '⏸ @tveruga выключил бота'));
+  } else {
+    for (const p of pins) { await tgApi('unpinChatMessage', { chat_id: p.chat, message_id: p.mid }).catch(() => {}); await tgApi('deleteMessage', { chat_id: p.chat, message_id: p.mid }).catch(() => {}); }
+    TG_PAUSED = false; tgFresh = true; // накопившееся за время паузы не выполняем
+    await tgSend(from.id, '▶️ DIR HELPER включён', MENU);
+    tgUsers().filter((u) => Number(u) !== from.id).forEach((u) => tgSend(u, '▶️ @tveruga включил бота'));
+  }
+}
+const isBotToggle = (t) => /^\s*⏯|^\/(бот|bot)(@\w+)?\s*$/i.test(t || '');
 
 // бот и владелец, указанные при сборке (можно поменять в настройках ⚙)
 const TG_DEFAULT = { token: '' /* токен хранится только в настройках Firefox */, owner: 7191750835, users: [7191750835, 7892790601] };
@@ -35,7 +70,7 @@ async function tgApi(method, params) {
   if (!j.ok) throw new Error(j.error_code === 409 ? 'бот одновременно запущен в другом Firefox (другой компьютер или вторая копия расширения) — оставьте DIR HELPER только в одном месте' : (j.description || 'ошибка Telegram'));
   return j.result;
 }
-const MENU = { keyboard: [[{ text: '⏳ Ждут' }, { text: '📊 Сегодня' }, { text: '📅 Месяц' }], [{ text: '🔄 Статус' }, { text: '✅ Провести' }, { text: '💰 Сдача' }], [{ text: '👥 Группы' }, { text: '⚙️ Настройки' }, { text: '❓ Помощь' }]], resize_keyboard: true, is_persistent: true };
+const MENU = { keyboard: [[{ text: '⏳ Ждут' }, { text: '📊 Сегодня' }, { text: '📅 Месяц' }], [{ text: '🔄 Статус' }, { text: '✅ Провести' }, { text: '💰 Сдача' }], [{ text: '👥 Группы' }, { text: '⚙️ Настройки' }, { text: '❓ Помощь' }], [{ text: '⏯ Бот вкл/выкл' }]], resize_keyboard: true, is_persistent: true };
 const tgSend = (chat_id, text, markup) => tgApi('sendMessage', Object.assign({ chat_id, text: String(text).slice(0, 4000), disable_web_page_preview: true }, markup ? { reply_markup: markup } : {})).catch(() => null);
 async function tgToGroup(chatId, text) {
   const send = (id) => tgApi('sendMessage', { chat_id: id, text: String(text).slice(0, 4000), disable_web_page_preview: true });
@@ -56,6 +91,7 @@ async function tgToGroup(chatId, text) {
 const tgUsers = () => (TG.users && TG.users.length ? TG.users : [TG.owner]).filter(Boolean);
 const tgOwner = (text, markup) => Promise.all(tgUsers().map((u) => tgSend(u, text, markup)));
 let REPLY_TO = null; // кому отвечаем на команду
+let REPLY_FROM = null; // кто прислал команду
 const tgReply = (text, markup) => REPLY_TO ? tgSend(REPLY_TO, text, markup) : tgOwner(text, markup);
 
 // чат мастера по фамилии (из названия группы «МНЧ Фамилия Имя …»)
@@ -267,6 +303,7 @@ const LOCKED = /^(готов|отказ|отмен)/i;   // эти статус�
 const ST_NAMES = { 0: 'Ожидает', 1: 'В пути', 2: 'В работе' };
 const stBtn = (id, st) => ({ inline_keyboard: [[{ text: '⏳ Ожидает', callback_data: `c:${id}:0` }, { text: '🚕 В пути', callback_data: `c:${id}:1` }, { text: '🔧 В работе', callback_data: `c:${id}:2` }], [{ text: 'ℹ️ Инфо', callback_data: 'i:' + id }].concat(/^[^а-яё]*в\s*работе/i.test(String(st || '').replace(/[\u00a0\u200b-\u200f]/g, ' ')) ? [{ text: '✅ Провести заказ', callback_data: 'w:s:' + id }] : [])] });
 const HELP = `DIR HELPER — кнопки внизу чата или команды:
+/бот (⏯) — выключить / включить бота (только @tveruga)
 /статус — сменить статус заявок на сегодня (Ожидает / В пути / В работе)
 /статус 1087478 — сменить статус конкретной заявки
 /группы — привязанные группы мастеров
@@ -411,6 +448,7 @@ async function tgCallback(q) {
   const chat = q.message.chat.id, mid = q.message.message_id, data = q.data || '';
   if (/^i:/.test(data)) return tgInfo(q);
   if (/^cf:/.test(data)) return cfgCallback(q);
+  if (data === 'bot:t') { tgApi('answerCallbackQuery', { callback_query_id: q.id, text: tgBoss(q.from) ? '' : '⛔ Только @tveruga' }).catch(() => {}); if (tgBoss(q.from)) await tgBotToggle(q.from, q.message.chat.id); return; }
   if (/^p[dn]:/.test(data)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); return ctlPaidCb(q, (text, kb) => tgApi('editMessageText', Object.assign({ chat_id: q.message.chat.id, message_id: q.message.message_id, text }, kb ? { reply_markup: kb } : {})).catch(() => {})); }
   if (/^w:s:\d+$/.test(data)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); return wizStartChecked(q.message.chat.id, data.slice(4)); }
   if (/^w:/.test(data)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); return wizCallback(q, (text, kb) => tgApi('editMessageText', Object.assign({ chat_id: q.message.chat.id, message_id: q.message.message_id, text }, kb ? { reply_markup: kb } : {})).catch(() => {})); }
@@ -491,14 +529,28 @@ async function tgPoll() {
   if (tgPolling) return; tgPolling = true;
   while (true) {
     await tgLoad();
-    if (!TG.token || !TG_HERE) { await new Promise((r) => setTimeout(r, 10000)); continue; }
+    if (!TG.token || !TG_HERE) { tgFresh = true; await new Promise((r) => setTimeout(r, 10000)); continue; }
     try {
+      if (tgFresh) {
+        // пропускаем всё, что накопилось, пока бот здесь не работал: берём номер последнего обновления и начинаем после него
+        const last = await tgApi('getUpdates', { offset: -1, timeout: 0 });
+        if (last.length) { TG.offset = last[last.length - 1].update_id + 1; await tgSave(); }
+        tgFresh = false;
+      }
       const ups = await tgApi('getUpdates', { offset: TG.offset || 0, timeout: 25, allowed_updates: ['message', 'my_chat_member', 'channel_post', 'callback_query'] });
       if (!tgOkSince) tgOkSince = Date.now();
+      if (tgLeader()) tgMenuNotice().catch(() => {});
       // сразу запоминаем, что эти обновления получены — Telegram не пришлёт их повторно
       if (ups.length) { TG.offset = Math.max(TG.offset || 0, ups[ups.length - 1].update_id + 1); await tgSave(); }
       for (const u of ups) {
         if (tgSeen.has(u.update_id)) continue; tgSeen.add(u.update_id); if (tgSeen.size > 500) tgSeen.delete(tgSeen.values().next().value);
+        if (TG_PAUSED) { // бот выключен: только @tveruga может включить, остальное молча пропускаем (в личке — короткий ответ)
+          const q = u.callback_query, pm = u.message && u.message.chat && u.message.chat.type === 'private' ? u.message : null;
+          if (q) { if (q.data === 'bot:t' && tgBoss(q.from)) { tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {}); await tgBotToggle(q.from, q.message.chat.id); } else tgApi('answerCallbackQuery', { callback_query_id: q.id, text: '⏸ Бот выключен' }).catch(() => {}); }
+          else if (pm && isBotToggle(pm.text) && tgBoss(pm.from)) await tgBotToggle(pm.from, pm.chat.id);
+          else if (pm && (tgUsers().includes(pm.from && pm.from.id) || tgBoss(pm.from))) tgSend(pm.chat.id, '⏸ Бот выключен.' + (tgBoss(pm.from) ? ' Включить: «⏯ Бот вкл/выкл»' : ' Включить может @tveruga'), MENU);
+          continue;
+        }
         if (u.callback_query && /^(t|ta):/.test(u.callback_query.data || '')) { if (tgTester(u.callback_query.from)) tgTestCb(u.callback_query).catch(() => {}); else tgApi('answerCallbackQuery', { callback_query_id: u.callback_query.id, text: '⛔ Только для директора' }).catch(() => {}); continue; }
         if (u.callback_query && /^ac:\d+$/.test(u.callback_query.data || '')) { if (!tgIgnored(u.callback_query.from)) tgAcceptBtn(u.callback_query).catch(() => {}); else tgApi('answerCallbackQuery', { callback_query_id: u.callback_query.id }).catch(() => {}); continue; }
         if (u.callback_query && /^(c|cc|cn|i|w|pd|pn):/.test(u.callback_query.data || '')) { if (tgUsers().includes(u.callback_query.from.id)) tgCallback(u.callback_query).catch(() => {}); continue; }
@@ -522,11 +574,12 @@ async function tgPoll() {
           tgLearnChat(msg.chat, /^\/(start|привязать|bind)/i.test(msg.text || '')); continue;
         }
         if (!TG.owner && /^\/start/.test(msg.text || '')) { TG.owner = msg.chat.id; await tgSave(); await tgSend(TG.owner, '✅ DIR HELPER привязан к этому чату.\n\n' + HELP); continue; }
+        if (isBotToggle(msg.text)) { await tgBotToggle(msg.from, msg.chat.id); continue; }
         if (!tgUsers().includes(msg.from && msg.from.id)) { await tgSend(msg.chat.id, '⛔ У вас нет доступа к этому боту.'); continue; }
         if (await wizMsg(msg).catch(() => false)) continue;
-        REPLY_TO = msg.chat.id;
+        REPLY_TO = msg.chat.id; REPLY_FROM = msg.from;
         if (msg.text) await tgCommand(msg.text).catch((e) => tgReply('❌ ' + e.message));
-        REPLY_TO = null;
+        REPLY_TO = null; REPLY_FROM = null;
       }
       await tgSave();
       browser.storage.local.set({ tgDiag: { ok: Date.now(), err: '' } });
@@ -534,7 +587,7 @@ async function tgPoll() {
       if (e.conflict) {
         if (tgLeader()) { await new Promise((r) => setTimeout(r, 300)); continue; } // работает здесь давно — оставляем бота себе
         // бот занят другим компьютером — ждём; проверяем реже, чем за 2 мин, иначе мешали бы ему закрепиться
-        tgOkSince = 0; tgLastConflict = Date.now();
+        tgOkSince = 0; tgLastConflict = Date.now(); tgFresh = true;
         browser.storage.local.set({ tgDiag: { ok: 0, err: 'бот работает на другом компьютере — этот ждёт и подхватит, если тот выключат', at: Date.now(), standby: true } });
         await new Promise((r) => setTimeout(r, 150e3 + Math.random() * 90e3));
         continue;
@@ -644,6 +697,7 @@ async function wizCallback(q, edit) {
 browser.runtime.onMessage.addListener(async (m) => {
   if (!m || !m.tg) return;
   await tgLoad();
+  if (TG_PAUSED && (m.tg === 'assigned' || m.tg === 'closed')) return { sent: false, paused: true }; // бот выключен @tveruga — мастерам из панели тоже не пишем
   if (m.tg === 'assigned') {
     // мастеру заявка уходит только при статусе «В пути»
     if (!/^в пути/i.test(String(m.st || '').trim())) {
@@ -887,15 +941,17 @@ async function listRows(page) {
     return { id: (c(0).match(/\d{5,}/) || [])[0], st: c(iSt), time, addr: c(iA), type: c(iTp), client: c(iN), master: c(iM), txt: rowTxt };
   }).filter((r) => r.id);
 }
-tgLoad().then(async () => {
-  // меню бота поменялось — короткое сообщение с новыми кнопками (без длинной справки), удалится само
+// меню бота поменялось — короткое сообщение с новыми кнопками (без длинной справки), удалится само.
+// Только с компьютера, где бот уже прочно работает (иначе каждый включившийся компьютер слал его всем).
+let tgMenuChecked = false;
+async function tgMenuNotice() {
+  if (tgMenuChecked || !TG.token || !TG.owner || !tgActive()) return; tgMenuChecked = true;
   const sig = JSON.stringify(MENU), r = await browser.storage.local.get('tgMenuSig');
-  if (r.tgMenuSig !== sig && TG.token && TG.owner && tgActive()) {
-    const res = await Promise.all(tgUsers().map((u) => tgTemp(u, `✅ DIR HELPER ${browser.runtime.getManifest().version} — меню обновлено. Справка: /help`, MENU)));
-    if (res.some(Boolean)) browser.storage.local.set({ tgMenuSig: sig });
-  }
-  tgPoll();
-});
+  if (r.tgMenuSig === sig) return;
+  await browser.storage.local.set({ tgMenuSig: sig });
+  await Promise.all(tgUsers().map((u) => tgTemp(u, `✅ DIR HELPER ${browser.runtime.getManifest().version} — меню обновлено. Справка: /help`, MENU)));
+}
+tgLoad().then(async () => { await tgPauseLoad().catch(() => {}); tgPoll(); });
 
 // ================= 9:00 — пожелание доброго утра в группы мастеров =================
 const MORNING_TEXT_DEF = 'Доброе утро, дорогой мастер, сегодня у тебя все получится';
@@ -1054,7 +1110,7 @@ async function ctlCrmState(ok, why) {
   if (!crmDownSent && Date.now() - crmDownSince > 5 * 60e3 && TG.token && tgActive()) { crmDownSent = true; tgOwner(`⚠️ CRM недоступна: ${why}.\nБот не сможет раздавать и проводить заявки, пока это не исправить.`); }
 }
 browser.alarms.create('dh-ctl', { delayInMinutes: 1, periodInMinutes: 1 });
-browser.alarms.onAlarm.addListener(async (a) => { if (a.name !== 'dh-ctl') return; try { await tgLoad(); await ctlTick(); await ctlSchedule(); } catch (e) {} });
+browser.alarms.onAlarm.addListener(async (a) => { if (a.name !== 'dh-ctl') return; try { await tgLoad(); await tgPauseLoad(); await ctlTick(); await ctlSchedule(); } catch (e) {} });
 // код компьютера (показывается в /версия и в настройках)
 browser.storage.local.get('dhInstance').then((r) => { if (!r.dhInstance) browser.storage.local.set({ dhInstance: Math.random().toString(36).slice(2, 7).toUpperCase() }); }).catch(() => {});
 
@@ -1081,11 +1137,12 @@ function cfgText() {
     `Минуты:\n• напомнить «Принял»: ${c.mAccRemind}\n• сообщить мне «не принял»: ${c.mAccOwner}\n• долго «В пути»: ${c.mWay}\n• не роздана заявка — уведомить за (мин до заказа, на др. ПК): ${c.mWait}\n\n` +
     `Изменить:\n/текст утро Новый текст\n/текст принял Новый текст\n/текст работа Новый текст\n/время утро 9:30 · /время сводка 9:00 · /время сдача 22:00\n/минуты принял 10 · /минуты директор 20 · /минуты впути 60 · /минуты ожидает 15\n/сброс — вернуть всё как было\n\nВкл/выкл — кнопками:`;
 }
-const cfgKb = () => { const c = cfg(); const b = CFG_TOG.map(([k, n]) => ({ text: (c[k] ? '🟢 ' : '⚪ ') + n, callback_data: 'cf:' + k })); const rows = []; for (let i = 0; i < b.length; i += 2) rows.push(b.slice(i, i + 2)); return { inline_keyboard: rows }; };
+const cfgKb = () => { const c = cfg(); const b = CFG_TOG.map(([k, n]) => ({ text: (c[k] ? '🟢 ' : '⚪ ') + n, callback_data: 'cf:' + k })); const rows = [[{ text: TG_PAUSED ? '▶️ Включить бота' : '⏸ Выключить бота', callback_data: 'bot:t' }]]; for (let i = 0; i < b.length; i += 2) rows.push(b.slice(i, i + 2)); return { inline_keyboard: rows }; };
 async function cfgSet(patch) { TG.cfg = Object.assign({}, TG.cfg || {}, patch); await tgSave(); }
 async function cfgCommand(t) {
   let m;
   if (/^\/(настройки|settings)(@\w+)?\s*$|^⚙/i.test(t)) return tgReply(cfgText(), cfgKb());
+  if (/^\/(сброс|текст|время|минуты)/i.test(t) && !tgBoss(REPLY_FROM)) return tgReply('⛔ Менять настройки может только @tveruga');
   if (/^\/сброс\s*$/i.test(t)) { TG.cfg = {}; await tgSave(); return tgReply('✅ Настройки сброшены', cfgKb()); }
   if ((m = t.match(/^\/текст\s+(утро|принял|работа)\s+([\s\S]+)$/i))) { const k = { утро: 'tMorning', принял: 'tAccept', работа: 'tWork' }[m[1].toLowerCase()]; await cfgSet({ [k]: m[2].trim().slice(0, 500) }); return tgReply(`✅ Текст «${m[1]}» сохранён:\n${m[2].trim()}`); }
   if ((m = t.match(/^\/время\s+(утро|сводка|сдача)\s+(\d{1,2})[:.](\d{2})\s*$/i))) { if (+m[2] > 23 || +m[3] > 59) return tgReply('Время в формате 9:30'); const k = { утро: 'atMorning', сводка: 'atReport', сдача: 'atCash' }[m[1].toLowerCase()]; await cfgSet({ [k]: `${+m[2]}:${m[3]}` }); return tgReply(`✅ Время «${m[1]}»: ${+m[2]}:${m[3]}`); }
@@ -1095,6 +1152,7 @@ async function cfgCommand(t) {
 }
 async function cfgCallback(q) {
   const k = q.data.slice(3);
+  if (!tgBoss(q.from)) return tgApi('answerCallbackQuery', { callback_query_id: q.id, text: '⛔ Менять настройки может только @tveruga' }).catch(() => {});
   tgApi('answerCallbackQuery', { callback_query_id: q.id }).catch(() => {});
   if (!(k in CFG_DEF)) return;
   await cfgSet({ [k]: !cfg()[k] });
