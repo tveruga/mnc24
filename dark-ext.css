@@ -1,0 +1,450 @@
+/* СГЕНЕРИРОВАНО .tools/gen-dark.mjs — не править руками */
+html.dh-dark #mnc-ext-panel {
+    background: #17212b !important;
+    color: #e9eef3 !important;
+    box-shadow: 0 10px 30px rgba(11,46,32,.22),0 0 0 1px #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-logo {
+    background: rgba(14,22,33,0.42) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-x {
+    background: rgba(14,22,33,0.32) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-x:hover {
+    background: rgba(14,22,33,0.5) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-lbl {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel input.mnc-f,html.dh-dark #mnc-ext-panel input.mnc-id,html.dh-dark #mnc-ext-panel select.mnc-s,html.dh-dark #mnc-ext-panel select.mnc-st {
+    background: #242f3d !important;
+    color: #e9eef3 !important;
+    border: 1px solid #2a3949 !important
+}
+html.dh-dark #mnc-ext-panel select.mnc-s option {
+    color: #e9eef3 !important;
+    background: #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-b:disabled {
+    background: #1e2c3a !important
+}
+html.dh-dark #mnc-ext-panel .mnc-m {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-m.ok {
+    color: #74e79f !important
+}
+html.dh-dark #mnc-ext-banner .mnc-bn {
+    background: #17212b !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-an {
+    background: rgba(14,22,33,0.32) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-an:hover,html.dh-dark #mnc-ext-panel .mnc-x:hover {
+    background: rgba(14,22,33,0.48) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-zp {
+    background: rgba(14,22,33,0.32) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-zp:hover {
+    background: rgba(14,22,33,0.48) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-ad {
+    background: rgba(14,22,33,0.32) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-ad:hover {
+    background: rgba(14,22,33,0.48) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-top {
+    background: rgba(14,22,33,0.32) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-top:hover {
+    background: rgba(14,22,33,0.48) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-tabs {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-tabs button {
+    color: #79e2a1 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-sum {
+    border: 2px solid #2a3949 !important;
+    color: #e9eef3 !important;
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-sum:focus {
+    background: #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-drop {
+    color: #e9eef3 !important;
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-drop.ov,html.dh-dark #mnc-ext-panel .mnc-drop:focus {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-grid select,html.dh-dark #mnc-ext-panel .mnc-grid input {
+    border: 1px solid #2a3949 !important;
+    background: #242f3d !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-banner .mnc-bn-note {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-banner .mnc-bn-cp {
+    background: #17212b !important;
+    color: #79e2a1 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-sub {
+    background: #0e1621 !important;
+    border: 1px solid #2a3949 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-th b {
+    background: rgba(23,33,43,0.6) !important
+}
+html.dh-dark #mnc-ext-panel {
+    background: #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-h::after {
+    background: linear-gradient(90deg,transparent,rgba(49,129,82,0.45),transparent) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-an,html.dh-dark #mnc-ext-panel .mnc-zp,html.dh-dark #mnc-ext-panel .mnc-ad,html.dh-dark #mnc-ext-panel .mnc-top,html.dh-dark #mnc-ext-panel .mnc-x {
+    background: rgba(14,22,33,0.28) !important;
+    box-shadow: inset 0 0 0 1px rgba(49,129,82,0.35) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-an:hover,html.dh-dark #mnc-ext-panel .mnc-zp:hover,html.dh-dark #mnc-ext-panel .mnc-ad:hover,html.dh-dark #mnc-ext-panel .mnc-top:hover,html.dh-dark #mnc-ext-panel .mnc-x:hover {
+    background: rgba(49,129,82,0.35) !important;
+    box-shadow: inset 0 0 0 1px rgba(49,129,82,0.5) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-tabs {
+    background: #25412e !important
+}
+html.dh-dark #mnc-ext-panel .mnc-tabs button {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-tabs button:hover {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-tabs button.on {
+    background: #17212b !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-lbl {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-ext-panel input.mnc-f,html.dh-dark #mnc-ext-panel input.mnc-id,html.dh-dark #mnc-ext-panel select.mnc-st,html.dh-dark #mnc-ext-panel .mnc-grid select,html.dh-dark #mnc-ext-panel .mnc-grid input {
+    border: 1.5px solid #3c5d46 !important;
+    background: #242f3d !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-ext-panel input.mnc-id {
+    background: #242f3d !important
+}
+html.dh-dark #mnc-ext-panel select.mnc-s {
+    border: 1.5px solid #3c5d46 !important;
+    background: #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-sum {
+    border: 1.5px solid #3c5d46 !important;
+    background: linear-gradient(180deg,#0e1621,#0e1621) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-sum:focus {
+    background: #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-drop {
+    background: #0e1621 !important;
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-drop:hover,html.dh-dark #mnc-ext-panel .mnc-drop.act {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-drop.ov {
+    background: #1d492f !important
+}
+html.dh-dark #mnc-ext-panel .mnc-sub {
+    background: #0e1621 !important;
+    border: 1px solid #356446 !important
+}
+html.dh-dark #mnc-ext-panel .mnc-b {
+    box-shadow: 0 8px 18px -6px rgba(21,128,61,.55),inset 0 1px 0 rgba(14,22,33,0.35) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-b:hover:not(:disabled) {
+    box-shadow: 0 12px 24px -8px rgba(21,128,61,.6),inset 0 1px 0 rgba(14,22,33,0.38) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-b:disabled {
+    background: #1e2c3a !important
+}
+html.dh-dark #mnc-ext-panel .mnc-m.ok {
+    color: #74e79f !important
+}
+html.dh-dark #mnc-ext-panel .mnc-m.err {
+    background: #4a231c !important
+}
+html.dh-dark #mnc-ext-panel .mnc-set {
+    background: rgba(14,22,33,0.28) !important;
+    box-shadow: inset 0 0 0 1px rgba(49,129,82,0.35) !important
+}
+html.dh-dark #mnc-ext-panel .mnc-set:hover {
+    background: rgba(49,129,82,0.35) !important
+}
+html.dh-dark #mnc-ext-panel.dh-side {
+    box-shadow: 0 14px 34px rgba(11,46,32,.3),0 0 0 1px #17212b !important
+}
+html.dh-dark #mnc-ext-panel .mnc-upd {
+    background: rgba(14,22,33,0.28) !important;
+    box-shadow: inset 0 0 0 1px rgba(49,129,82,0.35) !important
+}
+html.dh-dark #dh-topbar.dhb {
+    background: #17212b !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #dh-topbar.dhb .dhb-brand b {
+    color: #e9eef3 !important
+}
+html.dh-dark #dh-topbar.dhb .dhb-brand span {
+    color: #79e2a1 !important
+}
+html.dh-dark #dh-topbar.dhb .dhb-brand i {
+    color: #e9eef3 !important
+}
+html.dh-dark #dh-topbar.dhb button {
+    color: #e9eef3 !important
+}
+html.dh-dark #dh-topbar.dhb button:hover {
+    background: #21452e !important;
+    border-color: #346547 !important
+}
+html.dh-dark #dh-topbar.dhb button.on {
+    background: #21452e !important
+}
+html.dh-dark #dh-topbar.dhb .dhb-sep {
+    background: #273f30 !important
+}
+html.dh-dark #dh-topbar.dhb .dhb-z {
+    color: #e9eef3 !important
+}
+html.dh-dark #dh-topbar.dhb button.dhb-new,html.dh-dark #dh-topbar.dhb button.dhb-theme {
+    color: #79e2a1 !important;
+    background: #17212b !important
+}
+html.dh-dark #dh-topbar.dhb button.dhb-new.dhb-new-unseen::after {
+    box-shadow: 0 0 0 2px #17212b !important
+}
+html.dh-dark #dh-topbar.dhb .dhb-bot .dhb-dot {
+    background: #263445 !important
+}
+html.dh-dark #mnc-dash {
+    background: #0e1621 !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .logo {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .period button.on {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .ic {
+    background: rgba(14,22,33,0.3) !important
+}
+html.dh-dark #mnc-dash .ic:hover {
+    background: rgba(14,22,33,0.42) !important
+}
+html.dh-dark #mnc-dash .err {
+    background: #4a201c !important;
+    border: 1px solid #6b352e !important
+}
+html.dh-dark #mnc-dash .note {
+    background: #4a3d1c !important;
+    border: 1px solid #6b5b2e !important;
+    color: #e7c974 !important
+}
+html.dh-dark #mnc-dash .chips button {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .kpi {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .dl.up {
+    background: #1d492f !important;
+    color: #74e79f !important
+}
+html.dh-dark #mnc-dash .dl.down {
+    background: #4a211c !important
+}
+html.dh-dark #mnc-dash .dl.eq {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash .card {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .leg i.dash {
+    background: repeating-linear-gradient(90deg,#263445 0 5px,transparent 5px 9px) !important
+}
+html.dh-dark #mnc-dash svg .ax {
+    fill: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .rb {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash table.t th {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash table.t td {
+    border-bottom: 1px solid #2a3949 !important
+}
+html.dh-dark #mnc-dash .cmp button {
+    border: 1px solid rgba(49,129,82,0.35) !important
+}
+html.dh-dark #mnc-dash .cmp button.on {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .kpi.main .dl.up {
+    background: rgba(14,22,33,0.4) !important
+}
+html.dh-dark #mnc-dash .kpi.main .dl.down {
+    background: #4a211c !important
+}
+html.dh-dark #mnc-dash .dlegend .dlt {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .tag.oth {
+    background: #263445 !important
+}
+html.dh-dark #mnc-dash table.rep tr.k-sum td {
+    background: #0e1621 !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash table.rep tr.k-in td.n b {
+    color: #74e79f !important
+}
+html.dh-dark #mnc-dash .tb {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash .tb i.oth,html.dh-dark #mnc-dash .rb i.oth {
+    background: linear-gradient(90deg,#1e2c3a,#1e2c3a) !important
+}
+html.dh-dark #mnc-dash td.sh {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash td.cm {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .dates {
+    background: #17212b !important;
+    border-bottom: 1px solid #2a3949 !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .dates b {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .dates .vs {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .tb.two i.prev {
+    background: #263445 !important
+}
+html.dh-dark #mnc-dash table.mst td.rn2 {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash table.mst tbody tr:nth-child(1) td.rn2,html.dh-dark #mnc-dash table.mst tbody tr:nth-child(2) td.rn2,html.dh-dark #mnc-dash table.mst tbody tr:nth-child(3) td.rn2 {
+    color: #74e79f !important
+}
+html.dh-dark #mnc-dash .rf em {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .rf .of {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .motiv .mzv.fc {
+    background: #0e1621 !important;
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash table.mk b.up {
+    color: #74e79f !important
+}
+html.dh-dark #mnc-dash .mset summary {
+    color: #79e2a1 !important
+}
+html.dh-dark #mnc-dash .dh {
+    border-right: 1px solid rgba(49,129,82,0.35) !important
+}
+html.dh-dark #mnc-dash h2.sec {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .goalin input {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .btn-l {
+    border: 1px solid #2a3949 !important;
+    color: #79e2a1 !important
+}
+html.dh-dark #mnc-dash .btn-l:hover {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash .goal b.up {
+    color: #74e79f !important
+}
+html.dh-dark #mnc-dash .gbig {
+    border: 2px solid #2a3949 !important;
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash .gbig:focus-within {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .gbig input {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .gbig input::placeholder {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .gbig span {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .chips button {
+    background: #17212b !important;
+    border: 1px solid #2a3949 !important;
+    color: #79e2a1 !important
+}
+html.dh-dark #mnc-dash .chips button:hover {
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash .nfl {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .nf {
+    border: 1px solid #2a3949 !important;
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .nf input {
+    color: #e9eef3 !important
+}
+html.dh-dark #mnc-dash .nf button {
+    color: #79e2a1 !important;
+    background: #0e1621 !important
+}
+html.dh-dark #mnc-dash .nf button:hover {
+    background: #20462e !important
+}
+html.dh-dark #mnc-dash .nfl .hint {
+    color: #7d8fa1 !important
+}
+html.dh-dark #mnc-dash .goal .btn-l {
+    background: #17212b !important
+}
+html.dh-dark #mnc-dash .gtab td:nth-child(4) {
+    color: #79e2a1 !important
+}
+/* ---- окно «Что нового» (стили в changelog.js) — тёмная тема ---- */
+html.dh-dark #dh-news{background:rgba(5,10,15,.55)!important;color:#e9eef3!important}
+html.dh-dark #dh-news .dhn-card{background:#17212b!important;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px #2a3949!important}
+html.dh-dark #dh-news .dhn-head{border-bottom-color:#2a3949!important}
+html.dh-dark #dh-news .dhn-head b{color:#e9eef3!important}
+html.dh-dark #dh-news .dhn-x{color:#9fb0c0!important}
+html.dh-dark #dh-news .dhn-x:hover{background:#263445!important}
+html.dh-dark #dh-news .dhn-ver h4{color:#5fd08a!important}
+html.dh-dark #dh-news .dhn-ver h4 span{color:#7d8fa1!important}
+html.dh-dark #dh-news .dhn-ver h4 em{background:#166534!important;color:#fff!important}
+html.dh-dark #dh-news li{color:#d5dee6!important}
+html.dh-dark #dh-news .dhn-foot{background:#1e2c3a!important;border-top-color:#2a3949!important}
+html.dh-dark #dh-news .dhn-msg{color:#9fb0c0!important}
+html.dh-dark #dh-news .dhn-msg a{color:#5fd08a!important}

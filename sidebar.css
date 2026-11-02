@@ -3,9 +3,7 @@
 .dhov-top{display:none;height:40px;align-items:center;justify-content:space-between;padding:0 8px 0 14px;background:#1c1b22;color:#fbfbfe;font:600 14px "Segoe UI",system-ui,sans-serif;position:relative;z-index:2}
 .dhov-top button{all:unset;cursor:pointer;width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-size:16px;color:#fbfbfe}
 .dhov-top button:hover{background:#3a3944}
-body.ov .dhov-top{display:flex}
-html.dh-dark .dhov-top{filter:invert(1) hue-rotate(180deg)} /* полоса и так тёмная — в тёмной теме не переворачиваем */
-body.ov main{top:88px}
+body.ov .dhov-top{display:flex}body.ov main{top:88px}
 body.ov #toast{top:94px}
 html,body{margin:0;height:100%;background:#f2f6f3;font:13px "Segoe UI",system-ui,sans-serif;overflow:hidden}
 header.dhb{position:relative;z-index:2}

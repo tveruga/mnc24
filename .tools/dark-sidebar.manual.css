@@ -1,0 +1,5 @@
+/* ---- окно DIR HELPER (sidebar.html) — тёмная тема ---- */
+html.dh-dark{color-scheme:dark}
+html.dh-dark,html.dh-dark body{background:#0e1621!important}
+html.dh-dark .dhov-top{background:#0e1621!important;border-bottom:1px solid #2a3949}
+html.dh-dark iframe{background:#0e1621!important}

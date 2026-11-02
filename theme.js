@@ -1,24 +1,32 @@
-// Тёмная тема для CRM и окон DIR HELPER (кнопка ☀/☾ рядом с «?»).
-// Работает инверсией цветов всей страницы — так темнеет и CRM, и панели дополнения; картинки и видео возвращаются как были.
+// Тёмная тема для CRM и окон DIR HELPER (кнопка ☀/☾ рядом с «?») — в стиле «ночного» Telegram с зелёными акцентами.
+// Цвета — в dark-crm.css / dark-ext.css / dark-sidebar.css (генерирует tools/gen-dark.mjs), действуют при классе html.dh-dark.
 // Выбор хранится в storage.local.dhTheme ('dark' | 'light') и сразу применяется во всех вкладках и окнах.
 (function () {
   if (window.__dhTheme) return; window.__dhTheme = true;
   const isExt = location.protocol === 'moz-extension:';
-  // кто красит: верхняя страница CRM и страница дополнения — целиком; CRM внутри окна дополнения — только возвращает цвета картинок
-  // (её уже затемняет окно-родитель); скрытые окна CRM внутри CRM — ничего
-  let mode = 'full';
+  // скрытые окна CRM внутри самой CRM не трогаем
   if (!isExt && window !== window.top) {
     let parentIsCrm = false; try { parentIsCrm = window.parent.location.hostname === location.hostname; } catch (e) {}
-    mode = parentIsCrm ? 'none' : 'media';
+    if (parentIsCrm) return;
   }
-  if (mode === 'none') return;
-  const MEDIA = 'html.dh-dark img,html.dh-dark video,html.dh-dark picture,html.dh-dark [style*="background-image"]{filter:invert(1) hue-rotate(180deg)}';
-  const css = (mode === 'full' ? 'html{transition:filter .25s ease}html.dh-dark{filter:invert(.9) hue-rotate(180deg);background:#fff}' : '') + MEDIA;
-  const put = () => { if (document.getElementById('dh-theme-css')) return; const st = document.createElement('style'); st.id = 'dh-theme-css'; st.textContent = css; (document.head || document.documentElement).appendChild(st); };
-  const apply = (t) => { document.documentElement.classList.toggle('dh-dark', t === 'dark'); try { localStorage.setItem('dhTheme', t); } catch (e) {} };
+  // ячейки таблиц с яркой заливкой (статус, тип, время) — помечаем, чтобы текст в них был тёмным
+  let litT = 0;
+  const lit = () => {
+    if (isExt || !document.documentElement.classList.contains('dh-dark')) return;
+    document.querySelectorAll('td,th').forEach((td) => {
+      const m = getComputedStyle(td).backgroundColor.match(/[\d.]+/g); if (!m) return;
+      const [r, g, b, a = 1] = m.map(Number);
+      td.classList.toggle('dh-lit', +a > 0.5 && (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45);
+    });
+  };
+  const litSoon = () => { clearTimeout(litT); litT = setTimeout(lit, 250); };
+  const apply = (t) => { document.documentElement.classList.toggle('dh-dark', t === 'dark'); try { localStorage.setItem('dhTheme', t); } catch (e) {} litSoon(); };
   // сразу из localStorage (без вспышки светлой страницы), потом — точное значение из настроек дополнения
-  put(); try { const t = localStorage.getItem('dhTheme'); if (t) apply(t); } catch (e) {}
-  if (!document.head) document.addEventListener('DOMContentLoaded', put, { once: true });
+  try { const t = localStorage.getItem('dhTheme'); if (t) apply(t); } catch (e) {}
+  if (!isExt) {
+    document.addEventListener('DOMContentLoaded', litSoon);
+    new MutationObserver(litSoon).observe(document.documentElement, { childList: true, subtree: true });
+  }
   try {
     browser.storage.local.get('dhTheme').then((r) => apply(r.dhTheme || 'light')).catch(() => {});
     browser.storage.onChanged.addListener((ch) => { if (ch.dhTheme) apply(ch.dhTheme.newValue || 'light'); });

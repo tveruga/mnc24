@@ -1,0 +1,71 @@
+/* СГЕНЕРИРОВАНО .tools/gen-dark.mjs — не править руками */
+html.dh-dark .dhov-top {
+    background: #17212b !important
+}
+html.dh-dark .dhov-top button:hover {
+    background: #17212b !important
+}
+html.dh-dark,html.dh-dark body {
+    background: #0e1621 !important
+}
+html.dh-dark iframe {
+    background: #17212b !important
+}
+html.dh-dark .dhb {
+    background: #17212b !important;
+    color: #e9eef3 !important
+}
+html.dh-dark .dhb .dhb-brand b {
+    color: #e9eef3 !important
+}
+html.dh-dark .dhb .dhb-brand span {
+    color: #79e2a1 !important
+}
+html.dh-dark .dhb .dhb-brand i {
+    color: #e9eef3 !important
+}
+html.dh-dark .dhb button {
+    color: #e9eef3 !important
+}
+html.dh-dark .dhb button:hover {
+    background: #21452e !important;
+    border-color: #346547 !important
+}
+html.dh-dark .dhb button.on {
+    background: #21452e !important
+}
+html.dh-dark .dhb .dhb-sep {
+    background: #273f30 !important
+}
+html.dh-dark .dhb .dhb-z {
+    color: #e9eef3 !important
+}
+html.dh-dark .dhb button.dhb-new,html.dh-dark .dhb button.dhb-theme {
+    color: #79e2a1 !important;
+    background: #17212b !important
+}
+html.dh-dark .dhb button.dhb-new.dhb-new-unseen::after {
+    box-shadow: 0 0 0 2px #17212b !important
+}
+html.dh-dark .dhb .dhb-bot .dhb-dot {
+    background: #263445 !important
+}
+/* ---- окно DIR HELPER (sidebar.html) — тёмная тема ---- */
+html.dh-dark{color-scheme:dark}
+html.dh-dark,html.dh-dark body{background:#0e1621!important}
+html.dh-dark .dhov-top{background:#0e1621!important;border-bottom:1px solid #2a3949}
+html.dh-dark iframe{background:#0e1621!important}
+/* ---- окно «Что нового» (стили в changelog.js) — тёмная тема ---- */
+html.dh-dark #dh-news{background:rgba(5,10,15,.55)!important;color:#e9eef3!important}
+html.dh-dark #dh-news .dhn-card{background:#17212b!important;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px #2a3949!important}
+html.dh-dark #dh-news .dhn-head{border-bottom-color:#2a3949!important}
+html.dh-dark #dh-news .dhn-head b{color:#e9eef3!important}
+html.dh-dark #dh-news .dhn-x{color:#9fb0c0!important}
+html.dh-dark #dh-news .dhn-x:hover{background:#263445!important}
+html.dh-dark #dh-news .dhn-ver h4{color:#5fd08a!important}
+html.dh-dark #dh-news .dhn-ver h4 span{color:#7d8fa1!important}
+html.dh-dark #dh-news .dhn-ver h4 em{background:#166534!important;color:#fff!important}
+html.dh-dark #dh-news li{color:#d5dee6!important}
+html.dh-dark #dh-news .dhn-foot{background:#1e2c3a!important;border-top-color:#2a3949!important}
+html.dh-dark #dh-news .dhn-msg{color:#9fb0c0!important}
+html.dh-dark #dh-news .dhn-msg a{color:#5fd08a!important}

@@ -40,6 +40,10 @@ CRM: https://mnc-lead-centre.ru/admin (Yii2). DIR HELPER — дополнени�
 - ЗП директора в бот НЕ выводить. Команда /отдай удалена.
 - Пользователи бота: owner 7191750835, 7892790601.
 
+## Тёмная тема
+- Кнопка ☀/☾ (theme.js, storage `dhTheme`) ставит класс `html.dh-dark`. Цвета: dark-crm.css (CRM), dark-ext.css (panel/dashboard), dark-sidebar.css (окно) — ГЕНЕРИРУЮТСЯ `cd .tools && npm i && node gen-dark.mjs` из .tools/crm-css/*.css (стили CRM, сохранены из кэша Firefox), panel.css, dashboard.css, sidebar.css + ручные .tools/*.manual.css. Поменяли panel/dashboard/sidebar.css — перегенерировать. Палитра: ночной Telegram (#0e1621/#17212b/#1e2c3a) + зелёные акценты.
+- Ячейки с яркой заливкой (статусы) theme.js помечает `dh-lit` → тёмный текст.
+
 ## Подводные камни
 - В Firefox НЕТ runtime.requestUpdateCheck. Кнопка «Обновить» (dhUpdateCheck) сама сверяет версию с updates.json (dhLatest в tg.js) и открывает .xpi из релиза.
 - runtime.onMessage: НЕ делать обработчик `async` — он вернёт Promise на любое сообщение и «перехватит» ответ у других обработчиков (так ломались ⟳ «Обновить» и т.п.). Нужное сообщение → `return promise`, чужое → `return` без значения.
