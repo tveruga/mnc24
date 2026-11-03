@@ -172,7 +172,7 @@ function mapColor(str, role, ctx) {
 
 // светлые палитры: белый/серый фон → светлые цвета палитры, серые рамки → рамка палитры, зелёные бренда → акцент; текст как есть
 const L = (k) => V('l' + k);
-const brandVarL = (hsl) => (hsl.l < 0.18 ? L('accd2') : hsl.l < 0.32 ? L('accd') : hsl.l < 0.5 ? L('acc') : L('accl'));
+const brandVarL = (hsl) => (hsl.l < 0.32 ? L('accd') : hsl.l < 0.5 ? L('acc') : L('accl'));
 function mapLight(str, role, ctx) {
   const c = parse(str); if (!c || c.a === 0) return str;
   const hsl = rgb2hsl(c), grey = hsl.s < 0.22 || (hsl.l > 0.94 && hsl.s < 0.6);
@@ -210,8 +210,14 @@ function litVars(css) {
   return css.replace(/#[0-9a-fA-F]{6}\b/g, (m) => (LIT[m.toLowerCase()] ? V(LIT[m.toLowerCase()]) : m))
     .replace(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/g, (m, r, g, b, a) => { const k = LIT[hex(+r, +g, +b)]; return k ? withA(V(k), +a) : m; });
 }
+// значения пользовательских переменных (--g800: #0f3d2b) из всех файлов набора
+const CSSVARS = new Map();
 function gen(files, extra, brand) {
   const out = postcss.root();
+  CSSVARS.clear();
+  for (const f of files) {
+    try { postcss.parse(fs.readFileSync(f, 'utf8')).walkDecls(/^--/, (d) => { if (!CSSVARS.has(d.prop)) CSSVARS.set(d.prop, d.value.trim()); }); } catch (e) {}
+  }
   for (const [cls, map] of [['dh-dark', mapColor], ['dh-lt', mapLight]])
   for (const f of files) {
     let src; try { src = fs.readFileSync(f, 'utf8'); } catch (e) { continue; }
@@ -226,10 +232,13 @@ function gen(files, extra, brand) {
       const decls = [];
       rule.walkDecls((d) => {
         const role = PROPS[d.prop.toLowerCase()]; if (!role) return;
-        if (!COLOR_RE.test(d.value)) { COLOR_RE.lastIndex = 0; return; } COLOR_RE.lastIndex = 0;
-        if (/url\(/.test(d.value) && role === 'bg' && !/gradient/.test(d.value)) return;
-        const v = d.value.replace(/\s*!important/i, '').replace(COLOR_RE, (m) => map(m, role, ctx));
-        if (v !== d.value.replace(/\s*!important/i, '')) decls.push(postcss.decl({ prop: d.prop, value: v, important: true }));
+        // цвета через переменные (dashboard.css: var(--g800) и т.п.) — подставляем значение, чтобы перекрасить по роли
+        const raw = d.value.replace(/\s*!important/i, '');
+        const val = raw.replace(/var\(\s*(--[\w-]+)\s*(?:,\s*([^()]*))?\)/g, (m, n, fb) => CSSVARS.get(n) || (fb && fb.trim()) || m);
+        if (!COLOR_RE.test(val)) { COLOR_RE.lastIndex = 0; return; } COLOR_RE.lastIndex = 0;
+        if (/url\(/.test(val) && role === 'bg' && !/gradient/.test(val)) return;
+        const v = val.replace(COLOR_RE, (m) => map(m, role, ctx));
+        if (v !== raw) decls.push(postcss.decl({ prop: d.prop, value: v, important: true }));
       });
       if (!decls.length) return;
       const nr = postcss.rule({ selector: prefix(rule.selector, cls) }); decls.forEach((d) => nr.append(d));

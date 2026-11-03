@@ -4,9 +4,17 @@ const NS = 'http://www.w3.org/2000/svg';
 const fmt = (n) => n == null || isNaN(n) ? '—' : (Math.round(n * 10) / 10).toLocaleString('ru-RU');
 let _gid = 0;
 
+// цвета графиков под тему: фирменные зелёные → CSS-переменные --dhc-* (задаются в .tools/dark-ext.manual.css
+// для тёмных и светлых палитр); без темы работает запасной цвет. var() в SVG-атрибуте не работает — ставим через style.
+const DHC = new Set(['#15803d', '#0f766e', '#65a30d', '#22a35a', '#047857', '#4d7c0f', '#14532d', '#2dd4bf', '#5cc58a', '#5f7468', '#dc6b4a', '#eef4f0', '#ffffff']);
+function dhCol(c) { const k = String(c || '').toLowerCase().replace(/^#fff$/, '#ffffff'); return DHC.has(k) ? `var(--dhc-${k.slice(1)}, ${k})` : c; }
 function el(tag, attrs, parent) {
   const e = document.createElementNS(NS, tag);
-  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  for (const k in attrs) {
+    let v = attrs[k];
+    if (/^(fill|stroke|stop-color)$/.test(k)) v = dhCol(v);
+    if (typeof v === 'string' && v.startsWith('var(')) e.style.setProperty(k, v); else e.setAttribute(k, v);
+  }
   if (parent) parent.appendChild(e);
   return e;
 }
@@ -94,7 +102,7 @@ function smoothChart(box, labels, series, opts = {}) {
     const i = Math.max(0, Math.min(labels.length - 1, Math.round((x - L) / iw * (n - 1))));
     guide.setAttribute('x1', X(i)); guide.setAttribute('x2', X(i)); guide.style.opacity = 1;
     dots.forEach((d, k) => { const v = series[k].values[i]; d.setAttribute('cx', X(i)); d.setAttribute('cy', Y(v)); d.style.opacity = v == null ? 0 : 1; });
-    tip.innerHTML = `<b>${labels[i]}</b>` + series.map((s) => `<div><i style="background:${s.color || PALETTE[series.indexOf(s)]}"></i>${s.name}: <b>${fmt(s.values[i])}${opts.unit || ''}</b></div>`).join('');
+    tip.innerHTML = `<b>${labels[i]}</b>` + series.map((s) => `<div><i style="background:${dhCol(s.color || PALETTE[series.indexOf(s)])}"></i>${s.name}: <b>${fmt(s.values[i])}${opts.unit || ''}</b></div>`).join('');
     tip.style.opacity = 1;
     const tx = ev.clientX + 16, tw = tip.offsetWidth;
     tip.style.left = (tx + tw > innerWidth ? ev.clientX - tw - 16 : tx) + 'px'; tip.style.top = ev.clientY - 20 + 'px';
@@ -149,6 +157,6 @@ function donut(box, items, opts = {}) {
   el('text', { x: c, y: c + 2, 'text-anchor': 'middle', class: 'dv' }, svg).textContent = fmt(opts.centerValue != null ? opts.centerValue : total);
   el('text', { x: c, y: c + 22, 'text-anchor': 'middle', class: 'ax' }, svg).textContent = opts.center || 'всего';
   const lg = document.createElement('div'); lg.className = 'dlegend';
-  lg.innerHTML = items.map((it, i) => `<div class="dli"><i style="background:${it.color || PALETTE[i % PALETTE.length]}"></i><span class="dlt">${it.label}</span><b>${fmt(it.value)}</b><em>${fmt(it.value * 100 / total)}%</em></div>`).join('');
+  lg.innerHTML = items.map((it, i) => `<div class="dli"><i style="background:${dhCol(it.color || PALETTE[i % PALETTE.length])}"></i><span class="dlt">${it.label}</span><b>${fmt(it.value)}</b><em>${fmt(it.value * 100 / total)}%</em></div>`).join('');
   wrap.appendChild(lg);
 }

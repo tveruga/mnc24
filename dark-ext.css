@@ -342,17 +342,41 @@ html.dh-dark #mnc-dash .sub2 {
     background: var(--dh-accd2) !important;
     color: var(--dh-acct) !important
 }
+html.dh-dark #mnc-dash .top {
+    background: var(--dh-accd2) !important
+}
 html.dh-dark #mnc-dash .logo {
-    background: var(--dh-bg1) !important
+    background: var(--dh-bg1) !important;
+    color: var(--dh-acct) !important
+}
+html.dh-dark #mnc-dash .sub {
+    color: var(--dh-acct) !important
+}
+html.dh-dark #mnc-dash .period {
+    background: var(--dh-accd2) !important
+}
+html.dh-dark #mnc-dash .period button {
+    color: var(--dh-acct) !important
 }
 html.dh-dark #mnc-dash .period button.on {
-    background: var(--dh-bg1) !important
+    background: var(--dh-bg1) !important;
+    color: var(--dh-acct) !important
+}
+html.dh-dark #mnc-dash .upd {
+    color: var(--dh-acct) !important
 }
 html.dh-dark #mnc-dash .ic {
     background: color-mix(in srgb,var(--dh-bg0) 30%,transparent) !important
 }
 html.dh-dark #mnc-dash .ic:hover {
     background: color-mix(in srgb,var(--dh-bg0) 42%,transparent) !important
+}
+html.dh-dark #mnc-dash .loading {
+    color: var(--dh-muted) !important
+}
+html.dh-dark #mnc-dash .spin {
+    border: 3px solid var(--dh-accline) !important;
+    border-top-color: var(--dh-accd) !important
 }
 html.dh-dark #mnc-dash .err {
     background: #4a201c !important;
@@ -363,18 +387,36 @@ html.dh-dark #mnc-dash .note {
     border: 1px solid #6b5b2e !important;
     color: #e7c974 !important
 }
+html.dh-dark #mnc-dash .lnk {
+    color: var(--dh-acct) !important
+}
 html.dh-dark #mnc-dash .chips button {
-    background: var(--dh-bg1) !important
+    background: var(--dh-bg1) !important;
+    border: 1px solid var(--dh-line) !important;
+    color: var(--dh-muted) !important
+}
+html.dh-dark #mnc-dash .chips button.on {
+    background: var(--dh-accd) !important;
+    border-color: var(--dh-accd) !important
 }
 html.dh-dark #mnc-dash .kpi {
     background: var(--dh-bg1) !important;
-    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-accd2) 6%,transparent),0 0 0 1px var(--line) !important
+    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-accd2) 6%,transparent),0 0 0 1px var(--dh-bg1) !important
 }
 html.dh-dark #mnc-dash .kpi:hover {
-    box-shadow: 0 8px 20px color-mix(in srgb,var(--dh-accd2) 10%,transparent),0 0 0 1px var(--line) !important
+    box-shadow: 0 8px 20px color-mix(in srgb,var(--dh-accd2) 10%,transparent),0 0 0 1px var(--dh-bg1) !important
 }
 html.dh-dark #mnc-dash .kpi.on {
-    box-shadow: 0 0 0 2px var(--g500),0 8px 20px color-mix(in srgb,var(--dh-accd) 15%,transparent) !important
+    box-shadow: 0 0 0 2px #15803d,0 8px 20px color-mix(in srgb,var(--dh-accd) 15%,transparent) !important
+}
+html.dh-dark #mnc-dash .kl {
+    color: var(--dh-muted) !important
+}
+html.dh-dark #mnc-dash .kv {
+    color: var(--dh-acct) !important
+}
+html.dh-dark #mnc-dash .ks {
+    color: var(--dh-muted) !important
 }
 html.dh-dark #mnc-dash .dl.up {
     background: var(--dh-accbg) !important;
@@ -384,11 +426,21 @@ html.dh-dark #mnc-dash .dl.down {
     background: #4a211c !important
 }
 html.dh-dark #mnc-dash .dl.eq {
-    background: var(--dh-bg0) !important
+    background: var(--dh-bg0) !important;
+    color: var(--dh-muted) !important
 }
 html.dh-dark #mnc-dash .card {
     background: var(--dh-bg1) !important;
-    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-accd2) 6%,transparent),0 0 0 1px var(--line) !important
+    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-accd2) 6%,transparent),0 0 0 1px var(--dh-bg1) !important
+}
+html.dh-dark #mnc-dash .ct {
+    color: var(--dh-acct) !important
+}
+html.dh-dark #mnc-dash .cs {
+    color: var(--dh-muted) !important
+}
+html.dh-dark #mnc-dash .leg {
+    color: var(--dh-muted) !important
 }
 html.dh-dark #mnc-dash .leg i.dash {
     background: repeating-linear-gradient(90deg,var(--dh-bg3) 0 5px,transparent 5px 9px) !important
@@ -396,17 +448,41 @@ html.dh-dark #mnc-dash .leg i.dash {
 html.dh-dark #mnc-dash svg .ax {
     fill: var(--dh-muted) !important
 }
+html.dh-dark #mnc-dash svg .dv {
+    fill: var(--dh-acct) !important
+}
+html.dh-dark #mnc-dash .dlegend em {
+    color: var(--dh-muted) !important
+}
+html.dh-dark #mnc-dash .rn {
+    background: var(--dh-accbg) !important;
+    color: var(--dh-acct) !important
+}
 html.dh-dark #mnc-dash .rb {
     background: var(--dh-accbg) !important
 }
 html.dh-dark #mnc-dash .rb i {
     background: linear-gradient(90deg,var(--dh-acct),var(--dh-accd)) !important
 }
+html.dh-dark #mnc-dash details summary {
+    color: var(--dh-acct) !important
+}
 html.dh-dark #mnc-dash table.t th {
-    background: var(--dh-bg1) !important
+    background: var(--dh-bg1) !important;
+    color: var(--dh-muted) !important;
+    border-bottom: 2px solid var(--dh-line) !important
 }
 html.dh-dark #mnc-dash table.t td {
     border-bottom: 1px solid var(--dh-line) !important
+}
+html.dh-dark #mnc-dash table.t tr.tot td {
+    background: var(--dh-accbg) !important
+}
+html.dh-dark #mnc-dash .muted {
+    color: var(--dh-muted) !important
+}
+html.dh-dark #mnc-tip {
+    background: var(--dh-accd2) !important
 }
 html.dh-dark #mnc-tip {
     background: var(--dh-accd2) !important
@@ -601,10 +677,10 @@ html.dh-dark #mnc-dash {
 html.dh-lt #mnc-ext-panel {
     background: var(--dh-lbg0) !important;
     color: var(--dh-laccd2) !important;
-    box-shadow: 0 10px 30px color-mix(in srgb,var(--dh-laccd2) 22%,transparent),0 0 0 1px #d9e6de !important
+    box-shadow: 0 10px 30px color-mix(in srgb,var(--dh-laccd) 22%,transparent),0 0 0 1px #d9e6de !important
 }
 html.dh-lt #mnc-ext-panel .mnc-h {
-    background: var(--dh-laccd2) !important
+    background: var(--dh-laccd) !important
 }
 html.dh-lt #mnc-ext-panel input.mnc-f,html.dh-lt #mnc-ext-panel input.mnc-id,html.dh-lt #mnc-ext-panel select.mnc-s,html.dh-lt #mnc-ext-panel select.mnc-st {
     background: var(--dh-lbg1) !important;
@@ -640,7 +716,7 @@ html.dh-lt #mnc-ext-banner .mnc-bn {
     border-top: 6px solid var(--dh-laccd) !important
 }
 html.dh-lt #mnc-ext-banner .mnc-bn-ic {
-    background: var(--dh-laccd2) !important
+    background: var(--dh-laccd) !important
 }
 html.dh-lt #mnc-ext-banner .mnc-bn-ok {
     background: var(--dh-laccd) !important
@@ -693,10 +769,10 @@ html.dh-lt #mnc-ext-panel .mnc-drop.act {
 }
 html.dh-lt #mnc-ext-panel {
     background: var(--dh-lbg0) !important;
-    box-shadow: 0 24px 60px -12px color-mix(in srgb,var(--dh-laccd2) 35%,transparent),0 0 0 1px color-mix(in srgb,var(--dh-laccd2) 8%,transparent) !important
+    box-shadow: 0 24px 60px -12px color-mix(in srgb,var(--dh-laccd) 35%,transparent),0 0 0 1px color-mix(in srgb,var(--dh-laccd) 8%,transparent) !important
 }
 html.dh-lt #mnc-ext-panel .mnc-h {
-    background: linear-gradient(135deg,var(--dh-laccd2) 0%,var(--dh-laccd) 60%,var(--dh-laccd) 100%) !important
+    background: linear-gradient(135deg,var(--dh-laccd) 0%,var(--dh-laccd) 60%,var(--dh-laccd) 100%) !important
 }
 html.dh-lt #mnc-ext-panel .mnc-h::after {
     background: linear-gradient(90deg,transparent,color-mix(in srgb,var(--dh-laccbg) 45%,transparent),transparent) !important
@@ -710,7 +786,7 @@ html.dh-lt #mnc-ext-panel .mnc-an:hover,html.dh-lt #mnc-ext-panel .mnc-zp:hover,
 }
 html.dh-lt #mnc-ext-panel .mnc-tabs {
     background: var(--dh-laccbg) !important;
-    box-shadow: inset 0 1px 2px color-mix(in srgb,var(--dh-laccd2) 8%,transparent) !important
+    box-shadow: inset 0 1px 2px color-mix(in srgb,var(--dh-laccd) 8%,transparent) !important
 }
 html.dh-lt #mnc-ext-panel .mnc-tabs button:hover {
     color: var(--dh-laccd2) !important
@@ -718,7 +794,7 @@ html.dh-lt #mnc-ext-panel .mnc-tabs button:hover {
 html.dh-lt #mnc-ext-panel .mnc-tabs button.on {
     background: var(--dh-lbg0) !important;
     color: var(--dh-laccd2) !important;
-    box-shadow: 0 2px 6px color-mix(in srgb,var(--dh-laccd2) 12%,transparent),0 0 0 1px color-mix(in srgb,var(--dh-laccd2) 6%,transparent) !important
+    box-shadow: 0 2px 6px color-mix(in srgb,var(--dh-laccd) 12%,transparent),0 0 0 1px color-mix(in srgb,var(--dh-laccd) 6%,transparent) !important
 }
 html.dh-lt #mnc-ext-panel input.mnc-f,html.dh-lt #mnc-ext-panel input.mnc-id,html.dh-lt #mnc-ext-panel select.mnc-st,html.dh-lt #mnc-ext-panel .mnc-grid select,html.dh-lt #mnc-ext-panel .mnc-grid input {
     border: 1.5px solid var(--dh-laccline) !important;
@@ -758,7 +834,7 @@ html.dh-lt #mnc-ext-panel .mnc-drop.ov {
     background: var(--dh-laccbg) !important
 }
 html.dh-lt #mnc-ext-panel .mnc-th {
-    box-shadow: 0 2px 8px color-mix(in srgb,var(--dh-laccd2) 18%,transparent) !important
+    box-shadow: 0 2px 8px color-mix(in srgb,var(--dh-laccd) 18%,transparent) !important
 }
 html.dh-lt #mnc-ext-panel .mnc-sub {
     background: var(--dh-lbg1) !important;
@@ -784,14 +860,14 @@ html.dh-lt #mnc-ext-panel .dh-ver {
     color: var(--dh-laccl) !important
 }
 html.dh-lt #mnc-ext-panel.dh-side {
-    box-shadow: 0 14px 34px color-mix(in srgb,var(--dh-laccd2) 30%,transparent),0 0 0 1px #d9e6de !important
+    box-shadow: 0 14px 34px color-mix(in srgb,var(--dh-laccd) 30%,transparent),0 0 0 1px #d9e6de !important
 }
 html.dh-lt #mnc-ext-panel .mnc-upd {
     box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--dh-laccline) 18%,transparent) !important
 }
 html.dh-lt .dh-toast {
-    background: var(--dh-laccd2) !important;
-    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-laccd2) 35%,transparent) !important
+    background: var(--dh-laccd) !important;
+    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-laccd) 35%,transparent) !important
 }
 html.dh-lt #dh-topbar.dhb {
     background: var(--dh-lbg0) !important;
@@ -823,19 +899,19 @@ html.dh-lt #dh-topbar.dhb button.on {
     border-color: var(--dh-laccl) !important
 }
 html.dh-lt #dh-topbar.dhb button.dhb-main.on {
-    background: var(--dh-laccd2) !important
+    background: var(--dh-laccd) !important
 }
 html.dh-lt #dh-topbar.dhb .dhb-sep {
     background: var(--dh-laccbg) !important
 }
 html.dh-lt #dh-topbar.dhb {
-    box-shadow: 0 2px 10px color-mix(in srgb,var(--dh-laccd2) 8%,transparent) !important
+    box-shadow: 0 2px 10px color-mix(in srgb,var(--dh-laccd) 8%,transparent) !important
 }
 html.dh-lt #dh-topbar.dhb button.dhb-new,html.dh-lt #dh-topbar.dhb button.dhb-theme {
     border: 1.5px solid var(--dh-laccd) !important;
     color: var(--dh-lacct) !important;
     background: var(--dh-lbg0) !important;
-    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-laccd2) 15%,transparent) !important
+    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-laccd) 15%,transparent) !important
 }
 html.dh-lt #dh-topbar.dhb button.dhb-new:hover,html.dh-lt #dh-topbar.dhb button.dhb-theme:hover {
     background: var(--dh-laccd) !important;
@@ -848,41 +924,103 @@ html.dh-lt #dh-topbar.dhb .dhb-bot.bot-on .dhb-dot {
 html.dh-lt #mnc-dash {
     background: var(--dh-lbg1) !important;
     color: var(--dh-laccd2) !important;
-    box-shadow: -18px 0 50px color-mix(in srgb,var(--dh-laccd2) 25%,transparent) !important
+    box-shadow: -18px 0 50px color-mix(in srgb,var(--dh-laccd) 25%,transparent) !important
 }
 html.dh-lt #mnc-dash .sub2 {
-    background: var(--dh-laccd2) !important;
+    background: var(--dh-laccd) !important;
     color: var(--dh-laccl) !important
 }
+html.dh-lt #mnc-dash .top {
+    background: var(--dh-laccd) !important
+}
 html.dh-lt #mnc-dash .logo {
-    background: var(--dh-lbg0) !important
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .sub {
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .period {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-dash .period button {
+    color: var(--dh-laccl) !important
 }
 html.dh-lt #mnc-dash .period button.on {
-    background: var(--dh-lbg0) !important
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .upd {
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .loading {
+    color: #6b7f73 !important
+}
+html.dh-lt #mnc-dash .spin {
+    border: 3px solid var(--dh-laccline) !important;
+    border-top-color: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-dash .lnk {
+    color: var(--dh-lacct) !important
 }
 html.dh-lt #mnc-dash .chips button {
-    background: var(--dh-lbg0) !important
+    background: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important;
+    color: #6b7f73 !important
+}
+html.dh-lt #mnc-dash .chips button.on {
+    background: var(--dh-laccd) !important;
+    border-color: var(--dh-laccd) !important
 }
 html.dh-lt #mnc-dash .kpi {
     background: var(--dh-lbg0) !important;
-    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-laccd2) 6%,transparent),0 0 0 1px var(--line) !important
+    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-laccd) 6%,transparent),0 0 0 1px #e1ebe5 !important
 }
 html.dh-lt #mnc-dash .kpi:hover {
-    box-shadow: 0 8px 20px color-mix(in srgb,var(--dh-laccd2) 10%,transparent),0 0 0 1px var(--line) !important
+    box-shadow: 0 8px 20px color-mix(in srgb,var(--dh-laccd) 10%,transparent),0 0 0 1px #e1ebe5 !important
 }
 html.dh-lt #mnc-dash .kpi.on {
-    box-shadow: 0 0 0 2px var(--g500),0 8px 20px color-mix(in srgb,var(--dh-laccd) 15%,transparent) !important
+    box-shadow: 0 0 0 2px #15803d,0 8px 20px color-mix(in srgb,var(--dh-laccd) 15%,transparent) !important
+}
+html.dh-lt #mnc-dash .kl {
+    color: #6b7f73 !important
+}
+html.dh-lt #mnc-dash .kv {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .ks {
+    color: #6b7f73 !important
 }
 html.dh-lt #mnc-dash .dl.up {
     background: var(--dh-laccbg) !important;
     color: var(--dh-lacct) !important
 }
 html.dh-lt #mnc-dash .dl.eq {
-    background: var(--dh-lbg1) !important
+    background: var(--dh-lbg1) !important;
+    color: #6b7f73 !important
 }
 html.dh-lt #mnc-dash .card {
     background: var(--dh-lbg0) !important;
-    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-laccd2) 6%,transparent),0 0 0 1px var(--line) !important
+    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-laccd) 6%,transparent),0 0 0 1px #e1ebe5 !important
+}
+html.dh-lt #mnc-dash .ct {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .cs {
+    color: #6b7f73 !important
+}
+html.dh-lt #mnc-dash .leg {
+    color: #6b7f73 !important
+}
+html.dh-lt #mnc-dash svg .dv {
+    fill: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .dlegend em {
+    color: #6b7f73 !important
+}
+html.dh-lt #mnc-dash .rn {
+    background: var(--dh-laccbg) !important;
+    color: var(--dh-lacct) !important
 }
 html.dh-lt #mnc-dash .rb {
     background: var(--dh-lbg1) !important
@@ -890,14 +1028,28 @@ html.dh-lt #mnc-dash .rb {
 html.dh-lt #mnc-dash .rb i {
     background: linear-gradient(90deg,var(--dh-laccl),var(--dh-laccd)) !important
 }
+html.dh-lt #mnc-dash details summary {
+    color: var(--dh-laccd2) !important
+}
 html.dh-lt #mnc-dash table.t th {
-    background: var(--dh-lbg0) !important
+    background: var(--dh-lbg0) !important;
+    color: #6b7f73 !important;
+    border-bottom: 2px solid var(--dh-lline) !important
 }
 html.dh-lt #mnc-dash table.t td {
     border-bottom: 1px solid var(--dh-lline) !important
 }
+html.dh-lt #mnc-dash table.t tr.tot td {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .muted {
+    color: #6b7f73 !important
+}
 html.dh-lt #mnc-tip {
-    background: var(--dh-laccd2) !important
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-tip {
+    background: var(--dh-laccd) !important
 }
 html.dh-lt #mnc-dash .cmp button {
     border: 1px solid color-mix(in srgb,var(--dh-laccline) 35%,transparent) !important;
@@ -922,7 +1074,7 @@ html.dh-lt #mnc-dash .tag.in {
     background: var(--dh-lacc) !important
 }
 html.dh-lt #mnc-dash .tag.sum {
-    background: var(--dh-laccd2) !important
+    background: var(--dh-laccd) !important
 }
 html.dh-lt #mnc-dash table.rep tr.k-sum td {
     background: var(--dh-lbg1) !important;
@@ -1042,7 +1194,7 @@ html.dh-lt #mnc-dash .gtab td:nth-child(4) {
     color: var(--dh-lacct) !important
 }
 html.dh-lt #mnc-dash {
-    box-shadow: 18px 0 50px color-mix(in srgb,var(--dh-laccd2) 25%,transparent) !important
+    box-shadow: 18px 0 50px color-mix(in srgb,var(--dh-laccd) 25%,transparent) !important
 }
 /* ---- окно «Что нового» (стили в changelog.js) — тёмная тема ---- */
 html.dh-dark #dh-news{background:rgba(5,10,15,.55)!important;color:var(--dh-ink)!important}
@@ -1061,3 +1213,13 @@ html.dh-dark #dh-news .dhn-msg a{color:var(--dh-acct)!important}
 /* выделение текста — заметное в любой палитре (окна DIR HELPER) */
 html.dh-dark ::selection{background:color-mix(in srgb,var(--dh-acc) 70%,#3b82f6)!important;color:#fff!important}
 html.dh-lt ::selection{background:color-mix(in srgb,var(--dh-lacc) 45%,transparent)!important;color:inherit!important}
+/* ---- цвета графиков (charts.js: dhCol → var(--dhc-*)) под палитру ---- */
+html.dh-dark{--dhc-15803d:var(--dh-acct);--dhc-22a35a:var(--dh-acct2);--dhc-14532d:var(--dh-acc);--dhc-047857:var(--dh-acc);--dhc-5cc58a:var(--dh-acc);
+  --dhc-0f766e:color-mix(in srgb,var(--dh-acct) 50%,#2dd4bf);--dhc-65a30d:color-mix(in srgb,var(--dh-acct) 50%,#facc15);--dhc-4d7c0f:color-mix(in srgb,var(--dh-acct) 50%,#fb923c);
+  --dhc-2dd4bf:color-mix(in srgb,var(--dh-acct) 50%,#38bdf8);--dhc-5f7468:var(--dh-muted);--dhc-dc6b4a:#f08a6c;--dhc-eef4f0:var(--dh-bg3);--dhc-ffffff:var(--dh-bg1)}
+html.dh-lt{--dhc-15803d:var(--dh-lacc);--dhc-22a35a:var(--dh-laccl);--dhc-14532d:var(--dh-laccd);--dhc-047857:var(--dh-laccd);--dhc-5cc58a:var(--dh-laccl);
+  --dhc-0f766e:color-mix(in srgb,var(--dh-lacc) 50%,#0d9488);--dhc-65a30d:color-mix(in srgb,var(--dh-lacc) 50%,#ca8a04);--dhc-4d7c0f:color-mix(in srgb,var(--dh-lacc) 50%,#ea580c);
+  --dhc-2dd4bf:color-mix(in srgb,var(--dh-lacc) 50%,#0284c7);--dhc-eef4f0:var(--dh-lbg1)}
+/* светлые палитры: кнопки периода на цветной шапке аналитики — светлый текст */
+html.dh-lt #mnc-dash .period button:not(.on){color:rgba(255,255,255,.88)!important}
+html.dh-lt #mnc-dash .period button:not(.on):hover{color:#fff!important;background:rgba(255,255,255,.14)!important}

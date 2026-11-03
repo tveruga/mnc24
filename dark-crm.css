@@ -875,6 +875,75 @@ html.dh-dark .text-black-50 {
         border-color: var(--dh-line) !important
     }
 }
+html.dh-dark .alert-widget--notify-list--item[data-v-17022436] {
+    background: var(--dh-bg1) !important;
+    color: white !important;
+    box-shadow: #363535 2px 3px 10px -4px !important
+}
+html.dh-dark .alert-widget[data-v-72abe304] {
+    background: var(--dh-bg1) !important;
+    color: white !important;
+    box-shadow: #363535 5px 5px 20px -8px !important
+}
+html.dh-dark .alert-widget--minimizer[data-v-72abe304] {
+    color: #ccc !important;
+    background-color: var(--dh-bg2) !important
+}
+html.dh-dark .alert-widget--minimizer svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-dark .alert-widget--minimizer[data-v-72abe304]:hover {
+    background-color: #a46f06 !important
+}
+html.dh-dark .alert-widget--minimizer-mini svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-dark .alert-widget a[data-v-72abe304] {
+    color: white !important
+}
+html.dh-dark .alert-widget button[data-v-72abe304] {
+    color: #ccc !important;
+    background-color: var(--dh-bg2) !important
+}
+html.dh-dark .alert-widget button[data-v-72abe304]:hover {
+    background-color: #a46f06 !important
+}
+html.dh-dark .alert-widget--last-alert[data-v-72abe304] {
+    border-bottom: 1px solid #b77d0a !important
+}
+html.dh-dark .alert-widget--last-alert--title button svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--last-alert--title button:hover svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-dark .alert-widget--last-alert--message[data-v-72abe304] {
+    color: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--last-alert--message a svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--last-alert--message a[data-v-72abe304]:hover {
+    color: white !important
+}
+html.dh-dark .alert-widget--last-alert--message a:hover svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-dark .alert-widget--no-alert[data-v-72abe304] {
+    color: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--sound-toggler svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--helpers--buttons button svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--helpers--summary[data-v-72abe304] {
+    color: #c0c0c0 !important
+}
+html.dh-dark .alert-widget--helpers--summary svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
 html.dh-dark .bootstrap-dialog.type-default .modal-header {
     background-color: var(--dh-bg1) !important
 }
@@ -1955,6 +2024,75 @@ html.dh-lt .border-white {
     html.dh-lt .table .thead-dark th {
         border-color: var(--dh-lline) !important
     }
+}
+html.dh-lt .alert-widget--notify-list--item[data-v-17022436] {
+    background: #363535 !important;
+    color: white !important;
+    box-shadow: #363535 2px 3px 10px -4px !important
+}
+html.dh-lt .alert-widget[data-v-72abe304] {
+    background: #363535 !important;
+    color: white !important;
+    box-shadow: #363535 5px 5px 20px -8px !important
+}
+html.dh-lt .alert-widget--minimizer[data-v-72abe304] {
+    color: #ccc !important;
+    background-color: #4e4e4e !important
+}
+html.dh-lt .alert-widget--minimizer svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-lt .alert-widget--minimizer[data-v-72abe304]:hover {
+    background-color: #a46f06 !important
+}
+html.dh-lt .alert-widget--minimizer-mini svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-lt .alert-widget a[data-v-72abe304] {
+    color: white !important
+}
+html.dh-lt .alert-widget button[data-v-72abe304] {
+    color: #ccc !important;
+    background-color: #4e4e4e !important
+}
+html.dh-lt .alert-widget button[data-v-72abe304]:hover {
+    background-color: #a46f06 !important
+}
+html.dh-lt .alert-widget--last-alert[data-v-72abe304] {
+    border-bottom: 1px solid #b77d0a !important
+}
+html.dh-lt .alert-widget--last-alert--title button svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--last-alert--title button:hover svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-lt .alert-widget--last-alert--message[data-v-72abe304] {
+    color: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--last-alert--message a svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--last-alert--message a[data-v-72abe304]:hover {
+    color: white !important
+}
+html.dh-lt .alert-widget--last-alert--message a:hover svg[data-v-72abe304] {
+    fill: white !important
+}
+html.dh-lt .alert-widget--no-alert[data-v-72abe304] {
+    color: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--sound-toggler svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--helpers--buttons button svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--helpers--summary[data-v-72abe304] {
+    color: #c0c0c0 !important
+}
+html.dh-lt .alert-widget--helpers--summary svg[data-v-72abe304] {
+    fill: #c0c0c0 !important
 }
 html.dh-lt .bootstrap-dialog.type-default .modal-header {
     background-color: var(--dh-lbg0) !important

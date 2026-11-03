@@ -96,8 +96,8 @@ html.dh-lt iframe {
     background: var(--dh-lbg0) !important
 }
 html.dh-lt #toast {
-    background: var(--dh-laccd2) !important;
-    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-laccd2) 35%,transparent) !important
+    background: var(--dh-laccd) !important;
+    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-laccd) 35%,transparent) !important
 }
 html.dh-lt .dhb {
     background: var(--dh-lbg0) !important;
@@ -129,7 +129,7 @@ html.dh-lt .dhb button.on {
     border-color: var(--dh-laccl) !important
 }
 html.dh-lt .dhb button.dhb-main.on {
-    background: var(--dh-laccd2) !important
+    background: var(--dh-laccd) !important
 }
 html.dh-lt .dhb .dhb-sep {
     background: var(--dh-laccbg) !important
@@ -138,7 +138,7 @@ html.dh-lt .dhb button.dhb-new,html.dh-lt .dhb button.dhb-theme {
     border: 1.5px solid var(--dh-laccd) !important;
     color: var(--dh-lacct) !important;
     background: var(--dh-lbg0) !important;
-    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-laccd2) 15%,transparent) !important
+    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-laccd) 15%,transparent) !important
 }
 html.dh-lt .dhb button.dhb-new:hover,html.dh-lt .dhb button.dhb-theme:hover {
     background: var(--dh-laccd) !important;
@@ -170,3 +170,13 @@ html.dh-dark #dh-news .dhn-msg a{color:var(--dh-acct)!important}
 /* выделение текста — заметное в любой палитре (окна DIR HELPER) */
 html.dh-dark ::selection{background:color-mix(in srgb,var(--dh-acc) 70%,#3b82f6)!important;color:#fff!important}
 html.dh-lt ::selection{background:color-mix(in srgb,var(--dh-lacc) 45%,transparent)!important;color:inherit!important}
+/* ---- цвета графиков (charts.js: dhCol → var(--dhc-*)) под палитру ---- */
+html.dh-dark{--dhc-15803d:var(--dh-acct);--dhc-22a35a:var(--dh-acct2);--dhc-14532d:var(--dh-acc);--dhc-047857:var(--dh-acc);--dhc-5cc58a:var(--dh-acc);
+  --dhc-0f766e:color-mix(in srgb,var(--dh-acct) 50%,#2dd4bf);--dhc-65a30d:color-mix(in srgb,var(--dh-acct) 50%,#facc15);--dhc-4d7c0f:color-mix(in srgb,var(--dh-acct) 50%,#fb923c);
+  --dhc-2dd4bf:color-mix(in srgb,var(--dh-acct) 50%,#38bdf8);--dhc-5f7468:var(--dh-muted);--dhc-dc6b4a:#f08a6c;--dhc-eef4f0:var(--dh-bg3);--dhc-ffffff:var(--dh-bg1)}
+html.dh-lt{--dhc-15803d:var(--dh-lacc);--dhc-22a35a:var(--dh-laccl);--dhc-14532d:var(--dh-laccd);--dhc-047857:var(--dh-laccd);--dhc-5cc58a:var(--dh-laccl);
+  --dhc-0f766e:color-mix(in srgb,var(--dh-lacc) 50%,#0d9488);--dhc-65a30d:color-mix(in srgb,var(--dh-lacc) 50%,#ca8a04);--dhc-4d7c0f:color-mix(in srgb,var(--dh-lacc) 50%,#ea580c);
+  --dhc-2dd4bf:color-mix(in srgb,var(--dh-lacc) 50%,#0284c7);--dhc-eef4f0:var(--dh-lbg1)}
+/* светлые палитры: кнопки периода на цветной шапке аналитики — светлый текст */
+html.dh-lt #mnc-dash .period button:not(.on){color:rgba(255,255,255,.88)!important}
+html.dh-lt #mnc-dash .period button:not(.on):hover{color:#fff!important;background:rgba(255,255,255,.14)!important}

@@ -727,7 +727,7 @@ function renderInner() {
       <div class="card"><div class="ch"><div class="ct">Закрытие заявок</div></div><div id="donut"></div></div>
     </div>
     <div class="card big"><div class="ch"><div><div class="ct">Зарплата мастеров</div><div class="cs">${esc(rg.curName)}${pms.size ? ' и ' + esc(rg.cmpName) : ''}</div></div>
-      <div class="leg"><span><i style="background:#15803d"></i>${esc(rg.curName)}</span>${pms.size ? `<span><i class="dash"></i>${esc(rg.cmpName)}</span>` : ''}</div></div>
+      <div class="leg"><span><i style="background:${dhCol('#15803d')}"></i>${esc(rg.curName)}</span>${pms.size ? `<span><i class="dash"></i>${esc(rg.cmpName)}</span>` : ''}</div></div>
       <div id="main"></div></div>
     <div class="card"><div class="ch"><div><div class="ct">Мастера</div><div class="cs">по зарплате, от большей к меньшей · ${refInfo}</div></div>
       <div class="leg"><span><i class="dot"></i>отказов больше 20%</span></div></div>

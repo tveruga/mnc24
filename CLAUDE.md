@@ -53,3 +53,4 @@ CRM: https://mnc-lead-centre.ru/admin (Yii2). DIR HELPER — дополнени�
 - Поле токена в настройках раньше затиралось — исправлено (TOK_DIRTY).
 - Патчи JS с регулярками (\d, \s) не вставлять через heredoc/sed в bash — обратные слэши теряются (так ломался theme.js). Править через Edit.
 - Список заявок: автообновление раз в 90 с (listAutoRefresh в content.js; пропускает, пока пользователь занят; storage dhListRefresh=false — выключить). «Срочная»: красный текст времени сохраняется (redText в theme.js).
+- gen-dark.mjs подставляет значения CSS-переменных (var(--g800) из dashboard.css) перед перекраской. Цвета графиков в JS: dhCol() в charts.js → var(--dhc-<hex>, hex), значения по палитрам — в .tools/dark-ext.manual.css.
