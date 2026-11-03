@@ -51,3 +51,4 @@ CRM: https://mnc-lead-centre.ru/admin (Yii2). DIR HELPER — дополнени�
 - Не использовать spread по URLSearchParams в content script.
 - Статус в CRM может быть с пометкой «(Отз)» — сравнивать через stKey.
 - Поле токена в настройках раньше затиралось — исправлено (TOK_DIRTY).
+- Патчи JS с регулярками (\d, \s) не вставлять через heredoc/sed в bash — обратные слэши теряются (так ломался theme.js). Править через Edit.

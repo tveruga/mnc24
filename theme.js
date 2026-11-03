@@ -70,6 +70,14 @@ var DH_THEMES = [
     const own = new Set();
     if (light) { const cs = getComputedStyle(de); ['lbg0', 'lbg1', 'lbg2', 'laccbg'].forEach((k) => { const p = document.createElement('i'); p.style.color = cs.getPropertyValue('--dh-' + k).trim(); if (p.style.color) own.add(p.style.color.replace(/\s/g, '')); }); }
     const res = [];
+    // ячейка в колонке «Время заявки» (по заголовку таблицы)
+    const cols = new Map();
+    const timeCol = (td) => {
+      if (td.tagName !== 'TD' || !td.closest('tbody')) return false;
+      const t = td.closest('table'); if (!t) return false;
+      if (!cols.has(t)) { const th = [...t.querySelectorAll('thead th')].find((x) => /время заявки/i.test(x.textContent || '')); cols.set(t, th ? th.cellIndex : -1); }
+      const ci = cols.get(t); return ci >= 0 && td.cellIndex === ci;
+    };
     document.querySelectorAll('td,th').forEach((td) => {
       const cb = getComputedStyle(td).backgroundColor, m = cb.match(/[\d.]+/g); if (!m) return;
       const [r, g, b, a = 1] = m.map(Number);
@@ -77,11 +85,14 @@ var DH_THEMES = [
       const st = (dark ? ST_D : ST_L).find((s) => s[0].test(txt));
       // без заливки: «таблетка», только если вся ячейка — известный статус/тип (короткий текст в строке таблицы)
       const byText = st && txt.length <= 26 && td.tagName === 'TD' && !!td.closest('tbody');
-      if (!(+a > 0.5)) { if (byText) res.push([td, st[1], st[2], st[3] || st[2]]); return; }
+      // простая дата без заливки в колонке «Время заявки» — нейтральная таблетка
+      const plainDate = () => txt.length <= 20 && /^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(txt) && timeCol(td);
+      const neutral = () => res.push(dark ? [td, '#243042', '#c9d3de', '#c9d3de'] : [td, '#eef1f6', '#334155', '#94a3b8']);
+      if (!(+a > 0.5)) { if (byText) res.push([td, st[1], st[2], st[3] || st[2]]); else if (plainDate()) neutral(); return; }
       const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, chroma = mx - mn, sat = mx === mn ? 0 : chroma / (1 - Math.abs(2 * l - 1));
-      if (dark && !byText && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) return;   // тёмные фоны темы (l < .3) не трогаем
+      if (dark && !byText && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) { if (plainDate()) neutral(); return; }   // тёмные фоны темы (l < .3) не трогаем
       // светлые: только заметно цветные заливки (серая — если это известный статус, напр. «Выдан»)
-      if (!dark && !byText && (own.has(`rgb(${r},${g},${b})`) || !(chroma > 0.2 || (st && l < 0.85)))) return;
+      if (!dark && !byText && (own.has(`rgb(${r},${g},${b})`) || !(chroma > 0.2 || (st && l < 0.85)))) { if (plainDate()) neutral(); return; }
       let bg, fg, dot;
       if (st) [, bg, fg, dot] = st;
       else {
