@@ -3,10 +3,6 @@
     "mnc-otdat-mastery@local": {
       "updates": [
         {
-          "version": "13.6",
-          "update_link": "https://github.com/tveruga/mnc24/releases/download/v13.6/dir-helper-v13.6.xpi"
-        },
-        {
           "version": "13.7",
           "update_link": "https://github.com/tveruga/mnc24/releases/download/v13.7/dir-helper-v13.7.xpi"
         },
@@ -41,6 +37,10 @@
         {
           "version": "14.5",
           "update_link": "https://github.com/tveruga/mnc24/releases/download/v14.5/dir-helper-v14.5.xpi"
+        },
+        {
+          "version": "14.6",
+          "update_link": "https://github.com/tveruga/mnc24/releases/download/v14.6/dir-helper-v14.6.xpi"
         }
       ]
     }
