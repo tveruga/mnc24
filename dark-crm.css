@@ -2266,10 +2266,14 @@ html.dh-lt .singe-photo-input--image {
 html.dh-dark{color-scheme:dark;scrollbar-color:var(--dh-bg4) var(--dh-bg0)}
 html.dh-dark,html.dh-dark body{background-color:var(--dh-bg0)!important;color:var(--dh-ink)!important}
 html.dh-dark .content-wrapper,html.dh-dark table,html.dh-dark .table{color:var(--dh-ink)!important}
-html.dh-dark ::selection{background:var(--dh-accbg);color:#fff}
+/* выделение текста мышью — заметное в любой палитре */
+html.dh-dark ::selection{background:color-mix(in srgb,var(--dh-acc) 70%,#3b82f6)!important;color:#fff!important}
+html.dh-lt ::selection{background:color-mix(in srgb,var(--dh-lacc) 45%,transparent)!important;color:inherit!important}
 html.dh-dark a:hover{color:var(--dh-acct)!important}
 /* строка под курсором — вместо ярко-жёлтой */
-html.dh-dark .table__tr-link tbody tr:hover{background-color:var(--dh-hover)!important}
+html.dh-dark .table__tr-link tbody tr:hover{background-color:color-mix(in srgb,var(--dh-acc) 28%,var(--dh-bg1))!important;box-shadow:inset 3px 0 0 var(--dh-acc)}
+/* светлые палитры — строка под курсором в цвет палитры (вместо ярко-жёлтой CRM), с полоской слева */
+html.dh-lt .table__tr-link tbody tr:hover{background-color:color-mix(in srgb,var(--dh-lacc) 16%,#fff)!important;box-shadow:inset 3px 0 0 var(--dh-lacc)}
 html.dh-dark .table__tr-link tbody tr:hover td:not(.dh-lit){color:#fff!important}
 html.dh-dark table tbody .col__title_link a:not(.--safe-colors):hover{color:#fff!important;background-color:var(--dh-hover)!important}
 /* ячейки с цветной заливкой (статус, тип, время) — «таблетка» во всю ячейку, цвета ставит theme.js (тёмные и светлые палитры) */

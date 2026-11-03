@@ -167,3 +167,6 @@ html.dh-dark #dh-news li{color:var(--dh-inks)!important}
 html.dh-dark #dh-news .dhn-foot{background:var(--dh-bg2)!important;border-top-color:var(--dh-line)!important}
 html.dh-dark #dh-news .dhn-msg{color:var(--dh-ink3)!important}
 html.dh-dark #dh-news .dhn-msg a{color:var(--dh-acct)!important}
+/* выделение текста — заметное в любой палитре (окна DIR HELPER) */
+html.dh-dark ::selection{background:color-mix(in srgb,var(--dh-acc) 70%,#3b82f6)!important;color:#fff!important}
+html.dh-lt ::selection{background:color-mix(in srgb,var(--dh-lacc) 45%,transparent)!important;color:inherit!important}
