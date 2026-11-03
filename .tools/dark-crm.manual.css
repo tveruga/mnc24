@@ -8,9 +8,12 @@ html.dh-dark a:hover{color:#5fd08a!important}
 html.dh-dark .table__tr-link tbody tr:hover{background-color:#22364a!important}
 html.dh-dark .table__tr-link tbody tr:hover td:not(.dh-lit){color:#fff!important}
 html.dh-dark table tbody .col__title_link a:not(.--safe-colors):hover{color:#fff!important;background-color:#22364a!important}
-/* ячейки с яркой заливкой (статус, тип, время заявки) — приглушённый цветной фон + светлый цветной текст (цвета ставит theme.js) */
-html.dh-dark td.dh-lit,html.dh-dark th.dh-lit{background:var(--st-bg)!important;background-image:none!important;color:var(--st-fg)!important}
-html.dh-dark .dh-lit a,html.dh-dark .dh-lit span,html.dh-dark .dh-lit div,html.dh-dark .dh-lit b{color:var(--st-fg)!important}
+/* ячейки с цветной заливкой (статус, тип, время) — «таблетка» с точкой, цвета ставит theme.js (тёмные и светлые палитры) */
+html.dh-dark .dh-lit:not(.dh-pilled),html.dh-lt .dh-lit:not(.dh-pilled){background:var(--st-bg)!important;background-image:none!important;color:var(--st-fg)!important}
+html.dh-dark .dh-lit.dh-pilled,html.dh-lt .dh-lit.dh-pilled{background:transparent!important;background-image:none!important}
+html.dh-dark .dh-lit .dh-pill,html.dh-lt .dh-lit .dh-pill{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:2px 10px 2px 8px;border-radius:999px;background:var(--st-bg);color:var(--st-fg)!important;font-weight:600;line-height:1.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.dh-dark .dh-lit .dh-pill::before,html.dh-lt .dh-lit .dh-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--st-dot);flex:none}
+html.dh-dark .dh-lit a,html.dh-dark .dh-lit span,html.dh-dark .dh-lit div,html.dh-dark .dh-lit b,html.dh-lt .dh-lit a,html.dh-lt .dh-lit span,html.dh-lt .dh-lit div,html.dh-lt .dh-lit b{color:var(--st-fg)!important}
 
 /* поля ввода */
 html.dh-dark input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),html.dh-dark select,html.dh-dark textarea{background-color:#242f3d!important;color:#e9eef3!important;border-color:#2a3949!important}

@@ -39,11 +39,12 @@ const PALETTES = {
 };
 // светлые палитры (класс html.dh-lt): фон/рамки — из светлых цветов, акценты DIR HELPER — из ярких
 const LIGHT = {
-  sky:      ['#f8fafc', '#eef2ff', '#cbd5e1', '#93c5fd', '#3b82f6'],
-  sage:     ['#fafdf7', '#ecfdf5', '#d1fae5', '#86efac', '#22c55e'],
-  rose:     ['#fff7fa', '#fce7f3', '#f9a8d4', '#f472b6', '#ec4899'],
-  sunny:    ['#fffbeb', '#fff3cd', '#fcd34d', '#f59e0b', '#d97706'],
-  lavender: ['#faf5ff', '#f3e8ff', '#d8b4fe', '#a855f7', '#7c3aed'],
+  breeze:   ['#f7faff', '#e3edfc', '#c7d9f5', '#93c5fd', '#3b82f6'],   // Light Breeze — голубая шапка и фон
+  skywhite: ['#ffffff', '#f3f6fb', '#e1e8f2', '#93c5fd', '#2563eb'],   // Sky White — почти белая, синие акценты
+  rose:     ['#fff8fb', '#fde4ee', '#f6c4d7', '#f472b6', '#db2777'],   // Rose Dream
+  lavender: ['#fbf9ff', '#ece6fd', '#d6cbf7', '#a78bfa', '#7c3aed'],   // Lavender Cloud
+  sage:     ['#fafdf7', '#ecfdf5', '#d1fae5', '#86efac', '#22c55e'],   // Sage Light
+  sunny:    ['#fffbeb', '#fff3cd', '#fcd34d', '#f59e0b', '#d97706'],   // Sunny Glow
 };
 function deriveLight([c1, c2, c3, c4, c5]) {
   return {

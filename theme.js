@@ -5,11 +5,12 @@
 // значение storage dhTheme: 'light' | 'dark' (ночной Telegram) | ключ палитры (цвета — в dark-*.css, html[data-dh-pal])
 var DH_THEMES = [
   { k: 'light',    n: 'Обычная',          c: ['#ffffff', '#eef6f1', '#d9e6de', '#22a35a', '#166534'] },
-  { k: 'sky',      n: 'Sky Breeze',       c: ['#f8fafc', '#eef2ff', '#cbd5e1', '#93c5fd', '#3b82f6'] },
+  { k: 'breeze',   n: 'Light Breeze',     c: ['#f7faff', '#e3edfc', '#c7d9f5', '#93c5fd', '#3b82f6'] },
+  { k: 'skywhite', n: 'Sky White',        c: ['#ffffff', '#f3f6fb', '#e1e8f2', '#93c5fd', '#2563eb'] },
+  { k: 'rose',     n: 'Rose Dream',       c: ['#fff8fb', '#fde4ee', '#f6c4d7', '#f472b6', '#db2777'] },
+  { k: 'lavender', n: 'Lavender Cloud',   c: ['#fbf9ff', '#ece6fd', '#d6cbf7', '#a78bfa', '#7c3aed'] },
   { k: 'sage',     n: 'Sage Light',       c: ['#fafdf7', '#ecfdf5', '#d1fae5', '#86efac', '#22c55e'] },
-  { k: 'rose',     n: 'Rose Dream',       c: ['#fff7fa', '#fce7f3', '#f9a8d4', '#f472b6', '#ec4899'] },
   { k: 'sunny',    n: 'Sunny Glow',       c: ['#fffbeb', '#fff3cd', '#fcd34d', '#f59e0b', '#d97706'] },
-  { k: 'lavender', n: 'Lavender Sky',     c: ['#faf5ff', '#f3e8ff', '#d8b4fe', '#a855f7', '#7c3aed'] },
   { k: 'dark',     dark: 1, n: 'Ночной Telegram',  c: ['#0e1621', '#17212b', '#263445', '#22a35a', '#5fd08a'] },
   { k: 'midnight', dark: 1, n: 'Midnight',         c: ['#0b0f14', '#1a1f26', '#2b323c', '#4a5568', '#8a94a6'] },
   { k: 'forest', dark: 1,   n: 'Forest Night',     c: ['#0b120d', '#1b2a1f', '#2e4d34', '#6ca36a', '#a8d5a2'] },
@@ -25,10 +26,11 @@ var DH_THEMES = [
     let parentIsCrm = false; try { parentIsCrm = window.parent.location.hostname === location.hostname; } catch (e) {}
     if (parentIsCrm) return;
   }
-  // Ячейки таблиц с яркой заливкой (статус, тип, время) в тёмной теме: вместо сплошной яркой заливки —
-  // приглушённый цветной фон и светлый цветной текст (класс dh-lit + переменные --st-bg/--st-fg, правило в dark-crm.manual.css).
-  // Известные статусы — фиксированная гамма; остальные — оттенок исходной заливки.
-  const ST = [
+  // Ячейки с цветной заливкой (статус, тип, время) в тёмных и светлых палитрах — «таблетка» с цветной точкой
+  // вместо сплошной заливки ячейки: класс dh-lit (+ dh-pilled, если содержимое обёрнуто в span.dh-pill) и переменные
+  // --st-bg/--st-fg/--st-dot; правила — в .tools/dark-crm.manual.css. Известные статусы — фиксированная гамма
+  // (ST_D — тёмные, ST_L — светлые), остальные — по оттенку исходной заливки CRM.
+  const ST_D = [
     [/^ожида/, '#1f3a2b', '#86d9a6'],       // спокойный зелёный
     [/^в пути/, '#173c3d', '#6fd8d0'],      // бирюзовый
     [/^в работе/, '#45361d', '#f2c46d'],    // тёплый янтарный
@@ -37,32 +39,62 @@ var DH_THEMES = [
     [/^повтор/, '#3f301f', '#e3b383'],      // мягкий бронзовый
     [/^выдан/, '#283349', '#a9b9d9'],       // серо-синий
   ];
+  const ST_L = [
+    [/^ожида/, '#dcf5e4', '#15803d', '#22c55e'],
+    [/^в пути/, '#d7f1f6', '#0e7490', '#06b6d4'],
+    [/^в работе/, '#fdecd5', '#b45309', '#f59e0b'],
+    [/^гарант/, '#fde2e6', '#be123c', '#f43f5e'],
+    [/^готов/, '#dfe8fd', '#1d4ed8', '#3b82f6'],
+    [/^повтор/, '#f4e6d9', '#9a5b2b', '#c8844e'],
+    [/^выдан/, '#e7eaf0', '#475569', '#94a3b8'],
+  ];
   const rgbHue = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b); if (!d) return -1; const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
+  // обернуть содержимое ячейки в «таблетку» — только простой текст/ссылки (поля ввода, кнопки, картинки не трогаем)
+  const pill = (td) => {
+    if (td.querySelector(':scope > .dh-pill')) return true;
+    if (!(td.textContent || '').trim() || td.querySelector('input,select,button,textarea,form,img,table,svg')) return false;
+    const sp = document.createElement('span'); sp.className = 'dh-pill';
+    while (td.firstChild) sp.appendChild(td.firstChild);
+    td.appendChild(sp); return true;
+  };
   let litT = 0;
   const lit = () => {
     if (isExt) return;
-    const de = document.documentElement, cells = document.querySelectorAll('td,th');
+    const de = document.documentElement, dark = de.classList.contains('dh-dark'), light = de.classList.contains('dh-lt');
     const old = [...document.querySelectorAll('td.dh-lit,th.dh-lit')];
-    if (!de.classList.contains('dh-dark')) { old.forEach((td) => td.classList.remove('dh-lit')); return; }
-    old.forEach((td) => td.classList.remove('dh-lit'));            // читаем исходную заливку CRM (без нашей подмены)
+    old.forEach((td) => td.classList.remove('dh-lit', 'dh-pilled'));   // читаем исходную заливку CRM (без нашей подмены)
+    if (!dark && !light) return;
+    // фоны самой светлой палитры — не статусы
+    const own = new Set();
+    if (light) { const cs = getComputedStyle(de); ['lbg0', 'lbg1', 'lbg2', 'laccbg'].forEach((k) => { const p = document.createElement('i'); p.style.color = cs.getPropertyValue('--dh-' + k).trim(); if (p.style.color) own.add(p.style.color.replace(/\s/g, '')); }); }
     const res = [];
-    cells.forEach((td) => {
-      const m = getComputedStyle(td).backgroundColor.match(/[\d.]+/g); if (!m) return;
+    document.querySelectorAll('td,th').forEach((td) => {
+      const cb = getComputedStyle(td).backgroundColor, m = cb.match(/[\d.]+/g); if (!m) return;
       const [r, g, b, a = 1] = m.map(Number);
-      const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, sat = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
-      // яркая (светлая) заливка или насыщенная цветная (красная, синяя…); тёмные фоны самой темы (l < .3) не трогаем
-      if (!(+a > 0.5 && ((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3)))) return;
+      if (!(+a > 0.5)) return;
+      const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, chroma = mx - mn, sat = mx === mn ? 0 : chroma / (1 - Math.abs(2 * l - 1));
+      if (dark && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) return;   // тёмные фоны темы (l < .3) не трогаем
       const txt = (td.textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
-      const st = ST.find((s) => s[0].test(txt));
-      let bg, fg;
-      if (st) [, bg, fg] = st;
-      else { const h = rgbHue(r, g, b); bg = h < 0 ? '#2a3442' : `hsl(${h.toFixed(0)},32%,19%)`; fg = h < 0 ? '#c9d3de' : `hsl(${h.toFixed(0)},70%,74%)`; }
-      res.push([td, bg, fg]);
+      const st = (dark ? ST_D : ST_L).find((s) => s[0].test(txt));
+      // светлые: только заметно цветные заливки (серая — если это известный статус, напр. «Выдан»)
+      if (!dark && (own.has(`rgb(${r},${g},${b})`) || !(chroma > 0.2 || (st && l < 0.85)))) return;
+      let bg, fg, dot;
+      if (st) [, bg, fg, dot] = st;
+      else {
+        const h = rgbHue(r, g, b), hh = h.toFixed(0);
+        if (dark) { bg = h < 0 ? '#2a3442' : `hsl(${hh},32%,19%)`; fg = h < 0 ? '#c9d3de' : `hsl(${hh},70%,74%)`; }
+        else { bg = h < 0 ? '#eceff3' : `hsl(${hh},80%,93%)`; fg = h < 0 ? '#475569' : `hsl(${hh},65%,30%)`; dot = h < 0 ? '#94a3b8' : `hsl(${hh},75%,50%)`; }
+      }
+      res.push([td, bg, fg, dot || fg]);
     });
-    res.forEach(([td, bg, fg]) => { td.style.setProperty('--st-bg', bg); td.style.setProperty('--st-fg', fg); td.classList.add('dh-lit'); });
+    res.forEach(([td, bg, fg, dot]) => {
+      td.style.setProperty('--st-bg', bg); td.style.setProperty('--st-fg', fg); td.style.setProperty('--st-dot', dot);
+      td.classList.add('dh-lit'); if (pill(td)) td.classList.add('dh-pilled');
+    });
   };
   const litSoon = () => { clearTimeout(litT); litT = setTimeout(lit, 250); };
   const apply = (t) => {
+    if (t === 'sky') t = 'breeze';
     const de = document.documentElement, th = DH_THEMES.find((x) => x.k === t) || DH_THEMES[0];
     de.classList.toggle('dh-dark', !!th.dark);
     de.classList.toggle('dh-lt', !th.dark && th.k !== 'light');                         // светлые палитры
