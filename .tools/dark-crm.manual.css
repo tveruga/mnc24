@@ -11,10 +11,10 @@ html.dh-dark table tbody .col__title_link a:not(.--safe-colors):hover{color:#fff
 /* ячейки с цветной заливкой (статус, тип, время) — «таблетка» с точкой, цвета ставит theme.js (тёмные и светлые палитры) */
 html.dh-dark .dh-lit:not(.dh-pilled),html.dh-lt .dh-lit:not(.dh-pilled){background:var(--st-bg)!important;background-image:none!important;color:var(--st-fg)!important}
 html.dh-dark .dh-lit.dh-pilled,html.dh-lt .dh-lit.dh-pilled{background:transparent!important;background-image:none!important}
-html.dh-dark .dh-lit .dh-pill,html.dh-lt .dh-lit .dh-pill{display:inline-flex;align-items:center;gap:5px;max-width:100%;box-sizing:border-box;padding:1px 8px 1px 7px;border-radius:999px;background:var(--st-bg);color:var(--st-fg)!important;font-weight:600;font-size:.94em;line-height:1.35;white-space:normal;overflow-wrap:normal;word-break:keep-all;vertical-align:middle}
+html.dh-dark .dh-lit .dh-pill,html.dh-lt .dh-lit .dh-pill{display:flex;align-items:center;gap:6px;width:100%;max-width:100%;box-sizing:border-box;padding:4px 9px 4px 8px;border-radius:10px;min-height:26px;background:var(--st-bg);color:var(--st-fg)!important;font-weight:600;font-size:.94em;line-height:1.35;white-space:normal;overflow-wrap:normal;word-break:keep-all;vertical-align:middle}
 html.dh-dark .dh-lit .dh-pill::before,html.dh-lt .dh-lit .dh-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--st-dot);flex:none}
 /* дата/время — компактнее и без точки, чтобы влезало в узкую колонку и не наезжало на соседние */
-html.dh-dark .dh-pill-t .dh-pill,html.dh-lt .dh-pill-t .dh-pill{padding:1px 6px;font-size:.95em;letter-spacing:-.01em}
+html.dh-dark .dh-pill-t .dh-pill,html.dh-lt .dh-pill-t .dh-pill{padding:4px 7px;font-size:.95em;letter-spacing:-.01em}
 html.dh-dark .dh-pill-t .dh-pill::before,html.dh-lt .dh-pill-t .dh-pill::before{display:none}
 html.dh-dark .dh-lit a,html.dh-dark .dh-lit span,html.dh-dark .dh-lit div,html.dh-dark .dh-lit b,html.dh-lt .dh-lit a,html.dh-lt .dh-lit span,html.dh-lt .dh-lit div,html.dh-lt .dh-lit b{color:var(--st-fg)!important}
 
