@@ -39,6 +39,7 @@ var DH_THEMES = [
     [/^повтор/, '#3f301f', '#e3b383'],      // мягкий бронзовый
     [/^выдан/, '#283349', '#a9b9d9'],       // серо-синий
     [/^впервые/, '#252f45', '#b4c3e6'],     // тип «Впервые» — нейтральный
+    [/^срочн/, '#4a1f22', '#ff8f8f'],       // тип «Срочная» — красный
   ];
   const ST_L = [
     [/^ожида/, '#dcf5e4', '#15803d', '#22c55e'],
@@ -49,6 +50,7 @@ var DH_THEMES = [
     [/^повтор/, '#f4e6d9', '#9a5b2b', '#c8844e'],
     [/^выдан/, '#e7eaf0', '#475569', '#94a3b8'],
     [/^впервые/, '#eef1f6', '#475569', '#a3afc2'],
+    [/^срочн/, '#fee2e2', '#b91c1c', '#ef4444'],
   ];
   const rgbHue = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b); if (!d) return -1; const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
   // обернуть содержимое ячейки в «таблетку» — только простой текст/ссылки (поля ввода, кнопки, картинки не трогаем)
@@ -70,6 +72,13 @@ var DH_THEMES = [
     const own = new Set();
     if (light) { const cs = getComputedStyle(de); ['lbg0', 'lbg1', 'lbg2', 'laccbg'].forEach((k) => { const p = document.createElement('i'); p.style.color = cs.getPropertyValue('--dh-' + k).trim(); if (p.style.color) own.add(p.style.color.replace(/\s/g, '')); }); }
     const res = [];
+    // текст ячейки (или вложенного элемента с текстом) исходно красный
+    const redText = (td) => [td, ...td.querySelectorAll('*')].some((el) => {
+      if (!(el.textContent || '').trim()) return false;
+      const m = getComputedStyle(el).color.match(/[\d.]+/g); if (!m) return false;
+      const [r, g, b] = m.map(Number), mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      return mx === r && mx - mn > 90 && g < r * 0.6 && b < r * 0.6;   // насыщенный красный
+    });
     // ячейка в колонке «Время заявки» (по заголовку таблицы)
     const cols = new Map();
     const timeCol = (td) => {
@@ -87,7 +96,9 @@ var DH_THEMES = [
       const byText = st && txt.length <= 26 && td.tagName === 'TD' && !!td.closest('tbody');
       // простая дата без заливки в колонке «Время заявки» — нейтральная таблетка
       const plainDate = () => txt.length <= 20 && /^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(txt) && timeCol(td);
-      const neutral = () => res.push(dark ? [td, '#243042', '#c9d3de', '#c9d3de'] : [td, '#eef1f6', '#334155', '#94a3b8']);
+      // у «Срочной» CRM красит текст времени красным — сохраняем красный
+      const neutral = () => res.push(redText(td) ? (dark ? [td, '#3a2228', '#ff7b7b', '#ff7b7b'] : [td, '#fdecee', '#dc2626', '#dc2626'])
+        : (dark ? [td, '#243042', '#c9d3de', '#c9d3de'] : [td, '#eef1f6', '#334155', '#94a3b8']));
       if (!(+a > 0.5)) { if (byText) res.push([td, st[1], st[2], st[3] || st[2]]); else if (plainDate()) neutral(); return; }
       const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, chroma = mx - mn, sat = mx === mn ? 0 : chroma / (1 - Math.abs(2 * l - 1));
       if (dark && !byText && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) { if (plainDate()) neutral(); return; }   // тёмные фоны темы (l < .3) не трогаем

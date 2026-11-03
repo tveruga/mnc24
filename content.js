@@ -1071,5 +1071,41 @@
   } else if (isList) {
     initList();
     try { browser.runtime.sendMessage({ seenList: true }); } catch (e) {}
+    listAutoRefresh();
+  }
+
+  // ---------- Автообновление списка заявок раз в 1,5 минуты ----------
+  // Не мешаем работе: пропускаем, пока вкладка скрыта, что-то печатают/выбирают, открыто меню, окно, панель или отмечены строки;
+  // тогда пробуем снова через 10 с. Выключить: storage dhListRefresh = false.
+  function listAutoRefresh() {
+    const EVERY = 90000;
+    let due = Date.now() + EVERY, lastAct = 0;
+    ['keydown', 'mousedown', 'wheel', 'touchstart'].forEach((ev) => addEventListener(ev, () => { lastAct = Date.now(); }, { capture: true, passive: true }));
+    const busy = () => {
+      if (document.hidden) return true;
+      if (Date.now() - lastAct < 8000) return true;                                   // только что кликали/печатали/крутили
+      const a = document.activeElement;
+      if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable)) return true;
+      if (String(getSelection() || '').trim()) return true;                             // выделен текст (копируют)
+      if (document.querySelector('.modal.show, .dropdown-menu.show, .select2-container--open, .daterangepicker[style*="block"], #dh-theme-menu, #dh-news')) return true;
+      if (document.querySelector('tbody input[type=checkbox]:checked')) return true;   // отмечены заявки
+      const p = document.getElementById('mnc-ext-panel'); if (p && !p.classList.contains('mnc-min')) return true;   // открыта раздача
+      if (document.getElementById('mnc-dash')) return true;                             // открыта аналитика/ЗП/реклама
+      return false;
+    };
+    setInterval(async () => {
+      if (Date.now() < due) return;
+      let on = true; try { on = (await browser.storage.local.get('dhListRefresh')).dhListRefresh !== false; } catch (e) {}
+      if (!on) { due = Date.now() + EVERY; return; }
+      if (busy()) { due = Date.now() + 10000; return; }
+      due = Date.now() + EVERY;
+      try { sessionStorage.setItem('dhScrollY', String(scrollY)); } catch (e) {}
+      location.reload();
+    }, 2000);
+    // после обновления — вернуть прокрутку на место
+    try {
+      const y = +sessionStorage.getItem('dhScrollY'); sessionStorage.removeItem('dhScrollY');
+      if (y > 0) { const back = () => scrollTo(0, y); if (document.readyState === 'complete') back(); else addEventListener('load', back, { once: true }); setTimeout(back, 600); }
+    } catch (e) {}
   }
 })();
