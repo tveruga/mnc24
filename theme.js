@@ -25,15 +25,41 @@ var DH_THEMES = [
     let parentIsCrm = false; try { parentIsCrm = window.parent.location.hostname === location.hostname; } catch (e) {}
     if (parentIsCrm) return;
   }
-  // ячейки таблиц с яркой заливкой (статус, тип, время) — помечаем, чтобы текст в них был тёмным
+  // Ячейки таблиц с яркой заливкой (статус, тип, время) в тёмной теме: вместо сплошной яркой заливки —
+  // приглушённый цветной фон и светлый цветной текст (класс dh-lit + переменные --st-bg/--st-fg, правило в dark-crm.manual.css).
+  // Известные статусы — фиксированная гамма; остальные — оттенок исходной заливки.
+  const ST = [
+    [/^ожида/, '#1f3a2b', '#86d9a6'],       // спокойный зелёный
+    [/^в пути/, '#173c3d', '#6fd8d0'],      // бирюзовый
+    [/^в работе/, '#45361d', '#f2c46d'],    // тёплый янтарный
+    [/^гарант/, '#47232d', '#f2a3b3'],      // приглушённый красно-розовый
+    [/^готов/, '#1d3252', '#8fbaf3'],       // холодный синий
+    [/^повтор/, '#3f301f', '#e3b383'],      // мягкий бронзовый
+    [/^выдан/, '#283349', '#a9b9d9'],       // серо-синий
+  ];
+  const rgbHue = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b); if (!d) return -1; const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
   let litT = 0;
   const lit = () => {
-    if (isExt || !document.documentElement.classList.contains('dh-dark')) return;
-    document.querySelectorAll('td,th').forEach((td) => {
+    if (isExt) return;
+    const de = document.documentElement, cells = document.querySelectorAll('td,th');
+    const old = [...document.querySelectorAll('td.dh-lit,th.dh-lit')];
+    if (!de.classList.contains('dh-dark')) { old.forEach((td) => td.classList.remove('dh-lit')); return; }
+    old.forEach((td) => td.classList.remove('dh-lit'));            // читаем исходную заливку CRM (без нашей подмены)
+    const res = [];
+    cells.forEach((td) => {
       const m = getComputedStyle(td).backgroundColor.match(/[\d.]+/g); if (!m) return;
       const [r, g, b, a = 1] = m.map(Number);
-      td.classList.toggle('dh-lit', +a > 0.5 && (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45);
+      const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, sat = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
+      // яркая (светлая) заливка или насыщенная цветная (красная, синяя…); тёмные фоны самой темы (l < .3) не трогаем
+      if (!(+a > 0.5 && ((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3)))) return;
+      const txt = (td.textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      const st = ST.find((s) => s[0].test(txt));
+      let bg, fg;
+      if (st) [, bg, fg] = st;
+      else { const h = rgbHue(r, g, b); bg = h < 0 ? '#2a3442' : `hsl(${h.toFixed(0)},32%,19%)`; fg = h < 0 ? '#c9d3de' : `hsl(${h.toFixed(0)},70%,74%)`; }
+      res.push([td, bg, fg]);
     });
+    res.forEach(([td, bg, fg]) => { td.style.setProperty('--st-bg', bg); td.style.setProperty('--st-fg', fg); td.classList.add('dh-lit'); });
   };
   const litSoon = () => { clearTimeout(litT); litT = setTimeout(lit, 250); };
   const apply = (t) => {

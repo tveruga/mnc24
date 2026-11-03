@@ -8,9 +8,10 @@ html.dh-dark a:hover{color:#5fd08a!important}
 html.dh-dark .table__tr-link tbody tr:hover{background-color:#22364a!important}
 html.dh-dark .table__tr-link tbody tr:hover td:not(.dh-lit){color:#fff!important}
 html.dh-dark table tbody .col__title_link a:not(.--safe-colors):hover{color:#fff!important;background-color:#22364a!important}
-/* ячейки с яркой заливкой (статус, тип, время заявки) — тёмный текст, цвет чуть приглушён */
-html.dh-dark td.dh-lit,html.dh-dark td.dh-lit a,html.dh-dark td.dh-lit span,html.dh-dark td.dh-lit div{color:#0d141b!important}
-html.dh-dark td.dh-lit{filter:saturate(.85) brightness(.9)}
+/* ячейки с яркой заливкой (статус, тип, время заявки) — приглушённый цветной фон + светлый цветной текст (цвета ставит theme.js) */
+html.dh-dark td.dh-lit,html.dh-dark th.dh-lit{background:var(--st-bg)!important;background-image:none!important;color:var(--st-fg)!important}
+html.dh-dark .dh-lit a,html.dh-dark .dh-lit span,html.dh-dark .dh-lit div,html.dh-dark .dh-lit b{color:var(--st-fg)!important}
+
 /* поля ввода */
 html.dh-dark input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),html.dh-dark select,html.dh-dark textarea{background-color:#242f3d!important;color:#e9eef3!important;border-color:#2a3949!important}
 html.dh-dark input::placeholder,html.dh-dark textarea::placeholder{color:#6d7f8f!important}
