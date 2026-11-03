@@ -165,19 +165,20 @@ async function dhUpdateCheck(auto) {
     const cur = browser.runtime.getManifest().version;
     const lt = await dhLatest();
     if (!lt) return { status: 'error', cur, text: 'Не удалось узнать последнюю версию' };
-    if (verCmp(lt.version, cur) <= 0) return { status: 'no_update', cur, text: `Установлена последняя версия ${cur}` };
-    // окно установки уже открыто — второе не открываем
-    const open = await browser.tabs.query({ url: DH_XPI.replace(/\/[^/]*$/, '/*') }).catch(() => []);
-    if (open.length) { browser.tabs.update(open[0].id, { active: true }).catch(() => {}); }
-    else await browser.tabs.create({ url: DH_XPI + '?v=' + lt.version, active: true });
-    return { status: 'update_available', cur, next: lt.version, text: `Найдена версия ${lt.version} — Firefox спросит про обновление: нажмите «Продолжить установку» и «Добавить»` };
+    if (verCmp(lt.version, cur) <= 0) { browser.storage.local.remove('dhUpdAvail').catch(() => {}); return { status: 'no_update', cur, text: `Установлена последняя версия ${cur}` }; }
+    browser.storage.local.set({ dhUpdAvail: lt.version }).catch(() => {});
+    // ВАЖНО: Firefox ставит .xpi, только если переход начат кликом человека (xpinstall.userActivation.required).
+    // Вкладка, открытая самим дополнением (tabs.create), клика не несёт — установка молча не стартовала.
+    // Поэтому здесь только версия и ссылка, а установку запускает клик по «Установить» (dhUpdLink в changelog.js).
+    return { status: 'update_available', cur, next: lt.version, link: DH_XPI + '?v=' + lt.version, text: `Вышла версия ${lt.version} (у вас ${cur})` };
   } catch (e) { return { status: 'error', text: 'Не удалось проверить: ' + e.message }; }
 }
-// автообновление: при запуске Firefox проверяем, нет ли новой версии, и сразу предлагаем обновиться
+// при запуске Firefox проверяем, нет ли новой версии — на кнопке «?» загорится точка
 browser.runtime.onStartup.addListener(() => { setTimeout(() => dhUpdateCheck(true), 20000); });
 // после обновления закрываем вкладку установки
 browser.runtime.onInstalled.addListener(async (d) => {
   if (d.reason !== 'update') return;
+  browser.storage.local.remove('dhUpdAvail').catch(() => {});
   const tabs = await browser.tabs.query({ url: DH_XPI.replace(/\/[^/]*$/, '/*') }).catch(() => []);
   tabs.forEach((t) => browser.tabs.remove(t.id).catch(() => {}));
 });

@@ -165,7 +165,7 @@
       e.stopPropagation(); const u = e.currentTarget; u.classList.add('spin');
       const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((er) => ({ text: er.message }));
       u.classList.remove('spin'); u.title = (r && r.text) || 'Проверить обновление';
-      const t = document.createElement('div'); t.className = 'dh-toast'; t.textContent = (r && r.text) || 'Ошибка проверки'; document.body.appendChild(t); setTimeout(() => t.remove(), 4500);
+      dhUpdToast(document, r);
     };
     p.querySelector('.mnc-set').onclick = (e) => { e.stopPropagation(); browser.runtime.sendMessage({ openOptions: true }).catch(() => {}); };
     p.querySelector('.mnc-top').onclick = (e) => { e.stopPropagation(); window.__mncDash && window.__mncDash.toggle('rt'); };
@@ -1045,7 +1045,7 @@
       else if (a === 'set') browser.runtime.sendMessage({ openOptions: true }).catch(() => {});
       else if (a === 'news') dhShowNews(document);
       else if (a === 'bot') { const r = await browser.storage.local.get('tgHere'); const on = r.tgHere === false; if (!on && !confirm('Выключить Telegram-бота на этом компьютере?\nКоманды бота, уведомления и напоминания перестанут работать, пока не включите снова.')) return; await browser.storage.local.set({ tgHere: on }); toast(on ? '🟢 Бот включён на этом компьютере' : '⚪ Бот выключен на этом компьютере'); }
-      else if (a === 'upd') { b.classList.add('spin'); const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((er) => ({ text: er.message })); b.classList.remove('spin'); toast((r && r.text) || 'Ошибка проверки'); }
+      else if (a === 'upd') { b.classList.add('spin'); const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((er) => ({ text: er.message })); b.classList.remove('spin'); dhUpdToast(document, r); }
       else if (a) window.__mncDash && window.__mncDash.toggle(a);
     });
     new MutationObserver(mark).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });

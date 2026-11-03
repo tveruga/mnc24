@@ -1,6 +1,10 @@
 // «Что нового» — краткие патчноуты для админов (кнопка «?» справа в шапке).
 // При выпуске версии: добавить запись СВЕРХУ, коротко и понятным языком — что появилось и как этим пользоваться.
 var DH_CHANGELOG = [
+  { v: '14.5', d: '03.11.2026', items: [
+    '«⟳ Обновить» теперь работает: если вышла новая версия, появится ссылка «⬇ Установить» — нажмите её, затем в окне Firefox «Продолжить установку» и «Добавить». Настройки сохранятся.',
+    'Когда выходит новая версия, на кнопке «?» загорается красная точка.',
+  ] },
   { v: '14.4', d: '03.11.2026', items: [
     'Новая тёмная тема — в стиле ночного Telegram: тёмно-синий фон, светлый текст, зелёные кнопки. Цветные статусы заявок остаются цветными, текст в них читается.',
   ] },
@@ -106,6 +110,7 @@ function dhShowNews(doc) {
     const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((e) => ({ status: 'error', text: e.message }));
     ub.disabled = false;
     um.textContent = (r && r.text) || 'Не удалось проверить';
+    if (r && r.link) um.append(' · ', dhUpdLink(doc, r, () => { um.textContent = 'Firefox спросит про установку: «Продолжить установку» → «Добавить». Настройки сохранятся.'; }));
     if (!r || r.status === 'error') {
       const a = doc.createElement('a'); a.textContent = 'Обновить вручную';
       a.title = 'Скопирует адрес about:addons — вставьте его в адресную строку, затем ⚙ → «Проверить наличие обновлений»';
@@ -113,6 +118,8 @@ function dhShowNews(doc) {
       um.append(' · ', a);
     }
   };
+  // уже известно, что вышла новая версия, — сразу показываем ссылку «Установить»
+  try { browser.storage.local.get('dhUpdAvail').then((r) => { if (r.dhUpdAvail && r.dhUpdAvail !== cur) ub.onclick(); }).catch(() => {}); } catch (e) {}
   const close = () => { w.remove(); doc.removeEventListener('keydown', onKey, true); };
   const onKey = (e) => { if (e.key === 'Escape') close(); };
   w.addEventListener('click', (e) => { if (e.target === w || e.target.closest('.dhn-x')) close(); });
@@ -120,11 +127,39 @@ function dhShowNews(doc) {
   (doc.body || doc.documentElement).appendChild(w);
   try { browser.storage.local.set({ dhNewsSeen: DH_CHANGELOG[0].v }); } catch (e) {}
 }
-// красная точка на кнопке, пока последние новости не открывали
+// ссылка «⬇ Установить X» на подписанный .xpi. Firefox ставит дополнение, только если переход начат кликом
+// человека — поэтому ставим не сами (tabs.create), а этой ссылкой. r — ответ dhUpdate: { next, link }.
+function dhUpdLink(doc, r, onGo) {
+  const a = doc.createElement('a');
+  a.href = r.link; a.target = '_blank'; a.rel = 'noopener'; a.className = 'dh-upd-go';
+  a.textContent = `⬇ Установить ${r.next}`;
+  a.title = 'Firefox спросит про установку — нажмите «Продолжить установку» и «Добавить». Настройки и токен сохранятся.';
+  a.style.cssText = 'font-weight:600;cursor:pointer;text-decoration:underline';
+  a.addEventListener('click', (e) => { e.stopPropagation(); if (onGo) setTimeout(onGo, 0); });
+  return a;
+}
+// всплывашка внизу справа; если вышла новая версия — со ссылкой «Установить» (живёт дольше, чтобы успеть нажать)
+function dhUpdToast(doc, r) {
+  const t = doc.createElement('div'); t.className = 'dh-toast';
+  t.textContent = (r && r.text) || 'Ошибка проверки';
+  if (r && r.link) { t.append(' · ', dhUpdLink(doc, r, () => t.remove())); t.style.color = '#fff'; t.querySelector('a').style.color = '#8ff0b5'; }
+  (doc.body || doc.documentElement).appendChild(t); setTimeout(() => t.remove(), r && r.link ? 20000 : 4500);
+}
+// красная точка на кнопке, пока последние новости не открывали или пока есть неустановленное обновление
 function dhNewsDot(btn) {
-  const upd = (seen) => btn.classList.toggle('dhb-new-unseen', seen !== DH_CHANGELOG[0].v);
+  let seen = '', avail = '';
+  const upd = () => {
+    let cur = ''; try { cur = browser.runtime.getManifest().version; } catch (e) {}
+    const hasUpd = !!avail && avail !== cur;
+    btn.classList.toggle('dhb-new-unseen', seen !== DH_CHANGELOG[0].v || hasUpd);
+    if (hasUpd) btn.title = `Вышла версия ${avail} — нажмите, затем «⟳ Обновить»`;
+  };
   try {
-    browser.storage.local.get('dhNewsSeen').then((r) => upd(r.dhNewsSeen)).catch(() => {});
-    browser.storage.onChanged.addListener((ch) => { if (ch.dhNewsSeen) upd(ch.dhNewsSeen.newValue); });
+    browser.storage.local.get(['dhNewsSeen', 'dhUpdAvail']).then((r) => { seen = r.dhNewsSeen; avail = r.dhUpdAvail || ''; upd(); }).catch(() => {});
+    browser.storage.onChanged.addListener((ch) => {
+      if (ch.dhNewsSeen) seen = ch.dhNewsSeen.newValue;
+      if (ch.dhUpdAvail) avail = ch.dhUpdAvail.newValue || '';
+      if (ch.dhNewsSeen || ch.dhUpdAvail) upd();
+    });
   } catch (e) {}
 }
