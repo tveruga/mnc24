@@ -10,18 +10,55 @@ import postcss from 'postcss';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, '$1')), '..');
 
-// ---- палитра ----
-const P = {
+// ---- палитры ----
+// Все цвета тёмной темы — CSS-переменные --dh-*; набор переменных на каждую палитру (меню темы, theme.js → html[data-dh-pal]).
+// 'dark' — исходный «ночной Telegram» (значения как были); остальные выводятся из 5 цветов палитры (тёмный → светлый).
+const TG_NIGHT = {
   bg0: '#0e1621',   // самый тёмный фон страницы
   bg1: '#17212b',   // карточки, таблицы, панели
-  bg2: '#1e2c3a',   // шапки, поля ввода, наведение
+  bg2: '#1e2c3a',   // шапки, наведение
   bg3: '#263445',   // выделенное
   bg4: '#33465a',   // кнопки-серые
+  input: '#242f3d', // поля ввода
+  hover: '#22364a', // строка под курсором
   line: '#2a3949',  // рамки
+  line2: '#3a4d61', // рамки темнее фона
   ink: '#e9eef3',   // основной текст
-  ink2: '#b6c3cf',  // второстепенный
+  ink2: '#b6c3cf', inks: '#d5dee6', ink3: '#9fb0c0', // второстепенный
   muted: '#7d8fa1', // приглушённый
+  acc: '#22a35a', accd: '#166534', accd2: '#0f3d2b', // акцент: яркий / кнопки / самый тёмный
+  acct: '#5fd08a', acct2: '#79e2a1',                 // акцентный текст
+  accbg: '#1d4a33', accline: '#346547',              // подложка / рамка с оттенком акцента
 };
+const PALETTES = {
+  midnight: ['#0b0f14', '#1a1f26', '#2b323c', '#4a5568', '#8a94a6'],
+  forest:   ['#0b120d', '#1b2a1f', '#2e4d34', '#6ca36a', '#a8d5a2'],
+  obsidian: ['#0a0a0a', '#1c1c1e', '#2f2f33', '#5a5a5f', '#9a9aa0'],
+  emerald:  ['#0a0f0d', '#142821', '#1f4d3a', '#3fbf97', '#7fd9b6'],
+  purple:   ['#0d0b14', '#1a1525', '#2e1f44', '#6a3d9a', '#b78cff'],
+};
+const mixHex = (a, b, t) => { const x = parse(a), y = parse(b); return hex(x.r + (y.r - x.r) * t, x.g + (y.g - x.g) * t, x.b + (y.b - x.b) * t); };
+function derive([c1, c2, c3, c4, c5]) {
+  const ink = mixHex(c5, '#ffffff', 0.85);
+  return {
+    bg0: c1, bg1: c2, bg2: mixHex(c2, c3, 0.45), bg3: c3, bg4: mixHex(c3, c4, 0.45),
+    input: mixHex(c2, c3, 0.6), hover: mixHex(c2, c3, 0.75),
+    line: mixHex(c3, c4, 0.12), line2: mixHex(c3, c4, 0.35),
+    ink, ink2: mixHex(c5, '#ffffff', 0.6), inks: mixHex(c5, '#ffffff', 0.72), ink3: mixHex(c5, '#ffffff', 0.4),
+    muted: mixHex(c3, ink, 0.45),
+    acc: c4, accd: mixHex(c3, c4, 0.55), accd2: mixHex(c2, c4, 0.3),
+    acct: c5, acct2: mixHex(c5, '#ffffff', 0.3),
+    accbg: mixHex(c2, c4, 0.22), accline: mixHex(c3, c4, 0.4),
+  };
+}
+const V = (k) => `var(--dh-${k})`;
+const P = Object.fromEntries(Object.keys(TG_NIGHT).map((k) => [k, V(k)]));
+// цвета «ночного Telegram» и бренда DIR HELPER, которые встречаются литералами (ручные css, проходящие насквозь) → переменные
+const LIT = { ...Object.fromEntries(Object.entries(TG_NIGHT).map(([k, v]) => [v, k])),
+  '#6d7f8f': 'muted', '#1c3b4a': 'accbg', '#21452e': 'accbg', '#1d492f': 'accbg', '#273f30': 'accbg', '#3c5d46': 'accline' };
+const varsCss = (sel, o) => `${sel}{${Object.entries(o).map(([k, v]) => `--dh-${k}:${v}`).join(';')}}`;
+const themesCss = () => '/* ---- палитры (меню темы) ---- */\n' + varsCss('html.dh-dark', TG_NIGHT) + '\n' +
+  Object.entries(PALETTES).map(([n, c]) => varsCss(`html.dh-dark[data-dh-pal="${n}"]`, derive(c))).join('\n') + '\n';
 
 // ---- цвета ----
 const NAMED = { white: '#ffffff', black: '#000000', grey: '#808080', gray: '#808080', silver: '#c0c0c0', green: '#008000', red: '#ff0000', blue: '#0000ff', orange: '#ffa500', yellow: '#ffff00', lightgray: '#d3d3d3', lightgrey: '#d3d3d3', darkgray: '#a9a9a9', whitesmoke: '#f5f5f5', gainsboro: '#dcdcdc' };
@@ -56,7 +93,14 @@ function hsl2rgb(h, s, l) {
   return [f(h + 1 / 3), f(h), f(h - 1 / 3)];
 }
 const hex = (r, g, b) => '#' + [r, g, b].map((x) => Math.round(Math.max(0, Math.min(255, x))).toString(16).padStart(2, '0')).join('');
-const withA = (h, a) => { if (a >= 0.999) return h; const c = parse(h); return `rgba(${c.r},${c.g},${c.b},${+a.toFixed(3)})`; };
+const withA = (h, a) => {
+  if (a >= 0.999) return h;
+  if (h.startsWith('var(')) return `color-mix(in srgb,${h} ${+(a * 100).toFixed(1)}%,transparent)`;
+  const c = parse(h); return `rgba(${c.r},${c.g},${c.b},${+a.toFixed(3)})`;
+};
+// зелёные бренда DIR HELPER (оттенок 125–170°) в окнах дополнения → акцент палитры
+const isBrand = (hsl) => hsl.s > 0.2 && hsl.h * 360 >= 125 && hsl.h * 360 <= 170;
+const brandVar = (hsl) => (hsl.l < 0.18 ? P.accd2 : hsl.l < 0.32 ? P.accd : hsl.l < 0.5 ? P.acc : P.acct);
 const tint = (hsl, s, l) => { const [r, g, b] = hsl2rgb(hsl.h, s, l); return hex(r, g, b); };
 
 // роль цвета: bg — фон, fg — текст, line — рамка
@@ -64,17 +108,24 @@ function mapColor(str, role, ctx) {
   const c = parse(str); if (!c) return str;
   if (c.a === 0) return str;
   const hsl = rgb2hsl(c), grey = hsl.s < 0.22 || (hsl.l > 0.94 && hsl.s < 0.6);
+  if (ctx.brand && isBrand(hsl) && (role !== 'shadow' || c.a < 0.6)) {
+    if (c.a < 0.6) return hsl.l > 0.75 ? withA(role === 'bg' ? P.accbg : P.accline, Math.max(c.a, 0.35)) : withA(brandVar(hsl), c.a);
+    if (role === 'bg' && hsl.l >= 0.86) return P.accbg;
+    if (role === 'line' && hsl.l >= 0.8) return P.accline;
+    if (role === 'fg' && hsl.l < 0.38) return ctx.onAccent ? str : P.acct;
+    return brandVar(hsl);
+  }
   // полупрозрачные: чёрная дымка → светлая дымка (полосы таблиц, наведение); белая дымка → тёмная
   if (c.a < 0.6 && role !== 'fg') {
     if (hsl.l < 0.2) return role === 'shadow' || c.a > 0.16 ? str : `rgba(255,255,255,${+(c.a * 0.7).toFixed(3)})`; // лёгкая дымка (полосы, наведение) → светлая; плотная (затемнение за окном) — как есть
-    if (hsl.l > 0.85 && grey) return `rgba(14,22,33,${+Math.min(0.9, c.a + 0.2).toFixed(3)})`;
+    if (hsl.l > 0.85 && grey) return withA(P.bg0, Math.min(0.9, c.a + 0.2));
     if (!grey && hsl.l > 0.75) return `rgba(${hsl2rgb(hsl.h, 0.45, 0.35).map(Math.round).join(',')},${+Math.max(c.a, 0.35).toFixed(3)})`;
     return str;
   }
   if (role === 'shadow') { if (hsl.l > 0.85) return withA(P.bg1, c.a); return str; }
   if (role === 'bg') {
     if (grey) {
-      if (ctx.input) return hsl.l > 0.8 ? withA('#242f3d', c.a) : withA(P.bg3, c.a);
+      if (ctx.input) return hsl.l > 0.8 ? withA(P.input, c.a) : withA(P.bg3, c.a);
       if (hsl.l >= 0.985) return withA(P.bg1, c.a);
       if (hsl.l >= 0.9) return withA(P.bg0, c.a);
       if (hsl.l >= 0.8) return withA(P.bg2, c.a);
@@ -86,7 +137,7 @@ function mapColor(str, role, ctx) {
     return str;                                                                    // насыщенные (кнопки, статусы) — как есть
   }
   if (role === 'line') {
-    if (grey) return hsl.l > 0.5 ? withA(P.line, c.a) : withA('#3a4d61', c.a);
+    if (grey) return hsl.l > 0.5 ? withA(P.line, c.a) : withA(P.line2, c.a);
     if (hsl.l >= 0.8) return withA(tint(hsl, Math.min(0.4, hsl.s), 0.3), c.a);
     return str;
   }
@@ -118,7 +169,12 @@ function prefix(sel) {
     return 'html.dh-dark ' + s;
   }).join(',');
 }
-function gen(files, extra) {
+// ручные css: литералы «ночного Telegram»/бренда → переменные палитры
+function litVars(css) {
+  return css.replace(/#[0-9a-fA-F]{6}\b/g, (m) => (LIT[m.toLowerCase()] ? V(LIT[m.toLowerCase()]) : m))
+    .replace(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/g, (m, r, g, b, a) => { const k = LIT[hex(+r, +g, +b)]; return k ? withA(V(k), +a) : m; });
+}
+function gen(files, extra, brand) {
   const out = postcss.root();
   for (const f of files) {
     let src; try { src = fs.readFileSync(f, 'utf8'); } catch (e) { continue; }
@@ -126,6 +182,7 @@ function gen(files, extra) {
     root.walkRules((rule) => {
       if (rule.parent && rule.parent.type === 'atrule' && /keyframes/i.test(rule.parent.name)) return;
       const ctx = {
+        brand,
         input: /form-control|input|textarea|select2-selection|custom-select|dropdown-toggle|page-link/.test(rule.selector),
         onAccent: /btn-(primary|success|danger|info|warning|dark|secondary)|badge|alert-(success|danger)|bg-(primary|success|danger|info|dark)|text-white|\.active|:checked|\.dhb-main|selected|highlighted/.test(rule.selector),
       };
@@ -147,13 +204,13 @@ function gen(files, extra) {
       parent.append(nr);
     });
   }
-  return `/* СГЕНЕРИРОВАНО .tools/gen-dark.mjs — не править руками */\n` + out.toString().replace(/\n{2,}/g, '\n') + '\n' + (extra || '');
+  return `/* СГЕНЕРИРОВАНО .tools/gen-dark.mjs — не править руками */\n` + themesCss() + out.toString().replace(/\n{2,}/g, '\n') + '\n' + litVars(extra || '');
 }
 
 const crmDir = path.join(ROOT, '.tools', 'crm-css');
 const crmFiles = fs.readdirSync(crmDir).filter((f) => f.endsWith('.css')).sort((a, b) => (a === 'bootstrap.css' ? -1 : b === 'bootstrap.css' ? 1 : a === 'mainAdmin.css' ? 1 : b === 'mainAdmin.css' ? -1 : a.localeCompare(b))).map((f) => path.join(crmDir, f));
 const manual = (f) => { try { return fs.readFileSync(path.join(ROOT, '.tools', f), 'utf8'); } catch (e) { return ''; } };
 fs.writeFileSync(path.join(ROOT, 'dark-crm.css'), gen(crmFiles, manual('dark-crm.manual.css')));
-fs.writeFileSync(path.join(ROOT, 'dark-ext.css'), gen([path.join(ROOT, 'panel.css'), path.join(ROOT, 'dashboard.css')], manual('dark-ext.manual.css')));
-fs.writeFileSync(path.join(ROOT, 'dark-sidebar.css'), gen([path.join(ROOT, 'sidebar.css')], manual('dark-sidebar.manual.css') + manual('dark-ext.manual.css')));
+fs.writeFileSync(path.join(ROOT, 'dark-ext.css'), gen([path.join(ROOT, 'panel.css'), path.join(ROOT, 'dashboard.css')], manual('dark-ext.manual.css'), true));
+fs.writeFileSync(path.join(ROOT, 'dark-sidebar.css'), gen([path.join(ROOT, 'sidebar.css')], manual('dark-sidebar.manual.css') + manual('dark-ext.manual.css'), true));
 for (const f of ['dark-crm.css', 'dark-ext.css', 'dark-sidebar.css']) console.log(f, fs.statSync(path.join(ROOT, f)).size);

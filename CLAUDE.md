@@ -41,7 +41,7 @@ CRM: https://mnc-lead-centre.ru/admin (Yii2). DIR HELPER — дополнени�
 - Пользователи бота: owner 7191750835, 7892790601.
 
 ## Тёмная тема
-- Кнопка ☀/☾ (theme.js, storage `dhTheme`) ставит класс `html.dh-dark`. Цвета: dark-crm.css (CRM), dark-ext.css (panel/dashboard), dark-sidebar.css (окно) — ГЕНЕРИРУЮТСЯ `cd .tools && npm i && node gen-dark.mjs` из .tools/crm-css/*.css (стили CRM, сохранены из кэша Firefox), panel.css, dashboard.css, sidebar.css + ручные .tools/*.manual.css. Поменяли panel/dashboard/sidebar.css — перегенерировать. Палитра: ночной Telegram (#0e1621/#17212b/#1e2c3a) + зелёные акценты.
+- Кнопка ☀/☾ (theme.js) открывает меню тем (DH_THEMES). storage `dhTheme`: light | dark (ночной Telegram) | midnight/forest/obsidian/emerald/purple. Тёмные ставят класс `html.dh-dark`, палитры — ещё `data-dh-pal`. Все тёмные цвета — CSS-переменные `--dh-*` (bg0…bg4, line, ink, muted, acc*…); наборы переменных на палитру — PALETTES/derive() в gen-dark.mjs (5 цветов палитры → роли), «ночной Telegram» — TG_NIGHT. Зелёные бренда в окнах дополнения → акцент палитры. Новая палитра = добавить в PALETTES и DH_THEMES. Цвета: dark-crm.css (CRM), dark-ext.css (panel/dashboard), dark-sidebar.css (окно) — ГЕНЕРИРУЮТСЯ `cd .tools && npm i && node gen-dark.mjs` из .tools/crm-css/*.css (стили CRM, сохранены из кэша Firefox), panel.css, dashboard.css, sidebar.css + ручные .tools/*.manual.css. Поменяли panel/dashboard/sidebar.css — перегенерировать. Палитра: ночной Telegram (#0e1621/#17212b/#1e2c3a) + зелёные акценты.
 - Ячейки с яркой заливкой (статусы) theme.js помечает `dh-lit` → тёмный текст.
 
 ## Подводные камни

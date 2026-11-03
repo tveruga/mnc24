@@ -1,71 +1,104 @@
 /* СГЕНЕРИРОВАНО .tools/gen-dark.mjs — не править руками */
+/* ---- палитры (меню темы) ---- */
+html.dh-dark{--dh-bg0:#0e1621;--dh-bg1:#17212b;--dh-bg2:#1e2c3a;--dh-bg3:#263445;--dh-bg4:#33465a;--dh-input:#242f3d;--dh-hover:#22364a;--dh-line:#2a3949;--dh-line2:#3a4d61;--dh-ink:#e9eef3;--dh-ink2:#b6c3cf;--dh-inks:#d5dee6;--dh-ink3:#9fb0c0;--dh-muted:#7d8fa1;--dh-acc:#22a35a;--dh-accd:#166534;--dh-accd2:#0f3d2b;--dh-acct:#5fd08a;--dh-acct2:#79e2a1;--dh-accbg:#1d4a33;--dh-accline:#346547}
+html.dh-dark[data-dh-pal="midnight"]{--dh-bg0:#0b0f14;--dh-bg1:#1a1f26;--dh-bg2:#222830;--dh-bg3:#2b323c;--dh-bg4:#394250;--dh-input:#242a33;--dh-hover:#272d37;--dh-line:#2f3641;--dh-line2:#363e4b;--dh-ink:#edeff2;--dh-ink2:#d0d4db;--dh-inks:#dee1e6;--dh-ink3:#b9bfca;--dh-muted:#82878e;--dh-acc:#4a5568;--dh-accd:#3c4554;--dh-accd2:#282f3a;--dh-acct:#8a94a6;--dh-acct2:#adb4c1;--dh-accbg:#252b35;--dh-accline:#37404e}
+html.dh-dark[data-dh-pal="forest"]{--dh-bg0:#0b120d;--dh-bg1:#1b2a1f;--dh-bg2:#243a28;--dh-bg3:#2e4d34;--dh-bg4:#4a744c;--dh-input:#263f2c;--dh-hover:#29442f;--dh-line:#35573a;--dh-line2:#446b47;--dh-ink:#f2f9f1;--dh-ink2:#dceeda;--dh-inks:#e7f3e5;--dh-ink3:#cbe6c7;--dh-muted:#869a89;--dh-acc:#6ca36a;--dh-accd:#507c52;--dh-accd2:#334e36;--dh-acct:#a8d5a2;--dh-acct2:#c2e2be;--dh-accbg:#2d4530;--dh-accline:#476f4a}
+html.dh-dark[data-dh-pal="obsidian"]{--dh-bg0:#0a0a0a;--dh-bg1:#1c1c1e;--dh-bg2:#252527;--dh-bg3:#2f2f33;--dh-bg4:#424247;--dh-input:#27272b;--dh-hover:#2a2a2e;--dh-line:#343438;--dh-line2:#3e3e42;--dh-ink:#f0f0f1;--dh-ink2:#d7d7d9;--dh-inks:#e3e3e4;--dh-ink3:#c2c2c6;--dh-muted:#868689;--dh-acc:#5a5a5f;--dh-accd:#47474b;--dh-accd2:#2f2f32;--dh-acct:#9a9aa0;--dh-acct2:#b8b8bd;--dh-accbg:#2a2a2c;--dh-accline:#404045}
+html.dh-dark[data-dh-pal="emerald"]{--dh-bg0:#0a0f0d;--dh-bg1:#142821;--dh-bg2:#19392c;--dh-bg3:#1f4d3a;--dh-bg4:#2d8064;--dh-input:#1b3e30;--dh-hover:#1c4434;--dh-line:#235b45;--dh-line2:#2a755b;--dh-ink:#ecf9f4;--dh-ink2:#ccf0e2;--dh-inks:#dbf4eb;--dh-ink3:#b2e8d3;--dh-muted:#7b9a8e;--dh-acc:#3fbf97;--dh-accd:#318c6d;--dh-accd2:#215544;--dh-acct:#7fd9b6;--dh-acct2:#a5e4cc;--dh-accbg:#1d493b;--dh-accline:#2c7b5f}
+html.dh-dark[data-dh-pal="purple"]{--dh-bg0:#0d0b14;--dh-bg1:#1a1525;--dh-bg2:#231a33;--dh-bg3:#2e1f44;--dh-bg4:#492d6b;--dh-input:#261b38;--dh-hover:#291d3c;--dh-line:#35234e;--dh-line2:#432a62;--dh-ink:#f4eeff;--dh-ink2:#e2d1ff;--dh-inks:#ebdfff;--dh-ink3:#d4baff;--dh-muted:#877c98;--dh-acc:#6a3d9a;--dh-accd:#4f3073;--dh-accd2:#322148;--dh-acct:#b78cff;--dh-acct2:#cdafff;--dh-accbg:#2c1e3f;--dh-accline:#462b66}
 html.dh-dark .dhov-top {
-    background: #17212b !important
+    background: var(--dh-bg1) !important
 }
 html.dh-dark .dhov-top button:hover {
-    background: #17212b !important
+    background: var(--dh-bg1) !important
 }
 html.dh-dark,html.dh-dark body {
-    background: #0e1621 !important
+    background: var(--dh-bg0) !important
 }
 html.dh-dark iframe {
-    background: #17212b !important
+    background: var(--dh-bg1) !important
+}
+html.dh-dark #toast {
+    background: var(--dh-accd2) !important;
+    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-accd2) 35%,transparent) !important
 }
 html.dh-dark .dhb {
-    background: #17212b !important;
-    color: #e9eef3 !important
+    background: var(--dh-bg1) !important;
+    border-bottom: 2px solid var(--dh-accd) !important;
+    color: var(--dh-acct) !important
 }
 html.dh-dark .dhb .dhb-brand b {
-    color: #e9eef3 !important
+    color: var(--dh-acct) !important
 }
 html.dh-dark .dhb .dhb-brand span {
-    color: #79e2a1 !important
+    color: var(--dh-acct) !important
 }
 html.dh-dark .dhb .dhb-brand i {
-    color: #e9eef3 !important
+    color: var(--dh-ink) !important
 }
 html.dh-dark .dhb button {
-    color: #e9eef3 !important
+    color: var(--dh-acct) !important
 }
 html.dh-dark .dhb button:hover {
-    background: #21452e !important;
-    border-color: #346547 !important
+    background: var(--dh-accbg) !important;
+    border-color: var(--dh-accline) !important
+}
+html.dh-dark .dhb button.dhb-main {
+    background: var(--dh-accd) !important
+}
+html.dh-dark .dhb button.dhb-main:hover {
+    background: var(--dh-accd) !important;
+    border-color: var(--dh-accd) !important
 }
 html.dh-dark .dhb button.on {
-    background: #21452e !important
+    background: var(--dh-accbg) !important;
+    border-color: var(--dh-acct) !important
+}
+html.dh-dark .dhb button.dhb-main.on {
+    background: var(--dh-accd2) !important
 }
 html.dh-dark .dhb .dhb-sep {
-    background: #273f30 !important
+    background: var(--dh-accbg) !important
 }
 html.dh-dark .dhb .dhb-z {
-    color: #e9eef3 !important
+    color: var(--dh-ink) !important
 }
 html.dh-dark .dhb button.dhb-new,html.dh-dark .dhb button.dhb-theme {
-    color: #79e2a1 !important;
-    background: #17212b !important
+    border: 1.5px solid var(--dh-accd) !important;
+    color: var(--dh-acct) !important;
+    background: var(--dh-bg1) !important;
+    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-accd2) 15%,transparent) !important
+}
+html.dh-dark .dhb button.dhb-new:hover,html.dh-dark .dhb button.dhb-theme:hover {
+    background: var(--dh-accd) !important;
+    border-color: var(--dh-accd) !important
 }
 html.dh-dark .dhb button.dhb-new.dhb-new-unseen::after {
-    box-shadow: 0 0 0 2px #17212b !important
+    box-shadow: 0 0 0 2px var(--dh-bg1) !important
 }
 html.dh-dark .dhb .dhb-bot .dhb-dot {
-    background: #263445 !important
+    background: var(--dh-bg3) !important
+}
+html.dh-dark .dhb .dhb-bot.bot-on .dhb-dot {
+    background: var(--dh-acc) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--dh-acc) 18%,transparent) !important
 }
 /* ---- окно DIR HELPER (sidebar.html) — тёмная тема ---- */
 html.dh-dark{color-scheme:dark}
-html.dh-dark,html.dh-dark body{background:#0e1621!important}
-html.dh-dark .dhov-top{background:#0e1621!important;border-bottom:1px solid #2a3949}
-html.dh-dark iframe{background:#0e1621!important}
+html.dh-dark,html.dh-dark body{background:var(--dh-bg0)!important}
+html.dh-dark .dhov-top{background:var(--dh-bg0)!important;border-bottom:1px solid var(--dh-line)}
+html.dh-dark iframe{background:var(--dh-bg0)!important}
 /* ---- окно «Что нового» (стили в changelog.js) — тёмная тема ---- */
-html.dh-dark #dh-news{background:rgba(5,10,15,.55)!important;color:#e9eef3!important}
-html.dh-dark #dh-news .dhn-card{background:#17212b!important;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px #2a3949!important}
-html.dh-dark #dh-news .dhn-head{border-bottom-color:#2a3949!important}
-html.dh-dark #dh-news .dhn-head b{color:#e9eef3!important}
-html.dh-dark #dh-news .dhn-x{color:#9fb0c0!important}
-html.dh-dark #dh-news .dhn-x:hover{background:#263445!important}
-html.dh-dark #dh-news .dhn-ver h4{color:#5fd08a!important}
-html.dh-dark #dh-news .dhn-ver h4 span{color:#7d8fa1!important}
-html.dh-dark #dh-news .dhn-ver h4 em{background:#166534!important;color:#fff!important}
-html.dh-dark #dh-news li{color:#d5dee6!important}
-html.dh-dark #dh-news .dhn-foot{background:#1e2c3a!important;border-top-color:#2a3949!important}
-html.dh-dark #dh-news .dhn-msg{color:#9fb0c0!important}
-html.dh-dark #dh-news .dhn-msg a{color:#5fd08a!important}
+html.dh-dark #dh-news{background:rgba(5,10,15,.55)!important;color:var(--dh-ink)!important}
+html.dh-dark #dh-news .dhn-card{background:var(--dh-bg1)!important;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px var(--dh-line)!important}
+html.dh-dark #dh-news .dhn-head{border-bottom-color:var(--dh-line)!important}
+html.dh-dark #dh-news .dhn-head b{color:var(--dh-ink)!important}
+html.dh-dark #dh-news .dhn-x{color:var(--dh-ink3)!important}
+html.dh-dark #dh-news .dhn-x:hover{background:var(--dh-bg3)!important}
+html.dh-dark #dh-news .dhn-ver h4{color:var(--dh-acct)!important}
+html.dh-dark #dh-news .dhn-ver h4 span{color:var(--dh-muted)!important}
+html.dh-dark #dh-news .dhn-ver h4 em{background:var(--dh-accd)!important;color:#fff!important}
+html.dh-dark #dh-news li{color:var(--dh-inks)!important}
+html.dh-dark #dh-news .dhn-foot{background:var(--dh-bg2)!important;border-top-color:var(--dh-line)!important}
+html.dh-dark #dh-news .dhn-msg{color:var(--dh-ink3)!important}
+html.dh-dark #dh-news .dhn-msg a{color:var(--dh-acct)!important}
