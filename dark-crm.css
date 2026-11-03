@@ -6,6 +6,11 @@ html.dh-dark[data-dh-pal="forest"]{--dh-bg0:#0b120d;--dh-bg1:#1b2a1f;--dh-bg2:#2
 html.dh-dark[data-dh-pal="obsidian"]{--dh-bg0:#0a0a0a;--dh-bg1:#1c1c1e;--dh-bg2:#252527;--dh-bg3:#2f2f33;--dh-bg4:#424247;--dh-input:#27272b;--dh-hover:#2a2a2e;--dh-line:#343438;--dh-line2:#3e3e42;--dh-ink:#f0f0f1;--dh-ink2:#d7d7d9;--dh-inks:#e3e3e4;--dh-ink3:#c2c2c6;--dh-muted:#868689;--dh-acc:#5a5a5f;--dh-accd:#47474b;--dh-accd2:#2f2f32;--dh-acct:#9a9aa0;--dh-acct2:#b8b8bd;--dh-accbg:#2a2a2c;--dh-accline:#404045}
 html.dh-dark[data-dh-pal="emerald"]{--dh-bg0:#0a0f0d;--dh-bg1:#142821;--dh-bg2:#19392c;--dh-bg3:#1f4d3a;--dh-bg4:#2d8064;--dh-input:#1b3e30;--dh-hover:#1c4434;--dh-line:#235b45;--dh-line2:#2a755b;--dh-ink:#ecf9f4;--dh-ink2:#ccf0e2;--dh-inks:#dbf4eb;--dh-ink3:#b2e8d3;--dh-muted:#7b9a8e;--dh-acc:#3fbf97;--dh-accd:#318c6d;--dh-accd2:#215544;--dh-acct:#7fd9b6;--dh-acct2:#a5e4cc;--dh-accbg:#1d493b;--dh-accline:#2c7b5f}
 html.dh-dark[data-dh-pal="purple"]{--dh-bg0:#0d0b14;--dh-bg1:#1a1525;--dh-bg2:#231a33;--dh-bg3:#2e1f44;--dh-bg4:#492d6b;--dh-input:#261b38;--dh-hover:#291d3c;--dh-line:#35234e;--dh-line2:#432a62;--dh-ink:#f4eeff;--dh-ink2:#e2d1ff;--dh-inks:#ebdfff;--dh-ink3:#d4baff;--dh-muted:#877c98;--dh-acc:#6a3d9a;--dh-accd:#4f3073;--dh-accd2:#322148;--dh-acct:#b78cff;--dh-acct2:#cdafff;--dh-accbg:#2c1e3f;--dh-accline:#462b66}
+html.dh-lt[data-dh-pal="sky"]{--dh-lbg0:#f8fafc;--dh-lbg1:#eef2ff;--dh-lbg2:#e2e8f5;--dh-lline:#dbe2ef;--dh-lacc:#3b82f6;--dh-laccd:#306bca;--dh-laccd2:#1b3b6f;--dh-lacct:#295bac;--dh-laccl:#93c5fd;--dh-laccbg:#eef2ff;--dh-laccline:#cbd5e1}
+html.dh-lt[data-dh-pal="sage"]{--dh-lbg0:#fafdf7;--dh-lbg1:#ecfdf5;--dh-lbg2:#e3fcef;--dh-lline:#ddfbec;--dh-lacc:#22c55e;--dh-laccd:#1ca24d;--dh-laccd2:#0f592a;--dh-lacct:#188a42;--dh-laccl:#86efac;--dh-laccbg:#ecfdf5;--dh-laccline:#d1fae5}
+html.dh-lt[data-dh-pal="rose"]{--dh-lbg0:#fff7fa;--dh-lbg1:#fce7f3;--dh-lbg2:#fbd1e8;--dh-lline:#fac4e2;--dh-lacc:#ec4899;--dh-laccd:#c23b7d;--dh-laccd2:#6a2045;--dh-lacct:#a5326b;--dh-laccl:#f472b6;--dh-laccbg:#fce7f3;--dh-laccline:#f9a8d4}
+html.dh-lt[data-dh-pal="sunny"]{--dh-lbg0:#fffbeb;--dh-lbg1:#fff3cd;--dh-lbg2:#fee8a0;--dh-lline:#fde187;--dh-lacc:#d97706;--dh-laccd:#b26205;--dh-laccd2:#623603;--dh-lacct:#985304;--dh-laccl:#f59e0b;--dh-laccbg:#fff3cd;--dh-laccline:#fcd34d}
+html.dh-lt[data-dh-pal="lavender"]{--dh-lbg0:#faf5ff;--dh-lbg1:#f3e8ff;--dh-lbg2:#ead6ff;--dh-lline:#e4cbfe;--dh-lacc:#7c3aed;--dh-laccd:#6630c2;--dh-laccd2:#381a6b;--dh-lacct:#5729a6;--dh-laccl:#a855f7;--dh-laccbg:#f3e8ff;--dh-laccline:#d8b4fe}
 html.dh-dark body {
     color: var(--dh-ink) !important;
     background-color: var(--dh-bg1) !important
@@ -1642,6 +1647,619 @@ html.dh-dark .btn-pink {
     color: var(--dh-ink) !important;
     background-color: #4a1c31 !important;
     border-color: #6b2e4a !important
+}
+html.dh-lt body {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .img-thumbnail {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .table th,html.dh-lt .table td {
+    border-top: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .table thead th {
+    border-bottom: 2px solid var(--dh-lline) !important
+}
+html.dh-lt .table tbody + tbody {
+    border-top: 2px solid var(--dh-lline) !important
+}
+html.dh-lt .table-bordered {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .table-bordered th,html.dh-lt .table-bordered td {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .table-secondary,html.dh-lt .table-secondary > th,html.dh-lt .table-secondary > td {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .table-light,html.dh-lt .table-light > th,html.dh-lt .table-light > td {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .table-light th,html.dh-lt .table-light td,html.dh-lt .table-light thead th,html.dh-lt .table-light tbody + tbody {
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .table-hover .table-light:hover {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .table-hover .table-light:hover > td,html.dh-lt .table-hover .table-light:hover > th {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .table .thead-light th {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .form-control {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .form-control:focus {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .form-control:disabled,html.dh-lt .form-control[readonly] {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt select.form-control:focus::-ms-value {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .btn-light {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-light:hover {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-light:focus,html.dh-lt .btn-light.focus {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-light.disabled,html.dh-lt .btn-light:disabled {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-light:not(:disabled):not(.disabled):active,html.dh-lt .btn-light:not(:disabled):not(.disabled).active,html.dh-lt .show > .btn-light.dropdown-toggle {
+    background-color: var(--dh-lbg2) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-outline-light {
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-outline-light:hover {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .btn-outline-light:not(:disabled):not(.disabled):active,html.dh-lt .btn-outline-light:not(:disabled):not(.disabled).active,html.dh-lt .show > .btn-outline-light.dropdown-toggle {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .dropdown-menu {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .dropdown-divider {
+    border-top: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .dropdown-item:hover,html.dh-lt .dropdown-item:focus {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .input-group-text {
+    background-color: var(--dh-lbg1) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .custom-control-input[disabled] ~ .custom-control-label::before,html.dh-lt .custom-control-input:disabled ~ .custom-control-label::before {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .custom-control-label::before {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .custom-select {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .custom-select:focus::-ms-value {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .custom-select:disabled {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .custom-file-input[disabled] ~ .custom-file-label,html.dh-lt .custom-file-input:disabled ~ .custom-file-label {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .custom-file-label {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .custom-file-label::after {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .custom-range::-webkit-slider-runnable-track {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .custom-range::-moz-range-track {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .custom-range::-ms-fill-lower {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .custom-range::-ms-fill-upper {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .nav-tabs {
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .nav-tabs .nav-link:hover,html.dh-lt .nav-tabs .nav-link:focus {
+    border-color: var(--dh-lline) var(--dh-lline) var(--dh-lline) !important
+}
+html.dh-lt .nav-tabs .nav-link.active,html.dh-lt .nav-tabs .nav-item.show .nav-link {
+    background-color: var(--dh-lbg0) !important;
+    border-color: var(--dh-lline) var(--dh-lline) var(--dh-lline) !important
+}
+html.dh-lt .card {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .breadcrumb {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .page-link {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .page-link:hover {
+    background-color: var(--dh-lbg1) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .page-item.disabled .page-link {
+    background-color: var(--dh-lbg0) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .badge-light {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt a.badge-light:hover,html.dh-lt a.badge-light:focus {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .jumbotron {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .alert-secondary {
+    background-color: var(--dh-lbg2) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .alert-secondary hr {
+    border-top-color: var(--dh-lline) !important
+}
+html.dh-lt .alert-light {
+    background-color: var(--dh-lbg0) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .alert-light hr {
+    border-top-color: var(--dh-lline) !important
+}
+html.dh-lt .alert-dark {
+    background-color: var(--dh-lbg2) !important;
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .progress {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .list-group-item-action:hover,html.dh-lt .list-group-item-action:focus {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .list-group-item-action:active {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .list-group-item {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .list-group-item.disabled,html.dh-lt .list-group-item:disabled {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .list-group-item-secondary {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .list-group-item-light {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .list-group-item-light.list-group-item-action:hover,html.dh-lt .list-group-item-light.list-group-item-action:focus {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .toast {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .toast-header {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .modal-content {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .modal-header {
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .modal-footer {
+    border-top: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .popover {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .bs-popover-top > .arrow::after,html.dh-lt .bs-popover-auto[x-placement^="top"] > .arrow::after {
+    border-top-color: var(--dh-lline) !important
+}
+html.dh-lt .bs-popover-right > .arrow::after,html.dh-lt .bs-popover-auto[x-placement^="right"] > .arrow::after {
+    border-right-color: var(--dh-lline) !important
+}
+html.dh-lt .bs-popover-bottom > .arrow::after,html.dh-lt .bs-popover-auto[x-placement^="bottom"] > .arrow::after {
+    border-bottom-color: var(--dh-lline) !important
+}
+html.dh-lt .bs-popover-bottom .popover-header::before,html.dh-lt .bs-popover-auto[x-placement^="bottom"] .popover-header::before {
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .bs-popover-left > .arrow::after,html.dh-lt .bs-popover-auto[x-placement^="left"] > .arrow::after {
+    border-left-color: var(--dh-lline) !important
+}
+html.dh-lt .popover-header {
+    background-color: var(--dh-lbg1) !important;
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .carousel-indicators li {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .bg-light {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt a.bg-light:hover,html.dh-lt a.bg-light:focus,html.dh-lt button.bg-light:hover,html.dh-lt button.bg-light:focus {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .bg-white {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .border {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .border-top {
+    border-top: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .border-right {
+    border-right: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .border-bottom {
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .border-left {
+    border-left: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .border-light {
+    border-color: var(--dh-lline) !important
+}
+html.dh-lt .border-white {
+    border-color: var(--dh-lline) !important
+}
+@media print {
+    html.dh-lt .table td,html.dh-lt .table th {
+        background-color: var(--dh-lbg0) !important
+    }
+}
+@media print {
+    html.dh-lt .table-bordered th,html.dh-lt .table-bordered td {
+        border: 1px solid var(--dh-lline) !important
+    }
+}
+@media print {
+    html.dh-lt .table-dark th,html.dh-lt .table-dark td,html.dh-lt .table-dark thead th,html.dh-lt .table-dark tbody + tbody {
+        border-color: var(--dh-lline) !important
+    }
+}
+@media print {
+    html.dh-lt .table .thead-dark th {
+        border-color: var(--dh-lline) !important
+    }
+}
+html.dh-lt .bootstrap-dialog.type-default .modal-header {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .bootstrap-select .dropdown-menu .notify {
+    background: var(--dh-lbg1) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .bootstrap-select .no-results {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt .bootstrap-select.show-menu-arrow .dropdown-toggle .filter-option:after {
+    border-bottom: 6px solid var(--dh-lline) !important
+}
+html.dh-lt .bootstrap-select.show-menu-arrow.dropup .dropdown-toggle .filter-option:after {
+    border-top: 6px solid var(--dh-lline) !important
+}
+html.dh-lt .datepicker-dropdown:after {
+    border-bottom: .375rem solid var(--dh-lline) !important
+}
+html.dh-lt .datepicker-dropdown.datepicker-orient-top:after {
+    border-top: .375rem solid var(--dh-lline) !important
+}
+html.dh-lt .datepicker table tr td.day:hover,html.dh-lt .datepicker table tr td.focused {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt .datepicker table tr td.range {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .datepicker table tr td.range.focus,html.dh-lt .datepicker table tr td.range:focus {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .datepicker table tr td.range.active,html.dh-lt .datepicker table tr td.range:active,html.dh-lt .datepicker table tr td.range:hover {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .datepicker table tr td.range.disabled.focus,html.dh-lt .datepicker table tr td.range.disabled:focus,html.dh-lt .datepicker table tr td.range.disabled:hover,html.dh-lt .datepicker table tr td.range[disabled].focus,html.dh-lt .datepicker table tr td.range[disabled]:focus,html.dh-lt .datepicker table tr td.range[disabled]:hover,html.dh-lt fieldset[disabled] .datepicker table tr td.range.focus,html.dh-lt fieldset[disabled] .datepicker table tr td.range:focus,html.dh-lt fieldset[disabled] .datepicker table tr td.range:hover {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .datepicker table tr td.range.focused {
+    background: var(--dh-lbg2) !important
+}
+html.dh-lt .datepicker table tr td.range.disabled,html.dh-lt .datepicker table tr td.range.disabled:active {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt .datepicker table tr td span.focused,html.dh-lt .datepicker table tr td span:hover {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt .datepicker .datepicker-switch:hover,html.dh-lt .datepicker .next:hover,html.dh-lt .datepicker .prev:hover,html.dh-lt .datepicker tfoot tr th:hover {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt .daterangepicker {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker:before {
+    border-bottom: 7px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker:after {
+    border-bottom: 6px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker.drop-up:before {
+    border-top: 7px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker.drop-up:after {
+    border-top: 6px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker .calendar-table {
+    border: 1px solid var(--dh-lline) !important;
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .daterangepicker td.available:hover,html.dh-lt .daterangepicker th.available:hover {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .daterangepicker td.off,html.dh-lt .daterangepicker td.off.end-date,html.dh-lt .daterangepicker td.off.in-range,html.dh-lt .daterangepicker td.off.start-date {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .daterangepicker td.in-range {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .daterangepicker select.ampmselect,html.dh-lt .daterangepicker select.hourselect,html.dh-lt .daterangepicker select.minuteselect,html.dh-lt .daterangepicker select.secondselect {
+    background: var(--dh-lbg1) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker .drp-buttons {
+    border-top: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker.show-ranges .drp-calendar.left {
+    border-left: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .daterangepicker .ranges li:hover {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .krajee-default .file-thumb-progress .progress,html.dh-lt .kv-upload-progress .progress {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .file-caption-disabled {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .file-preview {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .krajee-default .file-preview-text {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .krajee-default .file-preview-html {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .file-highlighted {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .ui-widget.ui-widget-content {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .ui-widget-content {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt .ui-state-default,html.dh-lt .ui-widget-content .ui-state-default,html.dh-lt .ui-widget-header .ui-state-default,html.dh-lt .ui-button,html.dh-lt .ui-button.ui-state-disabled:hover,html.dh-lt .ui-button.ui-state-disabled:active {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .select2-container--krajee-bs4 .select2-selection {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .select2-container--krajee-bs4 .select2-search--dropdown .select2-search__field {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .select2-container--krajee-bs4 .select2-results__option[aria-disabled=true] {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-container--krajee-bs4 .select2-results__option[aria-selected] {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-container--krajee-bs4 .select2-results__group {
+    background-color: var(--dh-lbg1) !important;
+    border-top: 1px solid var(--dh-lline) !important;
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .select2-container--krajee-bs4.select2-container--disabled .select2-selection,html.dh-lt .select2-container--krajee-bs4.select2-container--disabled .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .select2-container--krajee-bs4 .select2-selection--multiple .select2-selection__choice {
+    background: var(--dh-lbg1) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .select2-dropdown {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-close-mask {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-container--default .select2-selection--single {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-container--default.select2-container--disabled .select2-selection--single {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .select2-container--default .select2-selection--multiple {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .select2-container--default.select2-container--disabled .select2-selection--multiple {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .select2-container--default .select2-results__option[aria-selected=true] {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .select2-container--classic .select2-selection--single {
+    background-color: var(--dh-lbg1) !important;
+    background-image: -webkit-linear-gradient(top, var(--dh-lbg0) 50%, var(--dh-lbg1) 100%) !important;
+    background-image: -o-linear-gradient(top, var(--dh-lbg0) 50%, var(--dh-lbg1) 100%) !important;
+    background-image: linear-gradient(to bottom, var(--dh-lbg0) 50%, var(--dh-lbg1) 100%) !important
+}
+html.dh-lt .select2-container--classic .select2-selection--single .select2-selection__arrow {
+    background-color: var(--dh-lbg2) !important;
+    background-image: -webkit-linear-gradient(top, var(--dh-lbg1) 50%, var(--dh-lbg2) 100%) !important;
+    background-image: -o-linear-gradient(top, var(--dh-lbg1) 50%, var(--dh-lbg2) 100%) !important;
+    background-image: linear-gradient(to bottom, var(--dh-lbg1) 50%, var(--dh-lbg2) 100%) !important
+}
+html.dh-lt .select2-container--classic.select2-container--open.select2-container--above .select2-selection--single {
+    background-image: -webkit-linear-gradient(top, var(--dh-lbg0) 0%, var(--dh-lbg1) 50%) !important;
+    background-image: -o-linear-gradient(top, var(--dh-lbg0) 0%, var(--dh-lbg1) 50%) !important;
+    background-image: linear-gradient(to bottom, var(--dh-lbg0) 0%, var(--dh-lbg1) 50%) !important
+}
+html.dh-lt .select2-container--classic.select2-container--open.select2-container--below .select2-selection--single {
+    background-image: -webkit-linear-gradient(top, var(--dh-lbg1) 50%, var(--dh-lbg0) 100%) !important;
+    background-image: -o-linear-gradient(top, var(--dh-lbg1) 50%, var(--dh-lbg0) 100%) !important;
+    background-image: linear-gradient(to bottom, var(--dh-lbg1) 50%, var(--dh-lbg0) 100%) !important
+}
+html.dh-lt .select2-container--classic .select2-selection--multiple {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .select2-container--classic .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .select2-container--classic .select2-dropdown {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .sl-overlay {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt .custom-checkbox2 {
+    border: 1px solid var(--dh-lline) !important;
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .custom-checkbox2 .--marker:after {
+    border: solid var(--dh-lline) !important
+}
+html.dh-lt body {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt form .cb-city-group {
+    border: 1px solid var(--dh-lline) !important;
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt body.theme-1 form .cb-city-group {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .sidebar-menu .item-group.active:after,html.dh-lt .sidebar-menu .item-link.active:after {
+    border-color: transparent var(--dh-lline) transparent transparent !important
+}
+html.dh-lt nav.navbar .dropdown-submenu {
+    background-color: var(--dh-lbg1) !important;
+    background: linear-gradient(135deg,var(--dh-lbg1),var(--dh-lbg2)) !important
+}
+@media (max-width:767px) {
+    html.dh-lt nav.navbar .dropdown-submenu {
+        border: 1px solid var(--dh-lline) !important;
+        background: linear-gradient(135deg,var(--dh-lbg1),var(--dh-lbg1)) !important
+    }
+}
+html.dh-lt .login-box--body form .custom-checkbox .custom-control-input:checked~.custom-control-label:before {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .table-responsive.--freewidth .table {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .table-responsive.--fixedheader thead.sticky-top {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt .content-header {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .page-update__tabs {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .page-update__tabs .nav-link.active {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .content-wrapper .content-footer {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .__customer-q-info {
+    border: 1px solid var(--dh-lline) !important;
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .__customer-q-info>div {
+    background-color: var(--dh-lbg0) !important
+}
+html.dh-lt .__customer-q-info>div:before {
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .--form-submit-disabled:after {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt body.theme-1>.modal .modal-content {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt body.theme-1 .form-control:focus,html.dh-lt body.theme-1 .select2-container--krajee-bs4 .select2-selection,html.dh-lt body.theme-1 input[type=date],html.dh-lt body.theme-1 input[type=email],html.dh-lt body.theme-1 input[type=number],html.dh-lt body.theme-1 input[type=text],html.dh-lt body.theme-1 textarea {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt body.theme-1 .content-wrapper .card {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt body.theme-1 .content-wrapper .form-control {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt body.theme-1 .pagination .page-link {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt body.theme-1 .pagination .page-link:hover {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt body.theme-1 .bootstrap-select .btn {
+    background-color: var(--dh-lbg2) !important
+}
+html.dh-lt .bootstrap-select .dropdown-toggle {
+    background-color: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt .cr-index-filter-actions button {
+    border: 1px solid var(--dh-lline) !important;
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt .blockquote-small {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt #cityTimeTable table tr td:nth-child(odd) {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt #cityTimeTable table tr td:nth-child(2n) {
+    background-color: var(--dh-lbg1) !important
+}
+html.dh-lt .singe-photo-input--image {
+    background: linear-gradient(45deg,#bbb,var(--dh-lbg2)) !important
 }
 /* ---- ручные правки тёмной темы CRM (tools/dark-crm.manual.css) ---- */
 html.dh-dark{color-scheme:dark;scrollbar-color:var(--dh-bg4) var(--dh-bg0)}

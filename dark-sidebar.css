@@ -6,6 +6,11 @@ html.dh-dark[data-dh-pal="forest"]{--dh-bg0:#0b120d;--dh-bg1:#1b2a1f;--dh-bg2:#2
 html.dh-dark[data-dh-pal="obsidian"]{--dh-bg0:#0a0a0a;--dh-bg1:#1c1c1e;--dh-bg2:#252527;--dh-bg3:#2f2f33;--dh-bg4:#424247;--dh-input:#27272b;--dh-hover:#2a2a2e;--dh-line:#343438;--dh-line2:#3e3e42;--dh-ink:#f0f0f1;--dh-ink2:#d7d7d9;--dh-inks:#e3e3e4;--dh-ink3:#c2c2c6;--dh-muted:#868689;--dh-acc:#5a5a5f;--dh-accd:#47474b;--dh-accd2:#2f2f32;--dh-acct:#9a9aa0;--dh-acct2:#b8b8bd;--dh-accbg:#2a2a2c;--dh-accline:#404045}
 html.dh-dark[data-dh-pal="emerald"]{--dh-bg0:#0a0f0d;--dh-bg1:#142821;--dh-bg2:#19392c;--dh-bg3:#1f4d3a;--dh-bg4:#2d8064;--dh-input:#1b3e30;--dh-hover:#1c4434;--dh-line:#235b45;--dh-line2:#2a755b;--dh-ink:#ecf9f4;--dh-ink2:#ccf0e2;--dh-inks:#dbf4eb;--dh-ink3:#b2e8d3;--dh-muted:#7b9a8e;--dh-acc:#3fbf97;--dh-accd:#318c6d;--dh-accd2:#215544;--dh-acct:#7fd9b6;--dh-acct2:#a5e4cc;--dh-accbg:#1d493b;--dh-accline:#2c7b5f}
 html.dh-dark[data-dh-pal="purple"]{--dh-bg0:#0d0b14;--dh-bg1:#1a1525;--dh-bg2:#231a33;--dh-bg3:#2e1f44;--dh-bg4:#492d6b;--dh-input:#261b38;--dh-hover:#291d3c;--dh-line:#35234e;--dh-line2:#432a62;--dh-ink:#f4eeff;--dh-ink2:#e2d1ff;--dh-inks:#ebdfff;--dh-ink3:#d4baff;--dh-muted:#877c98;--dh-acc:#6a3d9a;--dh-accd:#4f3073;--dh-accd2:#322148;--dh-acct:#b78cff;--dh-acct2:#cdafff;--dh-accbg:#2c1e3f;--dh-accline:#462b66}
+html.dh-lt[data-dh-pal="sky"]{--dh-lbg0:#f8fafc;--dh-lbg1:#eef2ff;--dh-lbg2:#e2e8f5;--dh-lline:#dbe2ef;--dh-lacc:#3b82f6;--dh-laccd:#306bca;--dh-laccd2:#1b3b6f;--dh-lacct:#295bac;--dh-laccl:#93c5fd;--dh-laccbg:#eef2ff;--dh-laccline:#cbd5e1}
+html.dh-lt[data-dh-pal="sage"]{--dh-lbg0:#fafdf7;--dh-lbg1:#ecfdf5;--dh-lbg2:#e3fcef;--dh-lline:#ddfbec;--dh-lacc:#22c55e;--dh-laccd:#1ca24d;--dh-laccd2:#0f592a;--dh-lacct:#188a42;--dh-laccl:#86efac;--dh-laccbg:#ecfdf5;--dh-laccline:#d1fae5}
+html.dh-lt[data-dh-pal="rose"]{--dh-lbg0:#fff7fa;--dh-lbg1:#fce7f3;--dh-lbg2:#fbd1e8;--dh-lline:#fac4e2;--dh-lacc:#ec4899;--dh-laccd:#c23b7d;--dh-laccd2:#6a2045;--dh-lacct:#a5326b;--dh-laccl:#f472b6;--dh-laccbg:#fce7f3;--dh-laccline:#f9a8d4}
+html.dh-lt[data-dh-pal="sunny"]{--dh-lbg0:#fffbeb;--dh-lbg1:#fff3cd;--dh-lbg2:#fee8a0;--dh-lline:#fde187;--dh-lacc:#d97706;--dh-laccd:#b26205;--dh-laccd2:#623603;--dh-lacct:#985304;--dh-laccl:#f59e0b;--dh-laccbg:#fff3cd;--dh-laccline:#fcd34d}
+html.dh-lt[data-dh-pal="lavender"]{--dh-lbg0:#faf5ff;--dh-lbg1:#f3e8ff;--dh-lbg2:#ead6ff;--dh-lline:#e4cbfe;--dh-lacc:#7c3aed;--dh-laccd:#6630c2;--dh-laccd2:#381a6b;--dh-lacct:#5729a6;--dh-laccl:#a855f7;--dh-laccbg:#f3e8ff;--dh-laccline:#d8b4fe}
 html.dh-dark .dhov-top {
     background: var(--dh-bg1) !important
 }
@@ -82,6 +87,65 @@ html.dh-dark .dhb .dhb-bot .dhb-dot {
 html.dh-dark .dhb .dhb-bot.bot-on .dhb-dot {
     background: var(--dh-acc) !important;
     box-shadow: 0 0 0 3px color-mix(in srgb,var(--dh-acc) 18%,transparent) !important
+}
+html.dh-lt,html.dh-lt body {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt iframe {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #toast {
+    background: var(--dh-laccd2) !important;
+    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-laccd2) 35%,transparent) !important
+}
+html.dh-lt .dhb {
+    background: var(--dh-lbg0) !important;
+    border-bottom: 2px solid var(--dh-laccd) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt .dhb .dhb-brand b {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt .dhb .dhb-brand span {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt .dhb button {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt .dhb button:hover {
+    background: var(--dh-laccbg) !important;
+    border-color: var(--dh-laccline) !important
+}
+html.dh-lt .dhb button.dhb-main {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt .dhb button.dhb-main:hover {
+    background: var(--dh-laccd) !important;
+    border-color: var(--dh-laccd) !important
+}
+html.dh-lt .dhb button.on {
+    background: var(--dh-laccbg) !important;
+    border-color: var(--dh-laccl) !important
+}
+html.dh-lt .dhb button.dhb-main.on {
+    background: var(--dh-laccd2) !important
+}
+html.dh-lt .dhb .dhb-sep {
+    background: var(--dh-laccbg) !important
+}
+html.dh-lt .dhb button.dhb-new,html.dh-lt .dhb button.dhb-theme {
+    border: 1.5px solid var(--dh-laccd) !important;
+    color: var(--dh-lacct) !important;
+    background: var(--dh-lbg0) !important;
+    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-laccd2) 15%,transparent) !important
+}
+html.dh-lt .dhb button.dhb-new:hover,html.dh-lt .dhb button.dhb-theme:hover {
+    background: var(--dh-laccd) !important;
+    border-color: var(--dh-laccd) !important
+}
+html.dh-lt .dhb .dhb-bot.bot-on .dhb-dot {
+    background: var(--dh-lacc) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--dh-lacc) 18%,transparent) !important
 }
 /* ---- окно DIR HELPER (sidebar.html) — тёмная тема ---- */
 html.dh-dark{color-scheme:dark}

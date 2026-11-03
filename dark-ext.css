@@ -6,6 +6,11 @@ html.dh-dark[data-dh-pal="forest"]{--dh-bg0:#0b120d;--dh-bg1:#1b2a1f;--dh-bg2:#2
 html.dh-dark[data-dh-pal="obsidian"]{--dh-bg0:#0a0a0a;--dh-bg1:#1c1c1e;--dh-bg2:#252527;--dh-bg3:#2f2f33;--dh-bg4:#424247;--dh-input:#27272b;--dh-hover:#2a2a2e;--dh-line:#343438;--dh-line2:#3e3e42;--dh-ink:#f0f0f1;--dh-ink2:#d7d7d9;--dh-inks:#e3e3e4;--dh-ink3:#c2c2c6;--dh-muted:#868689;--dh-acc:#5a5a5f;--dh-accd:#47474b;--dh-accd2:#2f2f32;--dh-acct:#9a9aa0;--dh-acct2:#b8b8bd;--dh-accbg:#2a2a2c;--dh-accline:#404045}
 html.dh-dark[data-dh-pal="emerald"]{--dh-bg0:#0a0f0d;--dh-bg1:#142821;--dh-bg2:#19392c;--dh-bg3:#1f4d3a;--dh-bg4:#2d8064;--dh-input:#1b3e30;--dh-hover:#1c4434;--dh-line:#235b45;--dh-line2:#2a755b;--dh-ink:#ecf9f4;--dh-ink2:#ccf0e2;--dh-inks:#dbf4eb;--dh-ink3:#b2e8d3;--dh-muted:#7b9a8e;--dh-acc:#3fbf97;--dh-accd:#318c6d;--dh-accd2:#215544;--dh-acct:#7fd9b6;--dh-acct2:#a5e4cc;--dh-accbg:#1d493b;--dh-accline:#2c7b5f}
 html.dh-dark[data-dh-pal="purple"]{--dh-bg0:#0d0b14;--dh-bg1:#1a1525;--dh-bg2:#231a33;--dh-bg3:#2e1f44;--dh-bg4:#492d6b;--dh-input:#261b38;--dh-hover:#291d3c;--dh-line:#35234e;--dh-line2:#432a62;--dh-ink:#f4eeff;--dh-ink2:#e2d1ff;--dh-inks:#ebdfff;--dh-ink3:#d4baff;--dh-muted:#877c98;--dh-acc:#6a3d9a;--dh-accd:#4f3073;--dh-accd2:#322148;--dh-acct:#b78cff;--dh-acct2:#cdafff;--dh-accbg:#2c1e3f;--dh-accline:#462b66}
+html.dh-lt[data-dh-pal="sky"]{--dh-lbg0:#f8fafc;--dh-lbg1:#eef2ff;--dh-lbg2:#e2e8f5;--dh-lline:#dbe2ef;--dh-lacc:#3b82f6;--dh-laccd:#306bca;--dh-laccd2:#1b3b6f;--dh-lacct:#295bac;--dh-laccl:#93c5fd;--dh-laccbg:#eef2ff;--dh-laccline:#cbd5e1}
+html.dh-lt[data-dh-pal="sage"]{--dh-lbg0:#fafdf7;--dh-lbg1:#ecfdf5;--dh-lbg2:#e3fcef;--dh-lline:#ddfbec;--dh-lacc:#22c55e;--dh-laccd:#1ca24d;--dh-laccd2:#0f592a;--dh-lacct:#188a42;--dh-laccl:#86efac;--dh-laccbg:#ecfdf5;--dh-laccline:#d1fae5}
+html.dh-lt[data-dh-pal="rose"]{--dh-lbg0:#fff7fa;--dh-lbg1:#fce7f3;--dh-lbg2:#fbd1e8;--dh-lline:#fac4e2;--dh-lacc:#ec4899;--dh-laccd:#c23b7d;--dh-laccd2:#6a2045;--dh-lacct:#a5326b;--dh-laccl:#f472b6;--dh-laccbg:#fce7f3;--dh-laccline:#f9a8d4}
+html.dh-lt[data-dh-pal="sunny"]{--dh-lbg0:#fffbeb;--dh-lbg1:#fff3cd;--dh-lbg2:#fee8a0;--dh-lline:#fde187;--dh-lacc:#d97706;--dh-laccd:#b26205;--dh-laccd2:#623603;--dh-lacct:#985304;--dh-laccl:#f59e0b;--dh-laccbg:#fff3cd;--dh-laccline:#fcd34d}
+html.dh-lt[data-dh-pal="lavender"]{--dh-lbg0:#faf5ff;--dh-lbg1:#f3e8ff;--dh-lbg2:#ead6ff;--dh-lline:#e4cbfe;--dh-lacc:#7c3aed;--dh-laccd:#6630c2;--dh-laccd2:#381a6b;--dh-lacct:#5729a6;--dh-laccl:#a855f7;--dh-laccbg:#f3e8ff;--dh-laccline:#d8b4fe}
 html.dh-dark #mnc-ext-panel {
     background: var(--dh-bg1) !important;
     color: var(--dh-acct) !important;
@@ -591,6 +596,452 @@ html.dh-dark #mnc-dash .gtab td:nth-child(4) {
 }
 html.dh-dark #mnc-dash {
     box-shadow: 18px 0 50px color-mix(in srgb,var(--dh-accd2) 25%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel {
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important;
+    box-shadow: 0 10px 30px color-mix(in srgb,var(--dh-laccd2) 22%,transparent),0 0 0 1px #d9e6de !important
+}
+html.dh-lt #mnc-ext-panel .mnc-h {
+    background: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-ext-panel input.mnc-f,html.dh-lt #mnc-ext-panel input.mnc-id,html.dh-lt #mnc-ext-panel select.mnc-s,html.dh-lt #mnc-ext-panel select.mnc-st {
+    background: var(--dh-lbg1) !important;
+    color: var(--dh-laccd2) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt #mnc-ext-panel input:focus,html.dh-lt #mnc-ext-panel select:focus {
+    border-color: var(--dh-lacc) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--dh-lacc) 15%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel select.mnc-s option {
+    color: var(--dh-laccd2) !important;
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-ext-panel select.mnc-s option:checked {
+    background: var(--dh-laccd) linear-gradient(var(--dh-laccd),var(--dh-laccd)) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-b {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-b:disabled {
+    background: var(--dh-lbg2) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-m.ok {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt tr.mnc-row > td {
+    background: color-mix(in srgb,var(--dh-lacc) 12%,transparent) !important
+}
+html.dh-lt #mnc-ext-banner .mnc-bn {
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important;
+    border-top: 6px solid var(--dh-laccd) !important
+}
+html.dh-lt #mnc-ext-banner .mnc-bn-ic {
+    background: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-ext-banner .mnc-bn-ok {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-ext-panel .dh-b {
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-tabs {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-tabs button {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-tabs button.on {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-sum {
+    border: 2px solid var(--dh-lline) !important;
+    color: var(--dh-laccd2) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-sum:focus {
+    border-color: var(--dh-lacc) !important;
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop {
+    border: 2px dashed var(--dh-laccl) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop.ov,html.dh-lt #mnc-ext-panel .mnc-drop:focus {
+    border-color: var(--dh-lacc) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-grid select,html.dh-lt #mnc-ext-panel .mnc-grid input {
+    border: 1px solid var(--dh-lline) !important;
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-ext-banner .mnc-bn-cp {
+    border: 1px solid var(--dh-laccd) !important;
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-sub {
+    background: var(--dh-lbg1) !important;
+    border: 1px solid var(--dh-lline) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop.act {
+    border-color: var(--dh-lacc) !important
+}
+html.dh-lt #mnc-ext-panel {
+    background: var(--dh-lbg0) !important;
+    box-shadow: 0 24px 60px -12px color-mix(in srgb,var(--dh-laccd2) 35%,transparent),0 0 0 1px color-mix(in srgb,var(--dh-laccd2) 8%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-h {
+    background: linear-gradient(135deg,var(--dh-laccd2) 0%,var(--dh-laccd) 60%,var(--dh-laccd) 100%) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-h::after {
+    background: linear-gradient(90deg,transparent,color-mix(in srgb,var(--dh-laccbg) 45%,transparent),transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-an,html.dh-lt #mnc-ext-panel .mnc-zp,html.dh-lt #mnc-ext-panel .mnc-ad,html.dh-lt #mnc-ext-panel .mnc-top,html.dh-lt #mnc-ext-panel .mnc-x {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--dh-laccline) 18%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-an:hover,html.dh-lt #mnc-ext-panel .mnc-zp:hover,html.dh-lt #mnc-ext-panel .mnc-ad:hover,html.dh-lt #mnc-ext-panel .mnc-top:hover,html.dh-lt #mnc-ext-panel .mnc-x:hover {
+    background: color-mix(in srgb,var(--dh-laccbg) 22%,transparent) !important;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--dh-laccline) 50%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-tabs {
+    background: var(--dh-laccbg) !important;
+    box-shadow: inset 0 1px 2px color-mix(in srgb,var(--dh-laccd2) 8%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-tabs button:hover {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-tabs button.on {
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important;
+    box-shadow: 0 2px 6px color-mix(in srgb,var(--dh-laccd2) 12%,transparent),0 0 0 1px color-mix(in srgb,var(--dh-laccd2) 6%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel input.mnc-f,html.dh-lt #mnc-ext-panel input.mnc-id,html.dh-lt #mnc-ext-panel select.mnc-st,html.dh-lt #mnc-ext-panel .mnc-grid select,html.dh-lt #mnc-ext-panel .mnc-grid input {
+    border: 1.5px solid var(--dh-laccline) !important;
+    background: var(--dh-lbg0) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-ext-panel input.mnc-id {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel input:focus,html.dh-lt #mnc-ext-panel select:focus {
+    border-color: var(--dh-lacc) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb,var(--dh-lacc) 12%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel select.mnc-s {
+    border: 1.5px solid var(--dh-laccline) !important;
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-sum {
+    border: 1.5px solid var(--dh-laccline) !important;
+    background: linear-gradient(180deg,var(--dh-lbg1),var(--dh-lbg1)) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-sum:focus {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop {
+    border: 1.5px dashed var(--dh-laccl) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop:hover,html.dh-lt #mnc-ext-panel .mnc-drop.act {
+    border-color: var(--dh-lacc) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop.act {
+    box-shadow: 0 0 0 4px color-mix(in srgb,var(--dh-lacc) 10%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-drop.ov {
+    background: var(--dh-laccbg) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-th {
+    box-shadow: 0 2px 8px color-mix(in srgb,var(--dh-laccd2) 18%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-sub {
+    background: var(--dh-lbg1) !important;
+    border: 1px solid var(--dh-laccline) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-b {
+    background: linear-gradient(135deg,var(--dh-laccd),var(--dh-laccd) 55%,var(--dh-laccd)) !important;
+    box-shadow: 0 8px 18px -6px color-mix(in srgb,var(--dh-laccd) 55%,transparent),inset 0 1px 0 rgba(255,255,255,.15) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-b:disabled {
+    background: var(--dh-lbg2) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-m.ok {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-set {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--dh-laccline) 18%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .mnc-set:hover {
+    background: color-mix(in srgb,var(--dh-laccbg) 22%,transparent) !important
+}
+html.dh-lt #mnc-ext-panel .dh-ver {
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-ext-panel.dh-side {
+    box-shadow: 0 14px 34px color-mix(in srgb,var(--dh-laccd2) 30%,transparent),0 0 0 1px #d9e6de !important
+}
+html.dh-lt #mnc-ext-panel .mnc-upd {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--dh-laccline) 18%,transparent) !important
+}
+html.dh-lt .dh-toast {
+    background: var(--dh-laccd2) !important;
+    box-shadow: 0 6px 18px color-mix(in srgb,var(--dh-laccd2) 35%,transparent) !important
+}
+html.dh-lt #dh-topbar.dhb {
+    background: var(--dh-lbg0) !important;
+    border-bottom: 2px solid var(--dh-laccd) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #dh-topbar.dhb .dhb-brand b {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #dh-topbar.dhb .dhb-brand span {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #dh-topbar.dhb button {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #dh-topbar.dhb button:hover {
+    background: var(--dh-laccbg) !important;
+    border-color: var(--dh-laccline) !important
+}
+html.dh-lt #dh-topbar.dhb button.dhb-main {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #dh-topbar.dhb button.dhb-main:hover {
+    background: var(--dh-laccd) !important;
+    border-color: var(--dh-laccd) !important
+}
+html.dh-lt #dh-topbar.dhb button.on {
+    background: var(--dh-laccbg) !important;
+    border-color: var(--dh-laccl) !important
+}
+html.dh-lt #dh-topbar.dhb button.dhb-main.on {
+    background: var(--dh-laccd2) !important
+}
+html.dh-lt #dh-topbar.dhb .dhb-sep {
+    background: var(--dh-laccbg) !important
+}
+html.dh-lt #dh-topbar.dhb {
+    box-shadow: 0 2px 10px color-mix(in srgb,var(--dh-laccd2) 8%,transparent) !important
+}
+html.dh-lt #dh-topbar.dhb button.dhb-new,html.dh-lt #dh-topbar.dhb button.dhb-theme {
+    border: 1.5px solid var(--dh-laccd) !important;
+    color: var(--dh-lacct) !important;
+    background: var(--dh-lbg0) !important;
+    box-shadow: 0 1px 3px color-mix(in srgb,var(--dh-laccd2) 15%,transparent) !important
+}
+html.dh-lt #dh-topbar.dhb button.dhb-new:hover,html.dh-lt #dh-topbar.dhb button.dhb-theme:hover {
+    background: var(--dh-laccd) !important;
+    border-color: var(--dh-laccd) !important
+}
+html.dh-lt #dh-topbar.dhb .dhb-bot.bot-on .dhb-dot {
+    background: var(--dh-lacc) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--dh-lacc) 18%,transparent) !important
+}
+html.dh-lt #mnc-dash {
+    background: var(--dh-lbg1) !important;
+    color: var(--dh-laccd2) !important;
+    box-shadow: -18px 0 50px color-mix(in srgb,var(--dh-laccd2) 25%,transparent) !important
+}
+html.dh-lt #mnc-dash .sub2 {
+    background: var(--dh-laccd2) !important;
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .logo {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash .period button.on {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash .chips button {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash .kpi {
+    background: var(--dh-lbg0) !important;
+    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-laccd2) 6%,transparent),0 0 0 1px var(--line) !important
+}
+html.dh-lt #mnc-dash .kpi:hover {
+    box-shadow: 0 8px 20px color-mix(in srgb,var(--dh-laccd2) 10%,transparent),0 0 0 1px var(--line) !important
+}
+html.dh-lt #mnc-dash .kpi.on {
+    box-shadow: 0 0 0 2px var(--g500),0 8px 20px color-mix(in srgb,var(--dh-laccd) 15%,transparent) !important
+}
+html.dh-lt #mnc-dash .dl.up {
+    background: var(--dh-laccbg) !important;
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .dl.eq {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .card {
+    background: var(--dh-lbg0) !important;
+    box-shadow: 0 1px 2px color-mix(in srgb,var(--dh-laccd2) 6%,transparent),0 0 0 1px var(--line) !important
+}
+html.dh-lt #mnc-dash .rb {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .rb i {
+    background: linear-gradient(90deg,var(--dh-laccl),var(--dh-laccd)) !important
+}
+html.dh-lt #mnc-dash table.t th {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash table.t td {
+    border-bottom: 1px solid var(--dh-lline) !important
+}
+html.dh-lt #mnc-tip {
+    background: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .cmp button {
+    border: 1px solid color-mix(in srgb,var(--dh-laccline) 35%,transparent) !important;
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .cmp button.on {
+    background: var(--dh-laccl) !important;
+    color: var(--dh-laccd2) !important;
+    border-color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .kpi.main {
+    background: linear-gradient(135deg,var(--dh-laccd),var(--dh-laccd)) !important;
+    box-shadow: 0 8px 22px color-mix(in srgb,var(--dh-laccd) 25%,transparent) !important
+}
+html.dh-lt #mnc-dash .kpi.main .kl,html.dh-lt #mnc-dash .kpi.main .ks {
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .dlegend .dlt {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .tag.in {
+    background: var(--dh-lacc) !important
+}
+html.dh-lt #mnc-dash .tag.sum {
+    background: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash table.rep tr.k-sum td {
+    background: var(--dh-lbg1) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash table.rep tr.k-in td.n b {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .tb {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .tb i.in,html.dh-lt #mnc-dash .rb i.in {
+    background: linear-gradient(90deg,var(--dh-laccl),var(--dh-lacc)) !important
+}
+html.dh-lt #mnc-dash .tb i.oth,html.dh-lt #mnc-dash .rb i.oth {
+    background: linear-gradient(90deg,var(--dh-lbg2),#8a9b91) !important
+}
+html.dh-lt #mnc-dash .dates {
+    background: var(--dh-lbg0) !important;
+    border-bottom: 1px solid var(--dh-lline) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .dates b {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .dates em {
+    background: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-dash table.mst tbody tr:nth-child(1) td.rn2,html.dh-lt #mnc-dash table.mst tbody tr:nth-child(2) td.rn2,html.dh-lt #mnc-dash table.mst tbody tr:nth-child(3) td.rn2 {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .motiv .mzv {
+    background: linear-gradient(135deg,var(--dh-laccd),var(--dh-laccd)) !important
+}
+html.dh-lt #mnc-dash .motiv .mzv.fc {
+    background: var(--dh-lbg1) !important;
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash table.mk b.up {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .mset summary {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .dh {
+    border-right: 1px solid color-mix(in srgb,var(--dh-laccline) 30%,transparent) !important
+}
+html.dh-lt #mnc-dash .dh-b {
+    color: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash h2.sec {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .goalin input {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .btn-l {
+    border: 1px solid var(--dh-lline) !important;
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .btn-l:hover {
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .goal b.up {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .gbig {
+    border: 2px solid var(--dh-lline) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .gbig:focus-within {
+    border-color: var(--dh-lacc) !important;
+    box-shadow: 0 0 0 4px color-mix(in srgb,var(--dh-lacc) 14%,transparent) !important;
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash .gbig input {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .chips button {
+    background: var(--dh-lbg0) !important;
+    border: 1px solid var(--dh-lline) !important;
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash .chips button:hover {
+    border-color: var(--dh-lacc) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .chips button.on {
+    background: var(--dh-laccd) !important;
+    border-color: var(--dh-laccd) !important
+}
+html.dh-lt #mnc-dash .nf {
+    border: 1px solid var(--dh-lline) !important;
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash .nf:focus-within {
+    border-color: var(--dh-lacc) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--dh-lacc) 14%,transparent) !important
+}
+html.dh-lt #mnc-dash .nf input {
+    color: var(--dh-laccd2) !important
+}
+html.dh-lt #mnc-dash .nf button {
+    color: var(--dh-lacct) !important;
+    background: var(--dh-lbg1) !important
+}
+html.dh-lt #mnc-dash .nf button:hover {
+    background: var(--dh-laccbg) !important
+}
+html.dh-lt #mnc-dash .nf button:active {
+    background: var(--dh-laccl) !important
+}
+html.dh-lt #mnc-dash .goal .btn-l {
+    background: var(--dh-lbg0) !important
+}
+html.dh-lt #mnc-dash .gtab td:nth-child(4) {
+    color: var(--dh-lacct) !important
+}
+html.dh-lt #mnc-dash {
+    box-shadow: 18px 0 50px color-mix(in srgb,var(--dh-laccd2) 25%,transparent) !important
 }
 /* ---- окно «Что нового» (стили в changelog.js) — тёмная тема ---- */
 html.dh-dark #dh-news{background:rgba(5,10,15,.55)!important;color:var(--dh-ink)!important}

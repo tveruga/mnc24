@@ -37,6 +37,21 @@ const PALETTES = {
   emerald:  ['#0a0f0d', '#142821', '#1f4d3a', '#3fbf97', '#7fd9b6'],
   purple:   ['#0d0b14', '#1a1525', '#2e1f44', '#6a3d9a', '#b78cff'],
 };
+// светлые палитры (класс html.dh-lt): фон/рамки — из светлых цветов, акценты DIR HELPER — из ярких
+const LIGHT = {
+  sky:      ['#f8fafc', '#eef2ff', '#cbd5e1', '#93c5fd', '#3b82f6'],
+  sage:     ['#fafdf7', '#ecfdf5', '#d1fae5', '#86efac', '#22c55e'],
+  rose:     ['#fff7fa', '#fce7f3', '#f9a8d4', '#f472b6', '#ec4899'],
+  sunny:    ['#fffbeb', '#fff3cd', '#fcd34d', '#f59e0b', '#d97706'],
+  lavender: ['#faf5ff', '#f3e8ff', '#d8b4fe', '#a855f7', '#7c3aed'],
+};
+function deriveLight([c1, c2, c3, c4, c5]) {
+  return {
+    lbg0: c1, lbg1: c2, lbg2: mixHex(c2, c3, 0.35), lline: mixHex(c2, c3, 0.55),
+    lacc: c5, laccd: mixHex(c5, '#000000', 0.18), laccd2: mixHex(c5, '#000000', 0.55), lacct: mixHex(c5, '#000000', 0.3),
+    laccl: c4, laccbg: c2, laccline: c3,
+  };
+}
 const mixHex = (a, b, t) => { const x = parse(a), y = parse(b); return hex(x.r + (y.r - x.r) * t, x.g + (y.g - x.g) * t, x.b + (y.b - x.b) * t); };
 function derive([c1, c2, c3, c4, c5]) {
   const ink = mixHex(c5, '#ffffff', 0.85);
@@ -58,7 +73,8 @@ const LIT = { ...Object.fromEntries(Object.entries(TG_NIGHT).map(([k, v]) => [v,
   '#6d7f8f': 'muted', '#1c3b4a': 'accbg', '#21452e': 'accbg', '#1d492f': 'accbg', '#273f30': 'accbg', '#3c5d46': 'accline' };
 const varsCss = (sel, o) => `${sel}{${Object.entries(o).map(([k, v]) => `--dh-${k}:${v}`).join(';')}}`;
 const themesCss = () => '/* ---- палитры (меню темы) ---- */\n' + varsCss('html.dh-dark', TG_NIGHT) + '\n' +
-  Object.entries(PALETTES).map(([n, c]) => varsCss(`html.dh-dark[data-dh-pal="${n}"]`, derive(c))).join('\n') + '\n';
+  Object.entries(PALETTES).map(([n, c]) => varsCss(`html.dh-dark[data-dh-pal="${n}"]`, derive(c))).join('\n') + '\n' +
+  Object.entries(LIGHT).map(([n, c]) => varsCss(`html.dh-lt[data-dh-pal="${n}"]`, deriveLight(c))).join('\n') + '\n';
 
 // ---- цвета ----
 const NAMED = { white: '#ffffff', black: '#000000', grey: '#808080', gray: '#808080', silver: '#c0c0c0', green: '#008000', red: '#ff0000', blue: '#0000ff', orange: '#ffa500', yellow: '#ffff00', lightgray: '#d3d3d3', lightgrey: '#d3d3d3', darkgray: '#a9a9a9', whitesmoke: '#f5f5f5', gainsboro: '#dcdcdc' };
@@ -153,6 +169,25 @@ function mapColor(str, role, ctx) {
   return str;
 }
 
+// светлые палитры: белый/серый фон → светлые цвета палитры, серые рамки → рамка палитры, зелёные бренда → акцент; текст как есть
+const L = (k) => V('l' + k);
+const brandVarL = (hsl) => (hsl.l < 0.18 ? L('accd2') : hsl.l < 0.32 ? L('accd') : hsl.l < 0.5 ? L('acc') : L('accl'));
+function mapLight(str, role, ctx) {
+  const c = parse(str); if (!c || c.a === 0) return str;
+  const hsl = rgb2hsl(c), grey = hsl.s < 0.22 || (hsl.l > 0.94 && hsl.s < 0.6);
+  if (ctx.brand && isBrand(hsl) && !grey && (role !== 'shadow' || c.a < 0.6)) {
+    if (c.a < 0.6) return withA(hsl.l > 0.75 ? (role === 'bg' ? L('accbg') : L('accline')) : brandVarL(hsl), c.a);
+    if (role === 'bg' && hsl.l >= 0.86) return L('accbg');
+    if (role === 'line' && hsl.l >= 0.8) return L('accline');
+    if (role === 'fg' && hsl.l < 0.38) return ctx.onAccent ? str : hsl.l < 0.2 ? L('accd2') : L('acct');
+    return brandVarL(hsl);
+  }
+  if (c.a < 0.6 || !grey) return str;
+  if (role === 'bg') return hsl.l >= 0.985 ? L('bg0') : hsl.l >= 0.9 ? L('bg1') : hsl.l >= 0.8 ? L('bg2') : str;
+  if (role === 'line') return hsl.l >= 0.75 ? L('line') : str;
+  return str;
+}
+
 const PROPS = {
   color: 'fg', fill: 'fg', stroke: 'fg', 'caret-color': 'fg', 'text-decoration-color': 'fg', '-webkit-text-fill-color': 'fg',
   background: 'bg', 'background-color': 'bg', 'background-image': 'bg',
@@ -161,12 +196,12 @@ const PROPS = {
   outline: 'line', 'outline-color': 'line', 'column-rule': 'line', 'column-rule-color': 'line',
   'box-shadow': 'shadow', 'text-shadow': 'shadow',
 };
-function prefix(sel) {
+function prefix(sel, cls = 'dh-dark') {
   return sel.split(',').map((s) => {
     s = s.trim(); if (!s) return s;
-    if (/^:root\b/.test(s)) return s.replace(/^:root/, 'html.dh-dark');
-    if (/^html\b/.test(s)) return s.replace(/^html/, 'html.dh-dark');
-    return 'html.dh-dark ' + s;
+    if (/^:root\b/.test(s)) return s.replace(/^:root/, 'html.' + cls);
+    if (/^html\b/.test(s)) return s.replace(/^html/, 'html.' + cls);
+    return 'html.' + cls + ' ' + s;
   }).join(',');
 }
 // ручные css: литералы «ночного Telegram»/бренда → переменные палитры
@@ -176,6 +211,7 @@ function litVars(css) {
 }
 function gen(files, extra, brand) {
   const out = postcss.root();
+  for (const [cls, map] of [['dh-dark', mapColor], ['dh-lt', mapLight]])
   for (const f of files) {
     let src; try { src = fs.readFileSync(f, 'utf8'); } catch (e) { continue; }
     let root; try { root = postcss.parse(src, { from: f }); } catch (e) { console.warn('skip', f, e.message); continue; }
@@ -191,11 +227,11 @@ function gen(files, extra, brand) {
         const role = PROPS[d.prop.toLowerCase()]; if (!role) return;
         if (!COLOR_RE.test(d.value)) { COLOR_RE.lastIndex = 0; return; } COLOR_RE.lastIndex = 0;
         if (/url\(/.test(d.value) && role === 'bg' && !/gradient/.test(d.value)) return;
-        const v = d.value.replace(/\s*!important/i, '').replace(COLOR_RE, (m) => mapColor(m, role, ctx));
+        const v = d.value.replace(/\s*!important/i, '').replace(COLOR_RE, (m) => map(m, role, ctx));
         if (v !== d.value.replace(/\s*!important/i, '')) decls.push(postcss.decl({ prop: d.prop, value: v, important: true }));
       });
       if (!decls.length) return;
-      const nr = postcss.rule({ selector: prefix(rule.selector) }); decls.forEach((d) => nr.append(d));
+      const nr = postcss.rule({ selector: prefix(rule.selector, cls) }); decls.forEach((d) => nr.append(d));
       // правило внутри @media — сохраняем обёртку
       let parent = out;
       if (rule.parent && rule.parent.type === 'atrule' && /media|supports/i.test(rule.parent.name)) {
