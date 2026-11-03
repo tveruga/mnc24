@@ -38,6 +38,7 @@ var DH_THEMES = [
     [/^готов/, '#1d3252', '#8fbaf3'],       // холодный синий
     [/^повтор/, '#3f301f', '#e3b383'],      // мягкий бронзовый
     [/^выдан/, '#283349', '#a9b9d9'],       // серо-синий
+    [/^впервые/, '#252f45', '#b4c3e6'],     // тип «Впервые» — нейтральный
   ];
   const ST_L = [
     [/^ожида/, '#dcf5e4', '#15803d', '#22c55e'],
@@ -47,6 +48,7 @@ var DH_THEMES = [
     [/^готов/, '#dfe8fd', '#1d4ed8', '#3b82f6'],
     [/^повтор/, '#f4e6d9', '#9a5b2b', '#c8844e'],
     [/^выдан/, '#e7eaf0', '#475569', '#94a3b8'],
+    [/^впервые/, '#eef1f6', '#475569', '#a3afc2'],
   ];
   const rgbHue = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b); if (!d) return -1; const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
   // обернуть содержимое ячейки в «таблетку» — только простой текст/ссылки (поля ввода, кнопки, картинки не трогаем)
@@ -63,7 +65,7 @@ var DH_THEMES = [
     const de = document.documentElement, dark = de.classList.contains('dh-dark'), light = de.classList.contains('dh-lt');
     const old = [...document.querySelectorAll('td.dh-lit,th.dh-lit')];
     old.forEach((td) => td.classList.remove('dh-lit', 'dh-pilled'));   // читаем исходную заливку CRM (без нашей подмены)
-    if (!dark && !light) return;
+    if (!dark && !light) { if (mo) mo.takeRecords(); return; }
     // фоны самой светлой палитры — не статусы
     const own = new Set();
     if (light) { const cs = getComputedStyle(de); ['lbg0', 'lbg1', 'lbg2', 'laccbg'].forEach((k) => { const p = document.createElement('i'); p.style.color = cs.getPropertyValue('--dh-' + k).trim(); if (p.style.color) own.add(p.style.color.replace(/\s/g, '')); }); }
@@ -71,13 +73,15 @@ var DH_THEMES = [
     document.querySelectorAll('td,th').forEach((td) => {
       const cb = getComputedStyle(td).backgroundColor, m = cb.match(/[\d.]+/g); if (!m) return;
       const [r, g, b, a = 1] = m.map(Number);
-      if (!(+a > 0.5)) return;
-      const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, chroma = mx - mn, sat = mx === mn ? 0 : chroma / (1 - Math.abs(2 * l - 1));
-      if (dark && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) return;   // тёмные фоны темы (l < .3) не трогаем
       const txt = (td.textContent || '').trim().toLowerCase().replace(/\s+/g, ' ');
       const st = (dark ? ST_D : ST_L).find((s) => s[0].test(txt));
+      // без заливки: «таблетка», только если вся ячейка — известный статус/тип (короткий текст в строке таблицы)
+      const byText = st && txt.length <= 26 && td.tagName === 'TD' && !!td.closest('tbody');
+      if (!(+a > 0.5)) { if (byText) res.push([td, st[1], st[2], st[3] || st[2]]); return; }
+      const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, chroma = mx - mn, sat = mx === mn ? 0 : chroma / (1 - Math.abs(2 * l - 1));
+      if (dark && !byText && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) return;   // тёмные фоны темы (l < .3) не трогаем
       // светлые: только заметно цветные заливки (серая — если это известный статус, напр. «Выдан»)
-      if (!dark && (own.has(`rgb(${r},${g},${b})`) || !(chroma > 0.2 || (st && l < 0.85)))) return;
+      if (!dark && !byText && (own.has(`rgb(${r},${g},${b})`) || !(chroma > 0.2 || (st && l < 0.85)))) return;
       let bg, fg, dot;
       if (st) [, bg, fg, dot] = st;
       else {
@@ -90,8 +94,11 @@ var DH_THEMES = [
     res.forEach(([td, bg, fg, dot]) => {
       td.style.setProperty('--st-bg', bg); td.style.setProperty('--st-fg', fg); td.style.setProperty('--st-dot', dot);
       td.classList.add('dh-lit'); if (pill(td)) td.classList.add('dh-pilled');
+      td.classList.toggle('dh-pill-t', /^\d{1,2}\.\d{1,2}\.\d{2,4}/.test((td.textContent || '').trim()));   // дата/время — компактно, без точки
     });
+    if (mo) mo.takeRecords();   // свои правки (классы, --st-*, обёртки) — не повод запускаться снова
   };
+  let mo = null;
   const litSoon = () => { clearTimeout(litT); litT = setTimeout(lit, 250); };
   const apply = (t) => {
     if (t === 'sky') t = 'breeze';
@@ -105,7 +112,9 @@ var DH_THEMES = [
   try { const t = localStorage.getItem('dhTheme'); if (t) apply(t); } catch (e) {}
   if (!isExt) {
     document.addEventListener('DOMContentLoaded', litSoon);
-    new MutationObserver(litSoon).observe(document.documentElement, { childList: true, subtree: true });
+    // CRM перекрашивает ячейки и после загрузки (просроченное время и т.п.) — следим и за style/class
+    mo = new MutationObserver(litSoon);
+    mo.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
   }
   try {
     browser.storage.local.get('dhTheme').then((r) => apply(r.dhTheme || 'light')).catch(() => {});
