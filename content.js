@@ -1086,15 +1086,18 @@
     listAutoRefresh();
   }
 
-  // ---------- Автообновление списка заявок раз в 1,5 минуты ----------
+  // ---------- Обновление строк списка раз в минуту без перезагрузки интерфейса ----------
   // Не мешаем работе: пропускаем, пока вкладка скрыта, что-то печатают/выбирают, открыто меню, окно, панель или отмечены строки;
   // тогда пробуем снова через 10 с. Выключить: storage dhListRefresh = false.
   function listAutoRefresh() {
-    const EVERY = 90000;
+    const EVERY = 60000;
+    let loading = false, filterDirty = false;
+    document.addEventListener("input", (e) => { if (e.target.closest(".filters")) filterDirty = true; });
+    document.addEventListener("change", (e) => { if (e.target.closest(".filters")) filterDirty = true; });
     let due = Date.now() + EVERY, lastAct = 0;
     ['keydown', 'mousedown', 'wheel', 'touchstart'].forEach((ev) => addEventListener(ev, () => { lastAct = Date.now(); }, { capture: true, passive: true }));
     const busy = () => {
-      if (document.hidden) return true;
+      if (document.hidden || filterDirty) return true;
       if (Date.now() - lastAct < 8000) return true;                                   // только что кликали/печатали/крутили
       const a = document.activeElement;
       if (a && (/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) || a.isContentEditable)) return true;
@@ -1102,17 +1105,43 @@
       if (document.querySelector('.modal.show, .dropdown-menu.show, .select2-container--open, .daterangepicker[style*="block"], #dh-theme-menu, #dh-news')) return true;
       if (document.querySelector('tbody input[type=checkbox]:checked')) return true;   // отмечены заявки
       const p = document.getElementById('mnc-ext-panel'); if (p && !p.classList.contains('mnc-min')) return true;   // открыта раздача
-      if (document.getElementById('mnc-dash')) return true;                             // открыта аналитика/ЗП/реклама
+      // Аналитика остаётся открытой: меняются только строки списка.
+      //                             // открыта аналитика/ЗП/реклама
       return false;
     };
     setInterval(async () => {
-      if (Date.now() < due) return;
+      if (loading || Date.now() < due) return;
       let on = true; try { on = (await browser.storage.local.get('dhListRefresh')).dhListRefresh !== false; } catch (e) {}
       if (!on) { due = Date.now() + EVERY; return; }
       if (busy()) { due = Date.now() + 10000; return; }
       due = Date.now() + EVERY;
-      try { sessionStorage.setItem('dhScrollY', String(scrollY)); } catch (e) {}
-      location.reload();
+      const grid = document.querySelector('.grid-view[id]');
+      if (!grid) return;
+      const table = grid.querySelector('table');
+      const body = table && table.tBodies[0];
+      if (!body) return;
+      const url = location.href;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+      loading = true;
+      try {
+        const response = await fetch(url, { credentials: 'include', signal: controller.signal });
+        if (!response.ok || response.url !== url) return;
+        const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const fresh = doc.getElementById(grid.id);
+        const freshTable = fresh && fresh.querySelector('table');
+        const freshBody = freshTable && freshTable.tBodies[0];
+        if (!freshBody || location.href !== url || !body.isConnected || busy()) return;
+        // Filters, table element and extension controls retain their state/handlers.
+        const x = scrollX, y = scrollY;
+        body.replaceChildren(...Array.from(freshBody.childNodes, n => document.importNode(n, true)));
+        for (const selector of ['.summary', '.pagination']) {
+          const old = grid.querySelector(selector), next = fresh.querySelector(selector);
+          if (old && next) old.replaceChildren(...Array.from(next.childNodes, n => document.importNode(n, true)));
+        }
+        scrollTo(x, y);
+      } catch (_) { /* Keep visible data and retry next minute. */ }
+      finally { clearTimeout(timeout); loading = false; }
     }, 2000);
     // после обновления — вернуть прокрутку на место
     try {
