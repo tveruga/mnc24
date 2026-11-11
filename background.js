@@ -8,7 +8,7 @@ browser.browserAction.onClicked.addListener((tab) => {
   if (/mnc-lead-centre\.ru/.test(url)) {
     browser.tabs.executeScript(tab.id, { code: 'window.__mncDash && window.__mncDash.toggle();' }).catch(() => {});
   } else if (/^https?:/i.test(url) && !OV_DENY.test(url)) {
-    dhPartCookies(url).finally(() => browser.tabs.executeScript(tab.id, { file: 'overlay.js' }).catch(() => {}));
+    dhPartCookies(url).finally(() => browser.tabs.executeScript(tab.id, { file: 'genie.js' }).then(() => browser.tabs.executeScript(tab.id, { file: 'overlay.js' })).catch(() => {}));
   } else {
     browser.sidebarAction.toggle();
   }

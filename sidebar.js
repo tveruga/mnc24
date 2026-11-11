@@ -1,5 +1,15 @@
 // Мини-CRM в боковой панели Firefox или в окне поверх вкладки (#ov — открыто через overlay.js)
 const crm = document.getElementById('crm');
+if (location.hash === '#popup') {
+  document.documentElement.classList.add('dh-popup');
+  document.body.classList.add('ov');
+  const opening = dhGenie(document.body);
+  opening.onfinish = () => opening.cancel();
+  document.getElementById('ovx').onclick = () => {
+    opening.cancel();
+    dhGenie(document.body, true).onfinish = () => window.close();
+  };
+}
 if (location.hash === '#ov') {
   document.body.classList.add('ov');
   document.getElementById('ovx').onclick = () => parent.postMessage({ dhOv: 'close' }, '*');

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DIR HELPER",
-  "version": "15.13",
+  "version": "15.14",
   "description": "DIR HELPER — раздача заявок CRM МНЧ мастерам, аналитика отчётов и зарплата директора.",
   "browser_specific_settings": {
     "gecko": {
@@ -72,7 +72,8 @@
     "changelog.js",
     "theme.js",
     "icon.svg",
-    "layout.css"
+    "layout.css",
+    "genie.js"
   ],
   "options_ui": {
     "page": "options.html",
@@ -86,7 +87,8 @@
   },
   "browser_action": {
     "default_title": "DIR HELPER",
-    "default_icon": "icon.svg"
+    "default_icon": "icon.svg",
+    "default_popup": "launcher.html"
   },
   "icons": {
     "48": "icon.svg",

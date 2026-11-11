@@ -130,11 +130,25 @@ function loadPeriod([a, b], needReqs = true) {
     document.body.appendChild(f);
   });
 }
+// Share concurrent HTTP reads, but parse a separate DOM for each caller.
+const DOC_REQUESTS = new Map();
 async function fetchDoc(url) {
-  const pf = (typeof content !== 'undefined' && content.fetch) ? content.fetch.bind(content) : fetch;
-  const r = await Promise.race([pf(url, { credentials: 'include' }), new Promise((_, rej) => setTimeout(() => rej(new Error('CRM не ответила за 20 секунд')), 20000))]);
-  const html = await Promise.race([r.text(), new Promise((_, rej) => setTimeout(() => rej(new Error('CRM не ответила за 20 секунд')), 20000))]);
-  return new DOMParser().parseFromString(html, 'text/html');
+  let pending = DOC_REQUESTS.get(url);
+  if (!pending) {
+    pending = (async () => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 20000);
+      try {
+        const pf = (typeof content !== 'undefined' && content.fetch) ? content.fetch.bind(content) : fetch;
+        const response = await pf(url, { credentials: 'include', signal: controller.signal });
+        if (!response.ok) throw new Error('CRM: HTTP ' + response.status);
+        return await response.text();
+      } finally { clearTimeout(timer); }
+    })();
+    DOC_REQUESTS.set(url, pending);
+  }
+  try { return new DOMParser().parseFromString(await pending, 'text/html'); }
+  finally { if (DOC_REQUESTS.get(url) === pending) DOC_REQUESTS.delete(url); }
 }
 // все страницы списка заявок (Чистыми 0 = отказ)
 async function allRequestRows(doc, url, want, known) {
@@ -291,10 +305,10 @@ function unpack(m) {
 }
 async function cachedAll(range) { return unpack(await memGet(rkey(range))); }
 const INFLIGHT = new Map();
-function loadAll(range, needReqs = true) {
+function loadAll(range, needReqs = true, onSummary) {
   const k = rkey(range) + (needReqs ? '|r' : '');
   if (INFLIGHT.has(k)) return INFLIGHT.get(k);
-  const p = loadAllRaw(range, needReqs).finally(() => INFLIGHT.delete(k));
+  const p = loadAllRaw(range, needReqs, onSummary).finally(() => INFLIGHT.delete(k));
   INFLIGHT.set(k, p);
   return p;
 }
@@ -320,7 +334,7 @@ async function loadPeriodFast(range) {
   const base = doc.createElement('base'); base.href = url; doc.head.prepend(base);
   return { doc, url, frame: null };
 }
-async function loadAllRaw(range, needReqs = true) {
+async function loadAllRaw(range, needReqs = true, onSummary) {
   const key = rkey(range);
   const old = await memGet(key);
   let lp = await loadPeriodFast(range);
@@ -329,6 +343,7 @@ async function loadAllRaw(range, needReqs = true) {
   const t = findTables(doc);
   t.seen = [...doc.querySelectorAll('table')].map(readTable).filter((x) => x.heads.length).map((x) => (x.title ? x.title + ': ' : '') + x.heads.filter(Boolean).slice(0, 8).join(', '));
   const want = `${dd(range[0])} по ${dd(range[1])}`;
+  if (onSummary) onSummary({ t, reqRows: null, at: Date.now() });
   let reqRows = null;
   if (needReqs) {
     reqRows = await allRequestRows(doc, url, want, old && old.reqRows).catch(() => null);
@@ -1279,7 +1294,7 @@ async function load(force) {
     const seq = ++loadSeq;
     $('#upd').textContent = '';
     renderSalary();
-    if (!SALARY && !force) { const m = await memGet('salary'); if (m && Date.now() - m.at < FRESH) { SALARY = m.data; renderSalary(); $('#upd').textContent = 'из памяти · ' + new Date(m.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); return; } }
+    if (!SALARY && !force) { const m = await memGet('salary'); if (m) { SALARY = m.data; renderSalary(); $('#upd').textContent = 'из памяти · ' + new Date(m.at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); if (Date.now() - m.at < FRESH) return; } }
     if (!SALARY || force) {
       try { SALARY = await loadSalary(); SALARY_ERR = ''; memSet('salary', { data: SALARY, at: Date.now() }); } catch (e) { if (e.message === 'cancelled') return; SALARY_ERR = e.message; }
       if (!ROOT || seq !== loadSeq) return;
@@ -1306,7 +1321,12 @@ async function load(force) {
       if (fresh && !force) return;
     }
     const cmpP = !useCmp ? Promise.resolve(null) : (mp && Date.now() - mp.at < FRESH && !force) ? Promise.resolve(mp) : loadAll(rg.cmp, false).catch(() => mp);
-    const cur = (mc && Date.now() - mc.at < FRESH && !force) ? mc : await loadAll(rg.cur, true);
+    const cur = (mc && Date.now() - mc.at < FRESH && !force) ? mc : await loadAll(rg.cur, true, (summary) => {
+      if (!ROOT || seq !== loadSeq) return;
+      STATE = { cur: summary, cmp: mp, rg };
+      render();
+      $('#upd').textContent = 'Основные данные готовы · загружаю детализацию заявок…';
+    });
     if (!ROOT || seq !== loadSeq) return;
     STATE = { cur, cmp: STATE && STATE.rg === rg ? STATE.cmp : mp, rg };
     render();
@@ -1396,17 +1416,23 @@ async function refreshAll() {
     const jobs = [list[0][0].cur, list[1][0].cur].map((r) => [r, true])
       .concat([ranges('today', 'day').cmp, ranges('today', 'month').cmp, ranges('month').cmp, ranges('week').cur, ranges('week').cmp].map((r) => [r, false]));
     for (const [r, need] of jobs) {
+      if (ROOT) return;
       const m = await memGet(rkey(r));
       if (m && Date.now() - m.at < FRESH - 5 * 60e3) continue;
       await loadAll(r, need).catch(() => null);
     }
+    if (ROOT) return;
     const rm = await memGet('rating');
     if (!rm || Date.now() - rm.at > FRESH - 5 * 60e3) { const x = await loadRating().catch(() => null); if (x) memSet('rating', { data: x, at: Date.now() }); }
+    if (ROOT) return;
     await ensureTurnRank(true).catch(() => null);
+    if (ROOT) return;
     const am = await memGet('ads');
     if (!am || Date.now() - am.at > FRESH - 5 * 60e3) { const x = await loadAds('month').catch(() => null); if (x) memSet('ads', { data: x, at: Date.now() }); }
+    if (ROOT) return;
     const aw = await memGet('ads-w');
     if (!aw || Date.now() - aw.at > FRESH - 5 * 60e3) { const x = await loadAds('week').catch(() => null); if (x) memSet('ads-w', { data: x, at: Date.now() }); }
+    if (ROOT) return;
     const sm = await memGet('salary');
     if (!sm || Date.now() - sm.at > FRESH - 5 * 60e3) { const x = await loadSalary().catch(() => null); if (x) memSet('salary', { data: x, at: Date.now() }); }
   } finally { refreshing = false; }
