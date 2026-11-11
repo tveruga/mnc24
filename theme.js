@@ -7,7 +7,7 @@ var DH_THEMES = [
   { k: 'light',    n: 'Обычная',          c: ['#ffffff', '#eef6f1', '#d9e6de', '#22a35a', '#166534'] },
   { k: 'breeze',   n: 'Light Breeze',     c: ['#f7faff', '#e3edfc', '#c7d9f5', '#93c5fd', '#3b82f6'] },
   { k: 'skywhite', n: 'Sky White',        c: ['#ffffff', '#f3f6fb', '#e1e8f2', '#93c5fd', '#2563eb'] },
-  { k: 'rose',     n: 'Rose Dream',       c: ['#fff8fb', '#fde4ee', '#f6c4d7', '#f472b6', '#db2777'] },
+  { k: 'rose',     n: 'Rose Dream',       c: ['#fffafc', '#f8edf2', '#ecd6e0', '#d594b0', '#ad426f'] },
   { k: 'lavender', n: 'Lavender Cloud',   c: ['#fbf9ff', '#ece6fd', '#d6cbf7', '#a78bfa', '#7c3aed'] },
   { k: 'sage',     n: 'Sage Light',       c: ['#fafdf7', '#ecfdf5', '#d1fae5', '#86efac', '#22c55e'] },
   { k: 'sunny',    n: 'Sunny Glow',       c: ['#fffbeb', '#fff3cd', '#fcd34d', '#f59e0b', '#d97706'] },
@@ -31,26 +31,26 @@ var DH_THEMES = [
   // --st-bg/--st-fg/--st-dot; правила — в .tools/dark-crm.manual.css. Известные статусы — фиксированная гамма
   // (ST_D — тёмные, ST_L — светлые), остальные — по оттенку исходной заливки CRM.
   const ST_D = [
-    [/^ожида/, '#1f3a2b', '#86d9a6'],       // спокойный зелёный
-    [/^в пути/, '#173c3d', '#6fd8d0'],      // бирюзовый
-    [/^в работе/, '#45361d', '#f2c46d'],    // тёплый янтарный
-    [/^гарант/, '#47232d', '#f2a3b3'],      // приглушённый красно-розовый
-    [/^готов/, '#1d3252', '#8fbaf3'],       // холодный синий
-    [/^повтор/, '#3f301f', '#e3b383'],      // мягкий бронзовый
-    [/^выдан/, '#283349', '#a9b9d9'],       // серо-синий
-    [/^впервые/, '#252f45', '#b4c3e6'],     // тип «Впервые» — нейтральный
-    [/^срочн/, '#4a1f22', '#ff8f8f'],       // тип «Срочная» — красный
+    [/^ожида/, '#145438', '#a1f4bf'],
+    [/^в пути/, '#0c4f60', '#8eeafa'],
+    [/^в работе/, '#62400c', '#ffdb87'],
+    [/^гарант/, '#6a203b', '#ffc0d4'],
+    [/^готов/, '#233f7a', '#bed5ff'],
+    [/^повтор/, '#603b22', '#ffd0a3'],
+    [/^выдан/, '#36455f', '#d8e4f8'],
+    [/^впервые/, '#2d4363', '#d1e4ff'],
+    [/^срочн/, '#721f2b', '#ffb8bf'],
   ];
   const ST_L = [
-    [/^ожида/, '#dcf5e4', '#15803d', '#22c55e'],
-    [/^в пути/, '#d7f1f6', '#0e7490', '#06b6d4'],
-    [/^в работе/, '#fdecd5', '#b45309', '#f59e0b'],
-    [/^гарант/, '#fde2e6', '#be123c', '#f43f5e'],
-    [/^готов/, '#dfe8fd', '#1d4ed8', '#3b82f6'],
-    [/^повтор/, '#f4e6d9', '#9a5b2b', '#c8844e'],
-    [/^выдан/, '#e7eaf0', '#475569', '#94a3b8'],
-    [/^впервые/, '#eef1f6', '#475569', '#a3afc2'],
-    [/^срочн/, '#fee2e2', '#b91c1c', '#ef4444'],
+    [/^ожида/, '#9ee8b6', '#10542b', '#22c55e'],
+    [/^в пути/, '#9fe3f2', '#07556b', '#06b6d4'],
+    [/^в работе/, '#ffd28b', '#793c04', '#f59e0b'],
+    [/^гарант/, '#ffb4ce', '#8c103b', '#f43f5e'],
+    [/^готов/, '#b4ceff', '#183f96', '#3b82f6'],
+    [/^повтор/, '#eac39f', '#6e3915', '#c8844e'],
+    [/^выдан/, '#ccd6e5', '#334155', '#94a3b8'],
+    [/^впервые/, '#cdddf4', '#2a466d', '#a3afc2'],
+    [/^срочн/, '#ffb4bd', '#951827', '#ef4444'],
   ];
   const rgbHue = (r, g, b) => { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), d = mx - Math.min(r, g, b); if (!d) return -1; const h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return h * 60; };
   // обернуть содержимое ячейки в «таблетку» — только простой текст/ссылки (поля ввода, кнопки, картинки не трогаем)
@@ -97,8 +97,8 @@ var DH_THEMES = [
       // простая дата без заливки в колонке «Время заявки» — нейтральная таблетка
       const plainDate = () => txt.length <= 20 && /^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(txt) && timeCol(td);
       // у «Срочной» CRM красит текст времени красным — сохраняем красный
-      const neutral = () => res.push(redText(td) ? (dark ? [td, '#3a2228', '#ff7b7b', '#ff7b7b'] : [td, '#fdecee', '#dc2626', '#dc2626'])
-        : (dark ? [td, '#243042', '#c9d3de', '#c9d3de'] : [td, '#eef1f6', '#334155', '#94a3b8']));
+      const neutral = () => res.push(redText(td) ? (dark ? [td, '#651f2b', '#ffb8bf', '#ffb8bf'] : [td, '#ffbcc5', '#951827', '#dc2626'])
+        : (dark ? [td, '#30435f', '#dce8fc', '#dce8fc'] : [td, '#d3dff0', '#263e60', '#94a3b8']));
       if (!(+a > 0.5)) { if (byText) res.push([td, st[1], st[2], st[3] || st[2]]); else if (plainDate()) neutral(); return; }
       const mx = Math.max(r, g, b) / 255, mn = Math.min(r, g, b) / 255, l = (mx + mn) / 2, chroma = mx - mn, sat = mx === mn ? 0 : chroma / (1 - Math.abs(2 * l - 1));
       if (dark && !byText && !((0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 > 0.45 || (sat > 0.45 && l >= 0.3))) { if (plainDate()) neutral(); return; }   // тёмные фоны темы (l < .3) не трогаем
@@ -108,8 +108,8 @@ var DH_THEMES = [
       if (st) [, bg, fg, dot] = st;
       else {
         const h = rgbHue(r, g, b), hh = h.toFixed(0);
-        if (dark) { bg = h < 0 ? '#2a3442' : `hsl(${hh},32%,19%)`; fg = h < 0 ? '#c9d3de' : `hsl(${hh},70%,74%)`; }
-        else { bg = h < 0 ? '#eceff3' : `hsl(${hh},80%,93%)`; fg = h < 0 ? '#475569' : `hsl(${hh},65%,30%)`; dot = h < 0 ? '#94a3b8' : `hsl(${hh},75%,50%)`; }
+        if (dark) { bg = h < 0 ? '#34445c' : `hsl(${hh},58%,24%)`; fg = h < 0 ? '#dce8fc' : `hsl(${hh},90%,82%)`; }
+        else { bg = h < 0 ? '#d3dff0' : `hsl(${hh},85%,81%)`; fg = h < 0 ? '#263e60' : `hsl(${hh},75%,23%)`; dot = h < 0 ? '#94a3b8' : `hsl(${hh},75%,50%)`; }
       }
       res.push([td, bg, fg, dot || fg]);
     });
@@ -147,27 +147,36 @@ var DH_THEMES = [
 const DH_SUN = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3 3l1.1 1.1M11.9 11.9 13 13M3 13l1.1-1.1M11.9 4.1 13 3"/></svg>';
 const DH_MOON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 0 1 6.4 2.5a5.6 5.6 0 1 0 7.1 7.1z"/></svg>';
 function dhThemeMenu(btn, cur) {
-  const doc = btn.ownerDocument; const old = doc.getElementById('dh-theme-menu'); if (old) { old.remove(); return; }
+  const doc = btn.ownerDocument; const old = doc.getElementById('dh-theme-menu'); if (old) { old.dispatchEvent(new Event('dh-close')); return; }
   const m = doc.createElement('div'); m.id = 'dh-theme-menu'; m.setAttribute('role', 'menu');
-  m.style.cssText = 'position:fixed;z-index:2147483647;min-width:230px;padding:6px;border-radius:12px;background:#1c1f24;color:#eef0f3;box-shadow:0 14px 40px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.08);font:13px "Segoe UI",system-ui,sans-serif';
-  const head = (x) => `<div style="padding:8px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.6">${x}</div>`;
+  m.setAttribute('aria-label', 'Выбор темы'); btn.setAttribute('aria-expanded', 'true');
+  const head = (x) => `<div class="dh-theme-heading" role="presentation">${x}</div>`;
   m.innerHTML = DH_THEMES.map((t, i) => (i === 0 ? head('Светлые') : t.k === 'dark' ? head('Тёмные') : '') +
-    `<button type="button" role="menuitemradio" aria-checked="${t.k === cur}" data-k="${t.k}" style="display:flex;align-items:center;gap:10px;width:100%;padding:7px 10px;border:0;border-radius:8px;background:${t.k === cur ? 'rgba(255,255,255,.1)' : 'transparent'};color:inherit;font:inherit;text-align:left;cursor:pointer">` +
-    `<span style="display:flex;border-radius:5px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.18);flex:none">${t.c.map((c) => `<i style="display:block;width:13px;height:18px;background:${c}"></i>`).join('')}</span>` +
-    `<span style="flex:1">${t.n}</span><span style="width:14px;flex:none">${t.k === cur ? '✓' : ''}</span></button>`).join('');
+    `<button type="button" role="menuitemradio" aria-checked="${t.k === cur}" data-k="${t.k}" tabindex="${t.k === cur ? 0 : -1}">` +
+    `<span class="dh-theme-swatches" aria-hidden="true">${t.c.map((c) => `<i style="background:${c}"></i>`).join('')}</span>` +
+    `<span class="dh-theme-name">${t.n}</span><span class="dh-theme-check" aria-hidden="true">${t.k === cur ? '✓' : ''}</span></button>`).join('');
   m.querySelectorAll('button').forEach((b) => {
-    b.onmouseenter = () => { if (b.dataset.k !== cur) b.style.background = 'rgba(255,255,255,.06)'; };
-    b.onmouseleave = () => { if (b.dataset.k !== cur) b.style.background = 'transparent'; };
     b.onclick = (e) => { e.stopPropagation(); browser.storage.local.set({ dhTheme: b.dataset.k }).catch(() => {}); close(); };
   });
   (doc.body || doc.documentElement).appendChild(m);
+  m.style.maxHeight = Math.max(80, doc.documentElement.clientHeight - 16) + 'px';
   const r = btn.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight, vw = doc.documentElement.clientWidth, vh = doc.documentElement.clientHeight;
   m.style.left = Math.max(8, Math.min(r.right - w, vw - w - 8)) + 'px';
-  m.style.top = (r.bottom + 6 + h > vh && r.top - 6 - h > 0 ? r.top - 6 - h : r.bottom + 6) + 'px';
+  m.style.top = Math.max(8, Math.min(r.bottom + 6 + h > vh ? r.top - 6 - h : r.bottom + 6, vh - h - 8)) + 'px';
   const onDoc = (e) => { if (!m.contains(e.target) && e.target !== btn && !btn.contains(e.target)) close(); };
-  const onKey = (e) => { if (e.key === 'Escape') close(); };
-  function close() { m.remove(); doc.removeEventListener('mousedown', onDoc, true); doc.removeEventListener('keydown', onKey, true); }
-  setTimeout(() => { doc.addEventListener('mousedown', onDoc, true); doc.addEventListener('keydown', onKey, true); }, 0);
+  const onKey = (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); close(); btn.focus(); }
+    else if (e.key === 'Tab') close();
+    else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
+      e.preventDefault(); const all = [...m.querySelectorAll('button')], i = all.indexOf(doc.activeElement);
+      const n = e.key === 'Home' ? 0 : e.key === 'End' ? all.length - 1 : (i + (e.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length;
+      all.forEach((b, j) => b.tabIndex = j === n ? 0 : -1); all[n].focus();
+    }
+  };
+  function close() { m.remove(); btn.setAttribute('aria-expanded', 'false'); doc.removeEventListener('mousedown', onDoc, true); doc.removeEventListener('keydown', onKey, true); }
+  m.addEventListener('dh-close', close, { once: true });
+  doc.addEventListener('mousedown', onDoc, true); doc.addEventListener('keydown', onKey, true);
+  (m.querySelector('[aria-checked="true"]') || m.querySelector('button')).focus({ preventScroll: true });
 }
 function dhThemeButton(btn) {
   let cur = 'light';

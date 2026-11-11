@@ -1,19 +1,19 @@
 {
   "manifest_version": 2,
   "name": "DIR HELPER",
-  "version": "15.6",
+  "version": "15.13",
   "description": "DIR HELPER — раздача заявок CRM МНЧ мастерам, аналитика отчётов и зарплата директора.",
   "browser_specific_settings": {
     "gecko": {
       "id": "mnc-otdat-mastery@local",
       "strict_min_version": "109.0",
-      "update_url": "https://raw.githubusercontent.com/__OWNER__/dir-helper/main/updates.json",
       "data_collection_permissions": {
         "required": [
           "personallyIdentifyingInfo",
           "websiteContent"
         ]
-      }
+      },
+      "update_url": "https://raw.githubusercontent.com/__OWNER__/dir-helper/main/updates.json"
     }
   },
   "permissions": [
@@ -39,7 +39,9 @@
       ],
       "css": [
         "dark-crm.css",
-        "dark-ext.css"
+        "dark-ext.css",
+        "interface.css",
+        "layout.css"
       ],
       "run_at": "document_start",
       "all_frames": true
@@ -56,7 +58,8 @@
       ],
       "css": [
         "panel.css",
-        "dashboard.css"
+        "dashboard.css",
+        "layout.css"
       ],
       "run_at": "document_idle",
       "all_frames": true
@@ -68,7 +71,8 @@
     "sidebar.js",
     "changelog.js",
     "theme.js",
-    "icon.svg"
+    "icon.svg",
+    "layout.css"
   ],
   "options_ui": {
     "page": "options.html",

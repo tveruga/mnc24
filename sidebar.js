@@ -48,11 +48,11 @@ function toast(t) {
 
 // кнопка «Бот»: Telegram-бот на этом компьютере вкл/выкл
 const bot = document.getElementById('bot');
-const botShow = (on) => { bot.classList.toggle('bot-on', on); bot.title = on ? 'Бот работает на этом компьютере — нажмите, чтобы выключить' : 'Бот выключен на этом компьютере — нажмите, чтобы включить'; };
-browser.storage.local.get('tgHere').then((r) => botShow(r.tgHere !== false));
-browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) botShow(ch.tgHere.newValue !== false); });
+const botShow = (on) => { bot.classList.toggle('bot-on', on); bot.setAttribute('aria-pressed', String(on)); const label = bot.querySelector('.dhb-l'); if (label) label.textContent = on ? 'Бот вкл.' : 'Бот выкл.'; bot.title = on ? 'Бот включён на этом компьютере — нажмите, чтобы выключить' : 'Бот выключен на этом компьютере — нажмите, чтобы включить'; };
+browser.storage.local.get('tgHere').then((r) => botShow(r.tgHere === true));
+browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) botShow(ch.tgHere.newValue === true); });
 bot.onclick = async () => {
-  const r = await browser.storage.local.get('tgHere'); const on = r.tgHere === false;
+  const r = await browser.storage.local.get('tgHere'); const on = r.tgHere !== true;
   if (!on && !confirm('Выключить Telegram-бота на этом компьютере?')) return;
   await browser.storage.local.set({ tgHere: on }); toast(on ? '🟢 Бот включён на этом компьютере' : '⚪ Бот выключен на этом компьютере');
 };

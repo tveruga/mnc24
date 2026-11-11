@@ -12,14 +12,15 @@ label.chk{display:flex;gap:8px;align-items:center;margin:6px 0}
 ol{padding-left:20px;line-height:1.6}
 table{width:100%;border-collapse:collapse;font-size:14px}select{padding:6px;border:1.5px solid #dbe8df;border-radius:8px;font:13px 'Segoe UI',sans-serif;max-width:220px}td{padding:6px 4px;border-bottom:1px solid #eef3f0}
 textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
-</style></head><body>
-<h1>DIR <span>HELPER</span></h1>
+</style><link rel="stylesheet" href="dark-sidebar.css"><link rel="stylesheet" href="interface.css"><script src="theme.js"></script><link rel="stylesheet" href="layout.css">
+</head><body class="dh-settings">
+<div class="settings-heading"><h1>DIR <span>HELPER</span></h1><button type="button" id="theme" aria-label="Выбрать тему">Тема</button></div>
 <div class="card">
   <h2>Telegram-бот</h2>
   <ol class="muted">
     <li>В Telegram откройте <b>@BotFather</b> → <b>/newbot</b> → придумайте имя → получите <b>токен</b>.</li>
     <li>Вставьте токен ниже и нажмите «Сохранить и проверить».</li>
-    <li>Напишите своему боту <b>/start</b> — он привяжется к вам (команды принимает только от вас).</li>
+    <li>Включите бота переключателем ниже и напишите ему <b>/start</b> — он привяжется к вам (команды принимает только от вас).</li>
     <li>Добавьте бота в группы мастеров и напишите в каждой <b>/start</b> — бот ответит «✅ группа привязана».<br>Чтобы бот видел сообщения в группе: @BotFather → /mybots → бот → Bot Settings → Group Privacy → <b>Turn off</b>.</li>
   </ol>
   <label class="chk" style="background:#eef7f1;padding:10px;border-radius:10px"><input type="checkbox" id="here"> <b>Бот работает на этом компьютере</b></label>
@@ -37,7 +38,7 @@ textarea{width:100%;height:120px;font:13px monospace;box-sizing:border-box}
 </div>
 <div class="card">
   <h2>Перенос на другой компьютер</h2>
-  <p class="muted">На главном компьютере нажмите «Скопировать код» (или напишите боту <b>/код</b>). На другом компьютере вставьте код сюда и нажмите «Применить» — токен, группы мастеров и настройки перенесутся, а бот там будет ждущим (подхватит, если главный выключат).</p>
+  <p class="muted">На главном компьютере нажмите «Скопировать код» (или напишите боту <b>/код</b>). На другом компьютере вставьте код сюда и нажмите «Применить» — токен, группы мастеров и настройки перенесутся, бот останется выключенным до ручного включения.</p>
   <button id="exp">Скопировать код</button> <span id="expmsg" class="muted"></span>
   <input id="imp" type="text" placeholder="DH1:…" style="margin-top:10px">
   <button id="impb">Применить</button> <span id="impmsg"></span>

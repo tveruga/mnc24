@@ -1,0 +1,68 @@
+/* Shared interface tokens, including the original light theme. */
+html{--ui-bg:#fff;--ui-page:#f4f7fa;--ui-ink:#192b36;--ui-muted:#586b79;--ui-line:#d9e2e9;--ui-accent:#166534;--ui-soft:#edf6ef;--ui-focus:#2563eb}
+html.dh-dark{--ui-bg:var(--dh-bg1);--ui-page:var(--dh-bg0);--ui-ink:var(--dh-ink);--ui-muted:var(--dh-ink2);--ui-line:var(--dh-line2);--ui-accent:var(--dh-acct);--ui-soft:var(--dh-bg3);--ui-focus:var(--dh-acct2)}
+html.dh-lt{--ui-bg:var(--dh-lbg0);--ui-page:var(--dh-lbg1);--ui-line:var(--dh-lline);--ui-accent:var(--dh-lacct);--ui-soft:var(--dh-lbg2);--ui-focus:var(--dh-lacc)}
+#dh-theme-menu{position:fixed;z-index:2147483647;width:284px;max-width:calc(100vw - 16px);box-sizing:border-box;padding:8px;border:1px solid var(--ui-line);border-radius:16px;background:var(--ui-bg);color:var(--ui-ink);box-shadow:0 16px 48px #0004;font:13px/1.4 "Segoe UI",system-ui,sans-serif;overflow-y:auto;overscroll-behavior:contain}
+#dh-theme-menu .dh-theme-heading{padding:9px 10px 6px;color:var(--ui-muted);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+#dh-theme-menu button{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;min-height:40px;padding:8px 10px;border:1px solid transparent;border-radius:10px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer}
+#dh-theme-menu button:hover{background:var(--ui-soft)}
+#dh-theme-menu button[aria-checked=true]{border-color:var(--ui-accent);background:var(--ui-soft);font-weight:600}
+#dh-theme-menu .dh-theme-swatches{display:flex;flex:none;border-radius:5px;overflow:hidden;box-shadow:0 0 0 1px #80808055}
+#dh-theme-menu .dh-theme-swatches i{display:block;width:12px;height:20px}
+#dh-theme-menu .dh-theme-name{flex:1;min-width:0}
+#dh-theme-menu .dh-theme-check{width:16px;flex:none;color:var(--ui-accent)}
+#dh-theme-menu button:focus-visible,#dh-topbar button:focus-visible,.dhb button:focus-visible,#mnc-dash button:focus-visible,#mnc-ext-panel button:focus-visible{outline:2px solid var(--ui-focus)!important;outline-offset:2px}
+/* Settings use the same palette as CRM and the helper panel. */
+body.dh-settings{margin:32px auto;max-width:760px;padding:0 20px 32px;overflow:auto;height:auto;background:var(--ui-page)!important;color:var(--ui-ink)!important;line-height:1.55}
+.dh-settings .settings-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}
+.dh-settings h1{margin:0;color:var(--ui-ink)}
+.dh-settings h1 span,.dh-settings h2{color:var(--ui-accent)}
+.dh-settings .card{padding:22px;margin-bottom:18px;background:var(--ui-bg);border:1px solid var(--ui-line);box-shadow:0 4px 18px #00000008;border-radius:16px}
+.dh-settings .muted{color:var(--ui-muted)}
+.dh-settings input[type=text],.dh-settings textarea,.dh-settings select{background:var(--ui-bg);color:var(--ui-ink);border:1px solid var(--ui-line);border-radius:9px;padding:10px;max-width:100%}
+.dh-settings button{background:var(--ui-accent);color:var(--ui-bg);min-height:38px;border-radius:9px}
+.dh-settings button:focus-visible,.dh-settings input:focus-visible,.dh-settings select:focus-visible,.dh-settings textarea:focus-visible{outline:2px solid var(--ui-focus);outline-offset:3px}
+.dh-settings .chk{padding:8px 0;align-items:flex-start;gap:10px}
+.dh-settings input[type=checkbox]{accent-color:var(--ui-accent);width:17px;height:17px;flex:none;margin-top:3px}
+.dh-settings label.chk:has(#here){background:var(--ui-soft)!important;padding:12px;border:1px solid var(--ui-line)}
+.dh-settings td{border-color:var(--ui-line);overflow-wrap:anywhere}
+@media(max-width:520px){body.dh-settings{margin:16px auto;padding:0 12px 24px}.dh-settings .card{padding:16px}.dh-settings table{display:block;overflow-x:auto}}
+/* Original light theme: keep small labels on green cards fully readable too. */
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .kpi.main .kl,
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .kpi.main .ks,
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .kpi.main .kv small,
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .motiv .mzv:not(.fc) .kl,
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .motiv .mzv:not(.fc) .ks{color:#fff;opacity:1}
+#mnc-dash .top .dh-b{opacity:1}
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .motiv .mzv:not(.fc) .kv,
+html:not(.dh-dark):not(.dh-lt) #mnc-dash .motiv .mzv:not(.fc) .kv small{color:#fff;opacity:1}
+/* Rose Dream: powder pink, warm ink, ivory cards and restrained berry accents. */
+html.dh-lt[data-dh-pal="rose"]{--ui-ink:#49303e;--ui-muted:#765d6b;--ui-line:#e9d8e1;--ui-soft:#f5e5ed;--ui-page:#faf3f6}
+html.dh-lt[data-dh-pal="rose"] body{background-color:#faf3f6!important}
+html.dh-lt[data-dh-pal="rose"] #dh-topbar.dhb,
+html.dh-lt[data-dh-pal="rose"] header.dhb{background:#fffbfd!important;border-bottom-color:#e9d8e1!important}
+html.dh-lt[data-dh-pal="rose"] #dh-topbar .dhb-brand{}
+html.dh-lt[data-dh-pal="rose"] #dh-topbar .dhb-tools button:not(.dhb-main):not(.dhb-theme):not(.dhb-new):hover,
+html.dh-lt[data-dh-pal="rose"] .dhb-tools button:not(.dhb-main):not(.dhb-theme):not(.dhb-new):hover{background:#f5e5ed!important;border-color:#e6c8d7!important}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash{background:#faf3f6!important;color:#49303e!important}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash main{background:linear-gradient(160deg,#fbf4f7,#f6eaf0)}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .card,
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .kpi:not(.main){background:#fffcfd!important}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .card{}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .kpi.main{background:linear-gradient(135deg,#943959,#ad4c75)!important}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .top{}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .period button{}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .period button.on{}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash .ct{}
+html.dh-lt[data-dh-pal="rose"] #mnc-dash table.rep td,
+html.dh-lt[data-dh-pal="rose"] #mnc-dash table.rep th{border-color:#eedfe7!important}
+html.dh-lt[data-dh-pal="rose"] #dh-theme-menu,
+html.dh-lt[data-dh-pal="rose"] .dh-settings .card{border-color:#e9d8e1}
+html.dh-lt[data-dh-pal="rose"] #dh-theme-menu{background:#fffcfd}
+html.dh-lt[data-dh-pal="rose"] .dh-settings input[type=text],
+html.dh-lt[data-dh-pal="rose"] .dh-settings textarea,
+html.dh-lt[data-dh-pal="rose"] .dh-settings select{background:#fffcfd}
+/* Live CRM roster refresh, separate from assigning a request. */
+#mnc-ext-panel .mnc-refresh-masters{width:100%;margin:3px 0 8px;padding:7px 9px;border:1px solid var(--ui-line);border-radius:9px;background:var(--ui-soft);color:var(--ui-accent);font:600 12px "Segoe UI",sans-serif;cursor:pointer}
+#mnc-ext-panel .mnc-refresh-masters:hover{filter:brightness(.97)}
+#mnc-ext-panel .mnc-refresh-masters:disabled{cursor:wait;opacity:.65}

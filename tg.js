@@ -8,9 +8,12 @@ let tgPolling = false;
 let tgOkSince = 0, tgLastConflict = 0;
 const tgLeader = () => tgOkSince && Date.now() - tgOkSince > 120000;
 // бот (приём команд, уведомления, напоминания) работает только на компьютере, где это включено в настройках
-let TG_HERE = true;
-browser.storage.local.get('tgHere').then((r) => { TG_HERE = r.tgHere !== false; }).catch(() => {});
-browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) TG_HERE = ch.tgHere.newValue !== false; });
+let TG_HERE = false;
+const tgEnableReady = browser.storage.local.get(['tgHere', 'dhManualBot157']).then(async (r) => {
+  if (!r.dhManualBot157) await browser.storage.local.set({ tgHere: false, dhManualBot157: true });
+  else TG_HERE = r.tgHere === true;
+}).catch(() => {});
+browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) TG_HERE = ch.tgHere.newValue === true; });
 // бот можно включить на всех компьютерах: работает один (тот, что занял бота раньше), остальные ждут и раз в 2,5–4 мин
 // проверяют, жив ли он; если работающий выключили — следующая проверка проходит, и бота подхватывает ждущий
 const tgActive = () => TG_HERE && !TG_PAUSED && ((tgOkSince && Date.now() - tgOkSince > 30e3) || Date.now() - tgLastConflict > 5 * 60e3);
@@ -331,25 +334,38 @@ function isToday(time) {
   return false;
 }
 const assignBtn = (id) => ({ inline_keyboard: [[{ text: '👷 Отдать мастеру', callback_data: 'a:' + id }, { text: 'ℹ️ Инфо', callback_data: 'i:' + id }]] });
-async function tgMasters() {
-  const r = await browser.storage.local.get(['masters', 'mastersAt']);
-  let list = r.masters || [];
-  if (!list.length || !r.mastersAt || Date.now() - r.mastersAt > 6 * 3600e3) {
+async function tgMasters(force = false, requestId = '') {
+  const r = await browser.storage.local.get(['masters', 'mastersAt', 'mastersSource']);
+  let list = r.mastersSource === 'crm-live-v2' ? (r.masters || []) : [];
+  if (force || !list.length || !r.mastersAt || Date.now() - r.mastersAt > 10 * 60e3) {
+    list = []; // При ошибке не подставляем уволенных из старого кэша.
+    const read = async url => {
+      const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 10000);
+      try { return await fetch(url, { credentials: 'include', cache: 'no-store', signal: controller.signal }); }
+      finally { clearTimeout(timer); }
+    };
     try {
-      const lr = await fetch('https://mnc-lead-centre.ru/admin/domain/customer-request/index', { credentials: 'include', cache: 'no-store' });
-      const ld = new DOMParser().parseFromString(await lr.text(), 'text/html');
-      const id = ((ld.querySelector('table tbody tr td') || {}).textContent || '').match(/\d{5,}/);
+      let id = /^\d+$/.test(String(requestId)) ? String(requestId) : '';
+      if (!id) {
+        const lr = await read('https://mnc-lead-centre.ru/admin/domain/customer-request/index');
+        if (!lr.ok || /\/login/.test(lr.url)) return [];
+        const ld = new DOMParser().parseFromString(await lr.text(), 'text/html');
+        id = [...ld.querySelectorAll('table tbody td')].map(td => td.textContent.trim()).find(t => /^\d{5,}$/.test(t)) || '';
+      }
       if (id) {
-        const ur = await fetch('https://mnc-lead-centre.ru/admin/domain/customer-request/update?id=' + id[0], { credentials: 'include', cache: 'no-store' });
+        const ur = await read('https://mnc-lead-centre.ru/admin/domain/customer-request/update?id=' + encodeURIComponent(id));
+        if (!ur.ok || /\/login/.test(ur.url)) return [];
         const ud = new DOMParser().parseFromString(await ur.text(), 'text/html');
         const sel = ud.querySelector('[name="CustomerRequest[employee_id]"]');
-        const got = sel ? [...sel.options].filter((o) => o.value && o.text.trim()).map((o) => ({ id: o.value, name: o.text.trim() })) : [];
-        if (got.length) { list = got; await browser.storage.local.set({ masters: got, mastersAt: Date.now() }); }
+        const got = sel ? [...sel.options].filter(o => o.value && o.value !== '0' && !o.disabled && !o.hidden && !o.closest('optgroup[disabled],optgroup[hidden]') && o.text.trim() && !/уволен|неактив/i.test(o.text)).map(o => ({ id: o.value, name: o.text.trim() })) : [];
+        if (sel) { list = got; await browser.storage.local.set({ masters: got, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }); }
       }
     } catch (e) {}
   }
   return list.map((m) => ({ id: m.id, name: String(m.name).replace(/\s*\(.*$/, '').trim() })).filter((m) => m.name);
 }
+// Список CRM доступен интерфейсу даже при выключенном или ненастроенном боте.
+browser.runtime.onMessage.addListener(m => { if (m && m.dhMasters) return tgMasters(true, m.id).then(masters => ({ masters })); });
 async function tgCommand(text) {
   const t = text.trim();
   if (/^\/(start|help|помощь)|^❓/i.test(t)) return tgTemp(REPLY_TO || TG.owner, HELP, MENU);
@@ -952,7 +968,7 @@ async function tgMenuNotice() {
   await browser.storage.local.set({ tgMenuSig: sig });
   await Promise.all(tgUsers().map((u) => tgTemp(u, `✅ DIR HELPER ${browser.runtime.getManifest().version} — меню обновлено. Справка: /help`, MENU)));
 }
-tgLoad().then(async () => { await tgPauseLoad().catch(() => {}); tgPoll(); });
+Promise.all([tgLoad(), tgEnableReady]).then(async () => { await tgPauseLoad().catch(() => {}); tgPoll(); });
 
 // ================= 9:00 — пожелание доброго утра в группы мастеров =================
 const MORNING_TEXT_DEF = 'Доброе утро, дорогой мастер, сегодня у тебя все получится';
@@ -1148,7 +1164,7 @@ browser.storage.local.get('dhInstance').then((r) => { if (!r.dhInstance) browser
 
 // 13.3: бот включается на всех компьютерах (работает один, остальные ждут — см. tgActive).
 // Старый список слежения очищаем: на ждущих компьютерах в нём копились давно проведённые заявки, и при включении бота по ним снова уходила сдача.
-browser.storage.local.get('dhMig133').then((r) => { if (!r.dhMig133) browser.storage.local.set({ dhMig133: true, tgHere: true, tgTrack: {} }); }).catch(() => {});
+browser.storage.local.get('dhMig133').then((r) => { if (!r.dhMig133) browser.storage.local.set({ dhMig133: true, tgTrack: {} }); }).catch(() => {});
 
 
 // ================= /настройки — тексты, время, напоминания без новой версии =================

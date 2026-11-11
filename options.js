@@ -8,13 +8,13 @@ async function load() {
   // поле токена не перезаписываем, пока его редактируют
   if (!TOK_DIRTY && document.activeElement !== $('tok')) $('tok').value = TG.token || '';
   const lc = await browser.storage.local.get(['tgHere', 'dhInstance']);
-  $('here').checked = lc.tgHere !== false;
+  $('here').checked = lc.tgHere === true;
   $('hereinfo').textContent = `Код этого компьютера: ${lc.dhInstance || '—'} (его показывает бот на /версия). Можно включить на всех компьютерах: бот работает на одном, остальные ждут и подхватят, если тот выключат.`;
   $('o1').checked = TG.opts.notifyNew; $('o2').checked = TG.opts.toMaster; $('o3').checked = TG.opts.sumToMaster;
   const ac = (await browser.storage.local.get('dhAct')).dhAct;
-  $('act').innerHTML = ac && ac.ok ? '🟢 <b>DIR HELPER активирован</b>' : '🔴 <b>Не активирован</b> — вставьте код из бота (/код) в блок «Перенос на другой компьютер»';
+  $('act').innerHTML = ac && ac.ok ? '🟢 <b>Telegram настроен</b>' : '<b>Telegram не настроен</b> — для бота перенесите настройки или добавьте токен. Интерфейс CRM доступен без бота.';
   const dg = (await browser.storage.local.get('tgDiag')).tgDiag;
-  $('diag').textContent = dg ? (dg.ok ? '🟢 бот работает на этом компьютере (' + new Date(dg.ok).toLocaleTimeString('ru-RU') + ')' : dg.standby ? '🟡 ' + dg.err : '🔴 ошибка Telegram: ' + dg.err) : '';
+  $('diag').textContent = lc.tgHere !== true ? 'Бот выключен. Включите его переключателем выше.' : dg ? (dg.ok ? '🟢 бот работает на этом компьютере (' + new Date(dg.ok).toLocaleTimeString('ru-RU') + ')' : dg.standby ? '🟡 ' + dg.err : '🔴 ошибка Telegram: ' + dg.err) : '';
   $('owner').textContent = TG.owner ? '✅ Бот привязан к вашему чату' : (TG.token ? '⏳ Напишите боту /start' : '');
   await browser.runtime.sendMessage({ tg: 'relink' }).catch(() => {});
   const r2 = await browser.storage.local.get(['tg', 'masters']);
@@ -58,7 +58,9 @@ $('impb').onclick = async () => {
   let o; try { o = unpack($('imp').value); } catch (e) { $('impmsg').textContent = '✕ неверный код'; $('impmsg').className = 'err'; return; }
   if (!o || !o.token) { $('impmsg').textContent = '✕ в коде нет токена'; $('impmsg').className = 'err'; return; }
   const r = await browser.storage.local.get('tg'); const t = Object.assign(r.tg || {}, o);
-  await browser.storage.local.set({ tg: t, tgHere: true });
-  $('impmsg').textContent = '✓ настройки перенесены, бот здесь ждёт и подхватит, если главный компьютер выключат'; $('impmsg').className = 'ok';
+  await browser.storage.local.set({ tg: t, tgHere: false });
+  $('impmsg').textContent = '✓ Настройки перенесены. Бот выключен — включите его вручную переключателем выше.'; $('impmsg').className = 'ok';
   $('imp').value = ''; TOK_DIRTY = false; load();
 };
+
+if (typeof dhThemeButton === "function") dhThemeButton($("theme"));

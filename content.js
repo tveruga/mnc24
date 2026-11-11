@@ -8,19 +8,8 @@
     if (parentIsCrm) return;
   }
   window.__mncExt = true;
-  // активация: без токена вашего бота дополнение не работает
-  let act = false;
-  try { const r = await browser.storage.local.get('dhAct'); act = !!(r.dhAct && r.dhAct.ok); if (!act) act = !!(await browser.runtime.sendMessage({ dhCheckAct: true })); } catch (e) {}
-  if (!act) {
-    if (window === window.top && document.body) {
-      const b = document.createElement('div');
-      b.textContent = 'DIR HELPER не активирован — вставьте код в настройках дополнения';
-      b.style.cssText = 'position:fixed;right:14px;bottom:14px;z-index:2147483647;background:#0f3d2b;color:#fff;font:600 13px Segoe UI,sans-serif;padding:10px 14px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;opacity:.92';
-      b.onclick = () => { try { browser.runtime.sendMessage({ openOptions: true }); } catch (e) {} };
-      document.body.appendChild(b);
-    }
-    return;
-  }
+  // Панель CRM работает без Telegram. Проверка токена относится к боту,
+  // а не к доступности кнопок, тем, аналитики и назначения мастеров.
 
   const EMP = '[name="CustomerRequest[employee_id]"]';
   const ST = '[name="CustomerRequest[status]"]';
@@ -30,13 +19,8 @@
     'Трохов': 'МНЧ Тархов Андрей Александрович',
     'Булгаков': 'МНЧ Булгаков Арсений Алексеевич'
   };
-  const DEFAULT_MASTERS = [
-    ['18690','Антюфеев Вадим'],['17909','Бакстов Николай'],['16779','Балашов Илья'],['19346','Бем Николай'],
-    ['18618','Булгаков Аресений'],['17701','Ганжин Тимофей'],['18147','Гринаш Владислав'],['19557','Крыцын Роман'],
-    ['10765','Кудашов Константин'],['19558','Кутузов Сергей'],['17673','Макаров Алексей'],['11288','Малофеев Максим'],
-    ['17850','Метляев Прохор'],['18104','Никоноров Константин'],['17687','Сергин Константин'],['17522','Ткаченко Иван'],
-    ['17020','Трохов Андрей'],['18286','Шмаков Иван']
-  ].map(([id, name]) => ({ id, name }));
+  // Состав команды берём из текущего списка назначения CRM, не из старого справочника.
+  const mastersFrom = (sel) => sel ? [...sel.options].filter(o => o.value && o.value !== '0' && !o.disabled && !o.hidden && !o.closest('optgroup[disabled],optgroup[hidden]') && o.text.trim() && !/уволен|неактив/i.test(o.text)).map(o => ({ id: String(o.value), name: o.text.trim() })) : [];
 
   const isUpdate = /customer-request\/update/.test(location.pathname);
   const isList = /customer-request(\/index|\/?$)/.test(location.pathname);
@@ -148,6 +132,7 @@
         ${withId ? '<input class="mnc-id" type="text" inputmode="numeric" placeholder="№ заявки (галочка в списке)">' : ''}
         <input class="mnc-f" type="text" placeholder="Фамилия мастера…" autocomplete="off">
         <select class="mnc-s" size="6"></select>
+        <button type="button" class="mnc-refresh-masters">↻ Обновить мастеров из CRM</button>
         <label class="mnc-lbl">Статус</label><select class="mnc-st"></select>
         <button class="mnc-b" disabled>Отдать мастеру ⏎</button>
         <div class="mnc-m"></div>
@@ -181,10 +166,11 @@
     const f = p.querySelector('.mnc-f'), sel = p.querySelector('.mnc-s'), btn = p.querySelector('.mnc-b');
     const render = () => {
       const q = f.value.trim().toLowerCase();
+      const previous = sel.value;
       sel.innerHTML = '';
       masters.map((m) => { const t = TG_PEOPLE[String(m.id)]; return { id: m.id, name: t && t.how === 'free' ? `${t.person} · через ${clean(m.name)}` : (t ? `${clean(m.name)} ✈` : m.name) }; })
         .filter((m) => !q || m.name.toLowerCase().includes(q)).forEach((m) => sel.add(new Option(m.name, m.id)));
-      if (sel.options.length) sel.selectedIndex = 0;
+      if (sel.options.length) { sel.selectedIndex = 0; if ([...sel.options].some(o => o.value === previous)) sel.value = previous; }
       btn.disabled = !sel.options.length;
     };
     render();
@@ -192,7 +178,7 @@
     f.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
     sel.addEventListener('dblclick', go);
     btn.addEventListener('click', (e) => { e.preventDefault(); go(); });
-    return { f, sel, btn, show: (t, c) => { const m = p.querySelector('.mnc-m'); m.textContent = t; m.className = 'mnc-m ' + (c || ''); } };
+    return { f, sel, btn, setMasters: (list) => { masters = list; render(); }, show: (t, c) => { const m = p.querySelector('.mnc-m'); m.textContent = t; m.className = 'mnc-m ' + (c || ''); } };
   }
 
   const DEFAULT_STATUSES = [{ id: '4', name: 'В пути' }];
@@ -215,9 +201,26 @@
     try { const { statuses } = await browser.storage.local.get('statuses'); if (statuses && statuses.length) return statuses; } catch (e) {}
     return DEFAULT_STATUSES;
   }
-  async function loadMasters() {
-    try { const { masters } = await browser.storage.local.get('masters'); if (masters && masters.length) return masters; } catch (e) {}
-    return DEFAULT_MASTERS;
+  async function loadMasters(requestId) {
+    const local = document.querySelector(EMP);
+    if (local) return mastersFrom(local);
+    const sample = requestId || (([...document.querySelectorAll('table tbody td')].map(td => td.textContent.trim()).find(t => /^\d{5,}$/.test(t))) || '');
+    try {
+      const r = await browser.runtime.sendMessage({ dhMasters: true, id: sample });
+      if (r && Array.isArray(r.masters) && r.masters.length) return r.masters;
+    } catch (e) {}
+    // Некоторые CRM заполняют select скриптом — читаем уже загруженную страницу, ничего не сохраняя.
+    if (sample) {
+      const page = new HiddenPage(UPD + encodeURIComponent(sample));
+      try {
+        await page.open();
+        const sel = await page.waitFor(d => d && d.querySelector(EMP) && d.querySelector(EMP).options.length > 1 && d.querySelector(EMP), 10000);
+        const list = mastersFrom(sel);
+        if (sel) await browser.storage.local.set({ masters: list, mastersAt: Date.now(), mastersSource: 'crm-live-v2' });
+        return list;
+      } catch (e) { return []; } finally { page.close(); }
+    }
+    return [];
   }
 
   // ---------- Список заявок ----------
@@ -225,8 +228,15 @@
     const p = makePanel(true);
     const idIn = p.querySelector('.mnc-id');
     const stSel = fillStatuses(p, await loadStatuses());
-    const ui = wire(p, await loadMasters(), go);
+    const ui = wire(p, [], go);
     ui.show('Отметьте галочкой заявку, затем выберите мастера');
+    const refresh = p.querySelector('.mnc-refresh-masters');
+    refresh.onclick = async () => {
+      refresh.disabled = true; ui.setMasters([]); ui.show('Загружаю актуальных мастеров из CRM…');
+      try { const list = await loadMasters(idIn.value.trim()); ui.setMasters(list); ui.show(list.length ? `Мастеров в CRM: ${list.length}` : 'Не удалось получить мастеров. Проверьте вход в CRM и нажмите «Обновить мастеров».', list.length ? '' : 'err'); }
+      finally { refresh.disabled = false; }
+    };
+    refresh.click();
     closeSection(p, true);
     try {
       const c = await browser.storage.local.get(['closeIds','closeAsked','closeSelf','closeMaster','closeSt','closeT']);
@@ -302,16 +312,16 @@
 
   // ---------- Страница заявки ----------
   async function initUpdate(empSelect) {
-    const masters = [...empSelect.options].filter((o) => o.value && o.text.trim()).map((o) => ({ id: o.value, name: o.text.trim() }));
-    if (masters.length) browser.storage.local.set({ masters }).catch(() => {});
+    let masters = mastersFrom(empSelect);
+    browser.storage.local.set({ masters, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }).catch(() => {});
     const stEl = document.querySelector(ST);
     const statuses = stEl ? statusesFrom(stEl) : DEFAULT_STATUSES;
     if (stEl && statuses.length) browser.storage.local.set({ statuses }).catch(() => {});
     const p = makePanel(false);
     const stSel = fillStatuses(p, statuses);
-    const ui = wire(p, masters.length ? masters : DEFAULT_MASTERS, async () => {
+    const ui = wire(p, masters, async () => {
       if (!ui.sel.value) return;
-      const m = masters.find((x) => x.id === ui.sel.value) || DEFAULT_MASTERS.find((x) => x.id === ui.sel.value);
+      const m = masters.find((x) => x.id === ui.sel.value);
       const name = clean(m ? m.name : ui.sel.value);
       const stName = stSel.options[stSel.selectedIndex] ? stSel.options[stSel.selectedIndex].text.trim() : 'В пути';
       ui.btn.disabled = true; ui.show(`${name} → ${stName}…`);
@@ -325,11 +335,14 @@
       } catch (e) { ui.btn.disabled = false; ui.show('Ошибка: ' + e.message, 'err'); }
     });
     ui.show('Мастеров в списке: ' + masters.length);
+    p.querySelector('.mnc-refresh-masters').onclick = () => { masters = mastersFrom(empSelect); ui.setMasters(masters); browser.storage.local.set({ masters, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }).catch(() => {}); ui.show('Мастеров в CRM: ' + masters.length); };
+    new MutationObserver(() => p.querySelector('.mnc-refresh-masters').click()).observe(empSelect, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'hidden', 'label'] });
     closeSection(p, false);
 
     async function assign(empId, auto, stId) {
       stId = String(stId || '4');
-      const master = masters.find((m) => m.id === String(empId)) || DEFAULT_MASTERS.find((m) => m.id === String(empId));
+      const master = masters.find((m) => m.id === String(empId));
+      if (!master) return ui.show('Мастер больше недоступен в CRM — обновите список', 'err');
       const e = document.querySelector(EMP), s = document.querySelector(ST), copyBtn = document.getElementById('copyReqInfo');
       if (!e) return ui.show('Нет поля мастера', 'err');
       if (!s) return ui.show('Нет поля статуса', 'err');
@@ -968,8 +981,7 @@
   if (window === window.top) browser.runtime.onMessage.addListener((m) => {
     if (m && m.dhAssign) return (async () => {
       const a = m.dhAssign;
-      let list = []; try { list = (await browser.storage.local.get('masters')).masters || []; } catch (e) {}
-      if (!list.length) list = DEFAULT_MASTERS;
+      const list = await loadMasters(a.id);
       const sur = String(a.surname || '').toLowerCase().replace(/ё/g, 'е');
       const found = a.empId ? list.filter((x) => String(x.id) === String(a.empId)) : list.filter((x) => clean(x.name).toLowerCase().replace(/ё/g, 'е').startsWith(sur));
       if (found.length !== 1) return { err: found.length ? 'несколько мастеров: ' + found.map((x) => clean(x.name)).join(', ') : 'мастер «' + (a.surname || a.empId) + '» не найден' };
@@ -1044,7 +1056,7 @@
       else if (a === 'give') { const p = document.getElementById('mnc-ext-panel'); if (!p) return toast('Раздача работает на списке заявок и на странице заявки'); p.classList.toggle('mnc-min'); mark(); }
       else if (a === 'set') browser.runtime.sendMessage({ openOptions: true }).catch(() => {});
       else if (a === 'news') dhShowNews(document);
-      else if (a === 'bot') { const r = await browser.storage.local.get('tgHere'); const on = r.tgHere === false; if (!on && !confirm('Выключить Telegram-бота на этом компьютере?\nКоманды бота, уведомления и напоминания перестанут работать, пока не включите снова.')) return; await browser.storage.local.set({ tgHere: on }); toast(on ? '🟢 Бот включён на этом компьютере' : '⚪ Бот выключен на этом компьютере'); }
+      else if (a === 'bot') { const r = await browser.storage.local.get('tgHere'); const on = r.tgHere !== true; if (!on && !confirm('Выключить Telegram-бота на этом компьютере?\nКоманды бота, уведомления и напоминания перестанут работать, пока не включите снова.')) return; await browser.storage.local.set({ tgHere: on }); toast(on ? '🟢 Бот включён на этом компьютере' : '⚪ Бот выключен на этом компьютере'); }
       else if (a === 'upd') { b.classList.add('spin'); const r = await browser.runtime.sendMessage({ dhUpdate: true }).catch((er) => ({ text: er.message })); b.classList.remove('spin'); dhUpdToast(document, r); }
       else if (a) window.__mncDash && window.__mncDash.toggle(a);
     });
@@ -1053,9 +1065,9 @@
     dhThemeButton(bar.querySelector('[data-a="theme"]'));
     // кнопка «Бот»: включает/выключает Telegram-бота на этом компьютере
     const botBtn = bar.querySelector('[data-a="bot"]');
-    const botShow = (on) => { botBtn.classList.toggle('bot-on', on); botBtn.title = on ? 'Бот работает на этом компьютере — нажмите, чтобы выключить' : 'Бот выключен на этом компьютере — нажмите, чтобы включить'; };
-    browser.storage.local.get('tgHere').then((r) => botShow(r.tgHere !== false)).catch(() => {});
-    browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) botShow(ch.tgHere.newValue !== false); });
+    const botShow = (on) => { botBtn.classList.toggle('bot-on', on); botBtn.setAttribute('aria-pressed', String(on)); const label = botBtn.querySelector('.dhb-l'); if (label) label.textContent = on ? 'Бот вкл.' : 'Бот выкл.'; botBtn.title = on ? 'Бот включён на этом компьютере — нажмите, чтобы выключить' : 'Бот выключен на этом компьютере — нажмите, чтобы включить'; };
+    browser.storage.local.get('tgHere').then((r) => botShow(r.tgHere === true)).catch(() => {});
+    browser.storage.onChanged.addListener((ch) => { if (ch.tgHere) botShow(ch.tgHere.newValue === true); });
   }
 
   // ---------- Запуск ----------
