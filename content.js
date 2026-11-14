@@ -131,7 +131,9 @@
       <div class="mnc-wrap"><div class="mnc-body">
         ${withId ? '<input class="mnc-id" type="text" inputmode="numeric" placeholder="№ заявки (галочка в списке)">' : ''}
         <input class="mnc-f" type="text" placeholder="Фамилия мастера…" autocomplete="off">
+        <label class="mnc-lbl">Мастера · заявок сегодня</label>
         <select class="mnc-s" size="6"></select>
+        <div class="mnc-lbl mnc-count-note" style="text-transform:none;letter-spacing:normal;margin:0">Откройте раздачу для подсчёта.</div>
         <button type="button" class="mnc-refresh-masters">↻ Обновить мастеров из CRM</button>
         <label class="mnc-lbl">Статус</label><select class="mnc-st"></select>
         <button class="mnc-b" disabled>Отдать мастеру ⏎</button>
@@ -164,21 +166,58 @@
   browser.storage.local.get('tg').then((r) => { const g = (r.tg && r.tg.groups) || {}; Object.values(g).forEach((x) => { if (x.empId) TG_PEOPLE[String(x.empId)] = x; }); }).catch(() => {});
   function wire(p, masters, go) {
     const f = p.querySelector('.mnc-f'), sel = p.querySelector('.mnc-s'), btn = p.querySelector('.mnc-b');
+    const note = p.querySelector('.mnc-count-note');
+    let counts = null, partial = false, checkedAt = 0, counting = false;
+    const keyOf = (s) => String(s || '').replace(/\s*\([^)]*\)/g, '').replace(/^мнч\s+/i, '')
+      .replace(/\s+/g, ' ').trim().toLowerCase().replace(/ё/g, 'е');
+    const countOf = (name) => {
+      if (!counts) return '—';
+      const k = keyOf(name);
+      if (Object.prototype.hasOwnProperty.call(counts, k)) return counts[k];
+      const similar = Object.keys(counts).filter((other) => other.startsWith(k + ' ') || k.startsWith(other + ' '));
+      return similar.length === 1 ? counts[similar[0]] : (similar.length ? '?' : 0);
+    };
     const render = () => {
       const q = f.value.trim().toLowerCase();
       const previous = sel.value;
       sel.innerHTML = '';
-      masters.map((m) => { const t = TG_PEOPLE[String(m.id)]; return { id: m.id, name: t && t.how === 'free' ? `${t.person} · через ${clean(m.name)}` : (t ? `${clean(m.name)} ✈` : m.name) }; })
-        .filter((m) => !q || m.name.toLowerCase().includes(q)).forEach((m) => sel.add(new Option(m.name, m.id)));
+      masters.map((m) => {
+        const t = TG_PEOPLE[String(m.id)];
+        const name = t && t.how === 'free' ? t.person + ' · через ' + clean(m.name) : (t ? clean(m.name) + ' ✈' : m.name);
+        const count = countOf(m.name);
+        const label = name + ' · ' + (partial && typeof count === 'number' ? '≥' : '') + count + ' сегодня';
+        return { id: m.id, name, label };
+      }).filter((m) => !q || m.name.toLowerCase().includes(q)).forEach((m) => sel.add(new Option(m.label, m.id)));
       if (sel.options.length) { sel.selectedIndex = 0; if ([...sel.options].some(o => o.value === previous)) sel.value = previous; }
       btn.disabled = !sel.options.length;
     };
+    async function refreshCounts(force = false) {
+      if (counting || (!force && checkedAt && Date.now() - checkedAt < 120000)) return;
+      counting = true;
+      note.textContent = 'Считаю заявки по списку CRM…';
+      try {
+        const r = await browser.runtime.sendMessage({ tg: 'dhTodayCounts', force });
+        if (!r || !r.ok) throw new Error((r && r.err) || 'Нет ответа от расширения');
+        counts = r.counts; partial = r.partial === true; checkedAt = r.at || Date.now();
+        note.textContent = 'Созданы сегодня, закреплены сейчас · ' +
+          new Date(checkedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) +
+          (partial ? ' · неполный подсчёт (≥)' : '');
+      } catch (e) {
+        counts = null; partial = false; checkedAt = 0;
+        note.textContent = 'Не удалось получить счётчики: ' + e.message;
+      } finally { counting = false; render(); }
+    }
     render();
     f.addEventListener('input', render);
     f.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
     sel.addEventListener('dblclick', go);
     btn.addEventListener('click', (e) => { e.preventDefault(); go(); });
-    return { f, sel, btn, setMasters: (list) => { masters = list; render(); }, show: (t, c) => { const m = p.querySelector('.mnc-m'); m.textContent = t; m.className = 'mnc-m ' + (c || ''); } };
+    new MutationObserver(() => { if (!p.classList.contains('mnc-min')) refreshCounts(); })
+      .observe(p, { attributes: true, attributeFilter: ['class'] });
+    setInterval(() => { if (!document.hidden && !p.classList.contains('mnc-min')) refreshCounts(); }, 120000);
+    return { f, sel, btn, setMasters: (list) => { masters = list; render(); },
+      getMaster: (id) => masters.find((m) => String(m.id) === String(id)), refreshCounts,
+      show: (t, c) => { const m = p.querySelector('.mnc-m'); m.textContent = t; m.className = 'mnc-m ' + (c || ''); } };
   }
 
   const DEFAULT_STATUSES = [{ id: '4', name: 'В пути' }];
@@ -233,7 +272,7 @@
     const refresh = p.querySelector('.mnc-refresh-masters');
     refresh.onclick = async () => {
       refresh.disabled = true; ui.setMasters([]); ui.show('Загружаю актуальных мастеров из CRM…');
-      try { const list = await loadMasters(idIn.value.trim()); ui.setMasters(list); ui.show(list.length ? `Мастеров в CRM: ${list.length}` : 'Не удалось получить мастеров. Проверьте вход в CRM и нажмите «Обновить мастеров».', list.length ? '' : 'err'); }
+      try { const list = await loadMasters(idIn.value.trim()); ui.setMasters(list); ui.show(list.length ? `Мастеров в CRM: ${list.length}` : 'Не удалось получить мастеров. Проверьте вход в CRM и нажмите «Обновить мастеров».', list.length ? '' : 'err'); if (list.length) ui.refreshCounts(true); }
       finally { refresh.disabled = false; }
     };
     refresh.click();
@@ -294,13 +333,15 @@
       const id = idIn.value.trim();
       if (!/^\d+$/.test(id)) return ui.show('Укажите № заявки', 'err');
       if (!ui.sel.value) return;
-      const master = { id: ui.sel.value, name: ui.sel.options[ui.sel.selectedIndex].text };
+      const master = ui.getMaster(ui.sel.value);
+      if (!master) return ui.show('Мастер не найден в актуальном списке CRM', 'err');
       ui.btn.disabled = true;
       const stName = stSel.options[stSel.selectedIndex] ? stSel.options[stSel.selectedIndex].text.trim() : 'В пути';
       const name = clean(master.name);
       ui.show(`Заявка ${id} → ${name}, ${stName}…`);
       try {
         const r = await bgAssign(id, master.id, stName, (m, c) => ui.show(m, c));
+        browser.runtime.sendMessage({ tg: 'dhTodayCountsReset' }).catch(() => {});
         browser.runtime.sendMessage({ tg: 'assigned', id, name, empId: master.id, st: stName, info: r.info }).catch(() => {});
         openTg(name);
         await browser.storage.local.set({ lastName: name, lastSt: stName, lastT: Date.now(), closeIds: r.blocking, closeAsked: r.asked, closeSelf: id, closeMaster: name.split(/\s+/)[0], closeSt: stName, closeT: Date.now() });
@@ -327,6 +368,7 @@
       ui.btn.disabled = true; ui.show(`${name} → ${stName}…`);
       try {
         const r = await bgAssign(reqId(), ui.sel.value, stName, (t, c) => ui.show(t, c));
+        browser.runtime.sendMessage({ tg: 'dhTodayCountsReset' }).catch(() => {});
         browser.runtime.sendMessage({ tg: 'assigned', id: reqId(), name, empId: ui.sel.value, st: stName, info: r.info }).catch(() => {});
         openTg(name);
         await browser.storage.local.set({ lastName: name, lastSt: stName, lastT: Date.now(), closeIds: r.blocking, closeAsked: r.asked, closeSelf: reqId(), closeMaster: name.split(/\s+/)[0], closeSt: stName, closeT: Date.now() });
@@ -335,7 +377,7 @@
       } catch (e) { ui.btn.disabled = false; ui.show('Ошибка: ' + e.message, 'err'); }
     });
     ui.show('Мастеров в списке: ' + masters.length);
-    p.querySelector('.mnc-refresh-masters').onclick = () => { masters = mastersFrom(empSelect); ui.setMasters(masters); browser.storage.local.set({ masters, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }).catch(() => {}); ui.show('Мастеров в CRM: ' + masters.length); };
+    p.querySelector('.mnc-refresh-masters').onclick = () => { masters = mastersFrom(empSelect); ui.setMasters(masters); ui.refreshCounts(true); browser.storage.local.set({ masters, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }).catch(() => {}); ui.show('Мастеров в CRM: ' + masters.length); };
     new MutationObserver(() => p.querySelector('.mnc-refresh-masters').click()).observe(empSelect, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'hidden', 'label'] });
     closeSection(p, false);
 
