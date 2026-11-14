@@ -714,6 +714,8 @@ async function wizCallback(q, edit) {
 browser.runtime.onMessage.addListener((m) => { if (!m || !m.tg) return; return tgOnMsg(m); });
 async function tgOnMsg(m) {
   await tgLoad();
+  if (m.tg === 'dhTodayCounts') return dhTodayCounts(m.force === true);
+  if (m.tg === 'dhTodayCountsReset') { dhTodayCountsCache = null; return { ok: true }; }
   if (TG_PAUSED && (m.tg === 'assigned' || m.tg === 'closed')) return { sent: false, paused: true }; // бот выключен @tveruga — мастерам из панели тоже не пишем
   if (m.tg === 'assigned') {
     // мастеру заявка уходит только при статусе «В пути»
@@ -880,6 +882,46 @@ async function reqStatus(id) {
   }
   return '';
 }
+
+// Счётчик раздачи: текущие мастера заявок, созданных сегодня, а не история переназначений.
+let dhTodayCountsCache = null, dhTodayCountsTask = null;
+const dhCountName = (s) => String(s || '').replace(/\s*\([^)]*\)/g, '').replace(/^мнч\s+/i, '')
+  .replace(/\s+/g, ' ').trim().toLowerCase().replace(/ё/g, 'е');
+async function dhTodayCounts(force = false) {
+  const day = new Date().toLocaleDateString('sv-SE');
+  if (!force && dhTodayCountsCache && dhTodayCountsCache.day === day && Date.now() - dhTodayCountsCache.at < 120000) return dhTodayCountsCache;
+  if (dhTodayCountsTask) return dhTodayCountsTask;
+  dhTodayCountsTask = (async () => {
+    const counts = {}, seen = new Set();
+    let hadToday = false, partial = false;
+    for (let page = 1; page <= 20; page++) {
+      const rows = await listRows(page);
+      if (!rows.length) {
+        if (page === 1) throw new Error('Не удалось прочитать список CRM');
+        break;
+      }
+      const fresh = rows.filter((r) => r.id && !seen.has(r.id));
+      if (!fresh.length) break;
+      fresh.forEach((r) => seen.add(r.id));
+      const today = fresh.filter((r) => isToday(r.time));
+      for (const r of today) {
+        if (/работа\s*сд/i.test(r.st)) continue;
+        const key = dhCountName(r.master);
+        if (key) counts[key] = (counts[key] || 0) + 1;
+      }
+      if (page > 1 && !today.length && hadToday) break;
+      if (today.length) hadToday = true;
+      if (page === 20) partial = true;
+    }
+    return { ok: true, day, at: Date.now(), counts, partial };
+  })();
+  try {
+    const result = await dhTodayCountsTask;
+    dhTodayCountsCache = result;
+    return result;
+  } finally { dhTodayCountsTask = null; }
+}
+
 // все заявки за сегодня (по страницам списка)
 async function todayRows(maxPages = 12) {
   const all = [], seen = new Set();
