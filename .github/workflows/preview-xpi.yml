@@ -1,0 +1,42 @@
+name: Pack unsigned test XPI
+on:
+  push:
+    branches: [feature/masters-today-counter-20261114]
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle Firefox extension
+        run: |
+          python3 - <<'PY'
+          import json, pathlib, zipfile
+          root=pathlib.Path('.')
+          out=root/'dir-helper-15.15-today-counter-preview.xpi'
+          ignores={'.git','.github','site','.tools','dist','node_modules','__pycache__'}
+          omit={'README.md','CLAUDE.md','updates.json','sign.log',out.name}
+          with zipfile.ZipFile(out,'w',compression=zipfile.ZIP_DEFLATED) as z:
+              for f in sorted(root.rglob('*')):
+                  if not f.is_file() or any(x in ignores for x in f.parts) or f.name in omit:
+                      continue
+                  if f.name=='manifest.json':
+                      m=json.loads(f.read_text(encoding='utf-8'))
+                      m['browser_specific_settings']['gecko']['update_url']='https://raw.githubusercontent.com/tveruga/mnc24/main/updates.json'
+                      z.writestr('manifest.json',json.dumps(m,ensure_ascii=False,indent=2)+'\n')
+                  else:
+                      z.write(f,arcname=f.as_posix())
+          with zipfile.ZipFile(out) as z:
+              m=json.loads(z.read('manifest.json'))
+              assert m['version']=='15.15'
+              assert {'content.js','tg.js','new.mp3','manifest.json'}.issubset(set(z.namelist()))
+              assert b'dhTodayCounts' in z.read('tg.js')
+              assert b'mnc-count-note' in z.read('content.js')
+              print('Preview validated:',len(z.namelist()),'files,',out.stat().st_size,'bytes')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dir-helper-15.15-today-counter-preview
+          path: dir-helper-15.15-today-counter-preview.xpi
+          retention-days: 7
