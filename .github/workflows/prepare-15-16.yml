@@ -29,7 +29,7 @@ jobs:
           test "$(git hash-object tg.js)" = "79c97089b1ef09c7986689c0f8d15070982da1ce"
           test "$(git hash-object dashboard.js)" = "cdf03b2fd8d5461a1d1182841abb2f1ff67209f3"
           test "$(git hash-object content.js)" = "d1fd1024614ea9270910948a072a18f138e033c5"
-          base64 -d .release/release-15.16.patch.b64 | xz -dc > /tmp/dir-helper-15.16.patch
+          cat .release/part-1.b64 .release/part-2.b64 .release/release-15.16.patch.b64 | base64 -d | xz -dc > /tmp/dir-helper-15.16.patch
           git apply --unidiff-zero --check /tmp/dir-helper-15.16.patch
           git apply --unidiff-zero /tmp/dir-helper-15.16.patch
           test "$(git hash-object tg.js)" = "8dae9588a7052d99cb9dd35cc97475d4eca4468f"
@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git rm -f .release/release-15.16.patch.b64 .github/workflows/prepare-15-16.yml
+          git rm -f .release/part-1.b64 .release/part-2.b64 .release/release-15.16.patch.b64 .github/workflows/prepare-15-16.yml
           git add tg.js dashboard.js content.js manifest.json changelog.js
           git config user.name "dir-helper-bot"
           git config user.email "actions@users.noreply.github.com"
