@@ -29,9 +29,9 @@ jobs:
           test "$(git hash-object tg.js)" = "79c97089b1ef09c7986689c0f8d15070982da1ce"
           test "$(git hash-object dashboard.js)" = "cdf03b2fd8d5461a1d1182841abb2f1ff67209f3"
           test "$(git hash-object content.js)" = "d1fd1024614ea9270910948a072a18f138e033c5"
-          base64 -d .release/release-15.16.patch.b64 | gzip -dc > /tmp/dir-helper-15.16.patch
-          git apply --check /tmp/dir-helper-15.16.patch
-          git apply /tmp/dir-helper-15.16.patch
+          base64 -d .release/release-15.16.patch.b64 | xz -dc > /tmp/dir-helper-15.16.patch
+          git apply --unidiff-zero --check /tmp/dir-helper-15.16.patch
+          git apply --unidiff-zero /tmp/dir-helper-15.16.patch
           test "$(git hash-object tg.js)" = "8dae9588a7052d99cb9dd35cc97475d4eca4468f"
           test "$(git hash-object dashboard.js)" = "7e484e69121e46e431fc9102c523f227a646c331"
           test "$(git hash-object content.js)" = "170e5bf1a27002328c1281e5fa15e58a7808848b"
