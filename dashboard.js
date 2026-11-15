@@ -1454,6 +1454,34 @@ async function tgText(m) {
   } catch (e) { return { err: e.message }; }
 }
 // оборот за сегодня: по городу и по мастерам (для общего чата мастеров)
+// Счётчики для вкладки «Раздача»: использует тот же «Отчёт по городу»,
+// что и аналитика, но каждый раз запрашивает свежие данные за сегодняшний день.
+async function todayMasterReport() {
+  try {
+    const r = ranges('today', 'day');
+    const data = await loadAll(r.cur, false);
+    const tb = data && data.t && data.t.masters;
+    if (!tb) throw new Error('В отчёте за сегодня не найдена таблица мастеров');
+    const iName = col(tb, /^фио$/i);
+    const iQty = col(tb, /количество\s+заявок/i);
+    const iSd = col(tb, /^сд$/i);
+    if (iName < 0 || iQty < 0) throw new Error('В отчёте нет колонок «ФИО» или «Количество заявок»');
+    const counts = {};
+    for (const row of tb.rows) {
+      const name = String(row[iName] || '').replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()
+        .toLowerCase().replace(/ё/g, 'е');
+      if (!name) continue;
+      const all = parseNum(row[iQty]);
+      const sd = iSd >= 0 ? parseNum(row[iSd]) : null;
+      // СД — отдельная категория, не обычная раздача; если значение неизвестно,
+      // не вычитаем его наугад.
+      counts[name] = all == null ? null : Math.max(0, all - (sd == null ? 0 : sd));
+    }
+    if (!Object.keys(counts).length) throw new Error('Таблица мастеров за сегодня пустая');
+    return { ok: true, counts, at: Date.now(), source: 'city-report', period: 'today' };
+  } catch (e) { return { ok: false, err: e.message }; }
+}
+
 async function dayTurn() {
   try {
     const rg = ranges('today', 'day');
@@ -1494,5 +1522,5 @@ async function masterStat(a) {
       `Место среди мастеров: ${place} из ${all.length}` };
   } catch (e) { return { err: e.message }; }
 }
-window.__mncDash = { masterStat, dayTurn, tgText, refreshAll, open, close, toggle: (mode) => { mode = mode || 'an'; if (document.getElementById('mnc-dash') && MODE === mode) close(); else open(mode); } };
+window.__mncDash = { masterStat, dayTurn, todayMasterReport, tgText, refreshAll, open, close, toggle: (mode) => { mode = mode || 'an'; if (document.getElementById('mnc-dash') && MODE === mode) close(); else open(mode); } };
 })();
