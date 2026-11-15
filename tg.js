@@ -714,6 +714,9 @@ async function wizCallback(q, edit) {
 browser.runtime.onMessage.addListener((m) => { if (!m || !m.tg) return; return tgOnMsg(m); });
 async function tgOnMsg(m) {
   await tgLoad();
+  if (m.tg === 'dhRecordAssignment') return dhRecordAssignment(m);
+  if (m.tg === 'dhTodayCounts') return dhTodayCounts(m.force === true);
+  if (m.tg === 'dhTodayCountsReset') { dhTodayCountsCache = null; return { ok: true }; }
   if (TG_PAUSED && (m.tg === 'assigned' || m.tg === 'closed')) return { sent: false, paused: true }; // бот выключен @tveruga — мастерам из панели тоже не пишем
   if (m.tg === 'assigned') {
     // мастеру заявка уходит только при статусе «В пути»
@@ -880,6 +883,230 @@ async function reqStatus(id) {
   }
   return '';
 }
+
+// Учёт выдачи: отдельно подтверждённые назначения через DIR HELPER и оценка по списку CRM.
+// Точной истории всех назначений в обычном списке CRM нет. Отчёт по городу здесь не загружаем.
+const dhDayKey = () => { const d = new Date(); return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-'); };
+const dhCountName = (s) => String(s || '').replace(/\s*\([^)]*\)/g, '').replace(/^мнч\s+/i, '').replace(/\s+/g, ' ').trim().toLowerCase().replace(/ё/g, 'е');
+function dhDateIsToday(s) {
+  s = String(s || '').trim(); const d = new Date(); let m;
+  // Сначала ISO: иначе общее выражение DD-MM-YY ошибочно находит подстроку «26-11-15» в «2026-11-15».
+  if ((m = s.match(/(?:^|[^\d])(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/)))
+    return +m[1] === d.getFullYear() && +m[2] === d.getMonth() + 1 && +m[3] === d.getDate();
+  if ((m = s.match(/(?:^|[^\d])(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{2,4})(?!\d)/))) {
+    const y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
+    return +m[1] === d.getDate() && +m[2] === d.getMonth() + 1 && y === d.getFullYear();
+  }
+  return false;
+}
+let dhTodayCountsCache = null, dhTodayCountsTask = null, dhRecordChain = Promise.resolve();
+// Записываем выдачу ПОСЛЕ подтверждения сохранения CRM, а не по нажатию на кнопку.
+function dhRecordAssignment(m) {
+  dhRecordChain = dhRecordChain.catch(() => {}).then(async () => {
+    const id = String(m.id || ''), empId = String(m.empId || ''), name = dhCountName(m.name);
+    if (!/^\d+$/.test(id) || !empId || !name) return { ok: false, err: 'Некорректные данные назначения' };
+    const day = dhDayKey();
+    const r = await browser.storage.local.get('dhDailyAssignments');
+    const log = r.dhDailyAssignments || {};
+    log[day] = log[day] || {};
+    log[day][id + ':' + empId] = { id, empId, name, at: Date.now() };
+    for (const k of Object.keys(log)) if (k !== day && (Date.now() - new Date(k).getTime() > 7 * 864e5 || !/^\d{4}-\d{2}-\d{2}$/.test(k))) delete log[k];
+    await browser.storage.local.set({ dhDailyAssignments: log });
+    dhTodayCountsCache = null;
+    return { ok: true };
+  });
+  return dhRecordChain;
+}
+// В списке CRM «П» — признак партнёрской заявки, а не служебный чекбокс DIR HELPER.
+// Неизвестная разметка остаётся «не определено» вместо ложной классификации.
+function dhPartnerFlag(cell) {
+  if (!cell) return null;
+  const checkbox = cell.querySelector('input[type="checkbox"], [role="checkbox"]');
+  if (checkbox) {
+    if (checkbox.matches('input[type="checkbox"]')) return !!(checkbox.checked || checkbox.hasAttribute('checked'));
+    const aria = checkbox.getAttribute('aria-checked');
+    return aria === 'true' ? true : aria === 'false' ? false : null;
+  }
+  const boolValue = cell.getAttribute('data-value') || cell.getAttribute('data-checked') || cell.getAttribute('aria-checked');
+  if (/^(1|true|yes)$/i.test(String(boolValue || ''))) return true;
+  if (/^(0|false|no)$/i.test(String(boolValue || ''))) return false;
+  const text = String(cell.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  if (/^(✓|✔|☑|✅|п|партн[её]р(?:ская)?|да|yes|true|1)$/i.test(text)) return true;
+  if (/^(—|–|-|нет|no|false|0|□|☐)$/.test(text)) return false;
+  const iconClass = [...cell.querySelectorAll('i, span, svg, use')].map((el) =>
+    typeof el.className === 'string' ? el.className : (el.className && el.className.baseVal) || ''
+  ).join(' ').toLowerCase() + ' ' + [...cell.querySelectorAll('use')].map((el) => el.getAttribute('href') || el.getAttribute('xlink:href') || '').join(' ');
+  if (/(?:fa|glyphicon|bi|icon)[-_ ](?:check|ok|tick)|check[-_ ]?(?:square|circle|mark)|square[-_]?check/.test(iconClass)) return true;
+  if (/(?:fa|glyphicon|bi|icon)[-_ ](?:times|remove|close|ban)|square[-_]?empty|unchecked/.test(iconClass)) return false;
+  // Пустая ячейка «П» — заявки из нашей рекламы (правило CRM).
+  // Но если ячейка не пуста внутри, например содержит неизвестное SVG, не гадаем.
+  if (!text && !cell.querySelector('svg, img, i, input, button, a, [role], [title]')) return false;
+  return null;
+}
+// Только метаданные столбцов и агрегаты попадают в диагностику, без адресов и телефонов клиентов.
+async function dhFetchCountPage(page) {
+  const url = 'https://mnc-lead-centre.ru/admin/domain/customer-request/index' + (page > 1 ? '?page=' + page : '');
+  const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 10000);
+  let response;
+  try { response = await fetch(url, { credentials: 'include', cache: 'no-store', signal: controller.signal }); }
+  finally { clearTimeout(timer); }
+  if (!response.ok) throw new Error('CRM HTTP ' + response.status);
+  if (/\/login(?:[/?]|$)/i.test(response.url)) throw new Error('Нужно войти в CRM');
+  const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+  const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim();
+  const tables = [...doc.querySelectorAll('table')];
+  const parsed = tables.map((table) => {
+    const heads = [...table.querySelectorAll('thead tr')].map((tr) => [...tr.cells].map((c) => norm(c.textContent)))
+      .sort((a, b) => b.filter(Boolean).length - a.filter(Boolean).length)[0] || [];
+    return { table, heads };
+  });
+  const match = parsed.find((x) => x.heads.some((h) => /^статус/i.test(h)) && x.heads.some((h) => /^(мастер|исполнитель|сотрудник)/i.test(h)));
+  if (!match) throw new Error('В списке CRM не найдена таблица заявок со столбцами «Статус» и «Мастер»');
+  const h = match.heads, index = (re) => h.findIndex((x) => re.test(x));
+  const iMaster = index(/^(мастер|исполнитель|сотрудник)/i), iId = index(/^(id|№|номер)/i);
+  const iStatus = index(/^статус/i), iType = index(/^тип/i);
+  const iCreated = index(/^(время заявки|дата.*заявк|время поступлен|создан|поступил)/i);
+  const iClosed = index(/^(закрыто|дата.*закрыт|время.*закрыт|дата.*проведен)/i);
+  const iAssigned = index(/^(дата|время).*(назнач|выдач|передач|отдач)|^(назнач|выдан).*(дата|время)/i);
+  const iCreatedLocal = index(/^создано\s*\(лок\)|^создано\s*\(локально\)/i);
+  const iPartner = index(/^(п|p)$/i);
+  const rows = [...match.table.querySelectorAll('tbody tr')].map((tr) => {
+    const c = (i) => (i >= 0 && tr.cells[i] ? norm(tr.cells[i].textContent) : '');
+    const rawId = c(iId >= 0 ? iId : 0);
+    const id = (rawId.match(/\d{5,}/) || [])[0];
+    return { id, master: c(iMaster), status: c(iStatus), type: c(iType),
+      created: c(iCreated), createdLocal: c(iCreatedLocal), partner: iPartner >= 0 ? dhPartnerFlag(tr.cells[iPartner]) : null,
+      closed: c(iClosed), assigned: c(iAssigned) };
+  }).filter((r) => r.id);
+  let total = 0;
+  const summary = norm((doc.querySelector('.summary') || {}).textContent);
+  const totalMatch = summary.match(/из\s*([\d\s\u00a0]+)/i);
+  if (totalMatch) total = Number(totalMatch[1].replace(/\D/g, '')) || 0;
+  return { rows, heads: h, dates: { created: iCreated >= 0, createdLocal: iCreatedLocal >= 0,
+    partner: iPartner >= 0, closed: iClosed >= 0, assigned: iAssigned >= 0 }, total };
+}
+async function dhTodayCounts(force = false) {
+  const day = dhDayKey();
+  if (!force && dhTodayCountsCache && dhTodayCountsCache.day === day && Date.now() - dhTodayCountsCache.at < 120000) return dhTodayCountsCache;
+  if (dhTodayCountsTask) return dhTodayCountsTask;
+  dhTodayCountsTask = (async () => {
+    const diagnostic = { day, pages: 0, scanned: 0, createdToday: 0, closedToday: 0, assignedToday: 0,
+      visibleToday: 0, withoutMaster: 0, journal: 0, partial: false, headers: [], errors: [] };
+    const seen = new Set(), groups = new Map(), breakdown = new Map();
+    const origin = { total: 0, our: 0, partner: 0, unknown: 0, dateField: null,
+      partnerColumnFound: false, partial: false, complete: false, at: null, invalidDates: 0, datedRows: 0 };
+    const add = (name, id) => {
+      const key = dhCountName(name); if (!key || !id) return;
+      if (!groups.has(key)) groups.set(key, new Set()); groups.get(key).add(String(id));
+    };
+    let hasDates = false, first = null, maxPage = 16, stopped = false;
+    try { first = await dhFetchCountPage(1); }
+    catch (e) { diagnostic.errors.push(String(e.message)); }
+    if (first) {
+      diagnostic.headers = first.heads;
+      origin.dateField = first.dates.createdLocal ? 'Создано (лок)' : first.dates.created ? 'Время заявки' : null;
+      origin.partnerColumnFound = first.dates.partner;
+      if (!first.dates.assigned) diagnostic.assignedToday = null; // нет такого столбца, это не ноль назначений
+      if (first.total && first.rows.length) maxPage = Math.min(16, Math.max(1, Math.ceil(first.total / first.rows.length)));
+      const process = (pageData) => {
+        diagnostic.pages++;
+        hasDates = hasDates || Object.values(pageData.dates).some(Boolean);
+        let fresh = 0;
+        for (const row of pageData.rows) {
+          if (seen.has(row.id)) continue;
+          seen.add(row.id); fresh++; diagnostic.scanned++;
+          // Созданные заявки учитываем независимо от назначения/закрытия и статуса «Работа СД».
+          const createdRaw = first.dates.createdLocal ? row.createdLocal : row.created;
+          if (createdRaw) {
+            origin.datedRows++;
+            if (!/(?:^|[^\d])(?:\d{4}-\d{1,2}-\d{1,2}|\d{1,2}[.\-/]\d{1,2}[.\-/]\d{2,4})(?!\d)/.test(createdRaw)) origin.invalidDates++;
+          }
+          if (origin.dateField && dhDateIsToday(createdRaw)) {
+            origin.total++;
+            if (row.partner === true) origin.partner++;
+            else if (row.partner === false) origin.our++;
+            else origin.unknown++;
+          }
+          if (/работа\s*сд/i.test(row.status + ' ' + row.type)) continue;
+          const a = dhDateIsToday(row.assigned), c = dhDateIsToday(row.created), x = dhDateIsToday(row.closed);
+          if (a && diagnostic.assignedToday !== null) diagnostic.assignedToday++;
+          if (c) diagnostic.createdToday++;
+          if (x) diagnostic.closedToday++;
+          if (!(a || c || x)) continue;
+          diagnostic.visibleToday++;
+          if (!row.master) { diagnostic.withoutMaster++; continue; }
+          add(row.master, row.id);
+          const key = dhCountName(row.master);
+          if (!breakdown.has(key)) breakdown.set(key, { created: new Set(), closed: new Set(), assigned: new Set(), journal: new Set() });
+          const br = breakdown.get(key);
+          if (c) br.created.add(row.id);
+          if (x) br.closed.add(row.id);
+          if (a) br.assigned.add(row.id);
+        }
+        return fresh;
+      };
+      process(first);
+      const deadline = Date.now() + 18000;
+      for (let page = 2; page <= maxPage && !stopped; page += 3) {
+        if (Date.now() > deadline) { diagnostic.partial = true; diagnostic.errors.push('Истёк лимит времени на проверку списка'); break; }
+        const nums = [page, page + 1, page + 2].filter((x) => x <= maxPage);
+        const batch = await Promise.allSettled(nums.map((n) => dhFetchCountPage(n)));
+        for (let i = 0; i < batch.length; i++) {
+          if (batch[i].status === 'rejected') {
+            diagnostic.partial = true;
+            diagnostic.errors.push('Страница ' + nums[i] + ': ' + String(batch[i].reason.message).slice(0, 100));
+            continue;
+          }
+          const data = batch[i].value;
+          if (!data.rows.length || !process(data)) { stopped = true; break; }
+        }
+      }
+      if (maxPage === 16 && !stopped && (!first.total || Math.ceil(first.total / first.rows.length) > 16)) diagnostic.partial = true;
+    }
+    // Журнал независим от списка и хранит только успешные назначения через это расширение.
+    try {
+      const r = await browser.storage.local.get('dhDailyAssignments');
+      for (const e of Object.values(((r.dhDailyAssignments || {})[day]) || {})) {
+        diagnostic.journal++; add(e.name, e.id);
+        const key = dhCountName(e.name);
+        if (!breakdown.has(key)) breakdown.set(key, { created: new Set(), closed: new Set(), assigned: new Set(), journal: new Set() });
+        breakdown.get(key).journal.add(e.id);
+      }
+    } catch (e) { diagnostic.errors.push('Журнал: ' + e.message); }
+    const counts = Object.fromEntries([...groups].map(([k, ids]) => [k, ids.size]));
+    // Агрегаты по ФИО мастеров для диагностики сопоставления с выпадающим списком.
+    // Адреса, телефоны, клиенты и номера заявок в диагностике отсутствуют.
+    diagnostic.byMaster = Object.entries(counts).map(([name, n]) => ({
+        name, count: n,
+        createdToday: breakdown.get(name)?.created.size || 0,
+        closedToday: breakdown.get(name)?.closed.size || 0,
+        assignmentDateToday: breakdown.get(name)?.assigned.size || 0,
+        recordedByExtension: breakdown.get(name)?.journal.size || 0
+      }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'ru'));
+    origin.partial = diagnostic.partial || origin.invalidDates > 0;
+    if (origin.datedRows > 0 && origin.invalidDates === origin.datedRows) origin.dateField = null;
+    origin.complete = !!first && !!origin.dateField && origin.partnerColumnFound && !origin.partial && origin.unknown === 0;
+    origin.at = Date.now();
+    diagnostic.originStats = origin;
+    diagnostic.source = 'CRM: создано / закрыто сегодня + локальные назначения';
+    diagnostic.masterNamesFound = diagnostic.byMaster.length;
+    diagnostic.canSeeAssignmentDate = !!(first && first.dates.assigned);
+    // Если CRM не предоставляет сегодняшние даты, отсутствие записи НЕ значит «0».
+    const complete = !!first && hasDates && diagnostic.visibleToday > diagnostic.withoutMaster && !diagnostic.partial;
+    const mode = complete ? 'estimate' : (Object.keys(counts).length ? 'partial' : 'unavailable');
+    return { ok: !!first || diagnostic.journal > 0, counts, origin, day, at: Date.now(), mode, complete, diagnostic,
+      err: !first ? (diagnostic.errors[0] || 'Не удалось прочитать список CRM') :
+        (!hasDates ? 'В списке CRM нет столбцов с датой' : (!diagnostic.visibleToday ? 'Не найдены записи с сегодняшней датой' : '')) };
+  })();
+  try {
+    const result = await dhTodayCountsTask;
+    // Сохраняем результат ненадолго; не создаём видимости реальных цифр, если CRM не читалась.
+    dhTodayCountsCache = result;
+    return result;
+  } finally { dhTodayCountsTask = null; }
+}
+
 // все заявки за сегодня (по страницам списка)
 async function todayRows(maxPages = 12) {
   const all = [], seen = new Set();

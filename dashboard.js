@@ -13,6 +13,33 @@ const pad = (n) => String(n).padStart(2, '0');
 const dd = (d) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
 const sameDay = (a, b) => a && b && a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 
+// Отдельная сводка «Создано сегодня» из списка CRM: не ждём тяжёлый городской отчёт.
+let TODAY_ORIGIN = null, TODAY_ORIGIN_LOADING = false;
+function dayKeyForOrigin() {
+  const d = new Date();
+  return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+}
+async function refreshOriginStats(force = false) {
+  if (!ROOT || PERIOD !== 'today' || TODAY_ORIGIN_LOADING) return;
+  const day = dayKeyForOrigin();
+  if (!force && TODAY_ORIGIN && TODAY_ORIGIN.day === day && Date.now() - TODAY_ORIGIN.at < 120000) return;
+  TODAY_ORIGIN_LOADING = true;
+  try {
+    const result = await browser.runtime.sendMessage({ tg: 'dhTodayCounts', force });
+    if (result && result.origin && result.origin.dateField) {
+      TODAY_ORIGIN = { day, at: Date.now(), data: result.origin, err: '' };
+    } else {
+      TODAY_ORIGIN = { day, at: Date.now(), data: null,
+        err: result && result.diagnostic && result.diagnostic.errors[0] || 'Не удалось прочитать даты создания' };
+    }
+  } catch (e) {
+    TODAY_ORIGIN = { day, at: Date.now(), data: null, err: String(e && e.message || e) };
+  } finally {
+    TODAY_ORIGIN_LOADING = false;
+    if (ROOT && PERIOD === 'today' && STATE && day === dayKeyForOrigin()) render();
+  }
+}
+
 let PERIOD = 'today';
 let CMP = 'day';
 let CMPON = false; // «Сегодня»: сравнение со вчера — только по кнопке
@@ -698,12 +725,27 @@ function renderInner() {
   const pms = cmp ? new Map(mastersOf(cmp.t.masters, cmp.reqRows).map((m) => [mkey(m.name), m])) : new Map();
   if (!cv && !ms.length) { view.innerHTML = '<div class="err">В отчёте нет данных за этот период.</div>'; return; }
 
-  const kp = [['Оборот', 'money'], ['Чистыми', 'money'], ['Заявок закрыто', 'n'], ['Отказов', 'n', true]].map(([name, type, inv], k) => {
+  let kp = [['Оборот', 'money'], ['Чистыми', 'money'], ['Заявок закрыто', 'n'], ['Отказов', 'n', true]].map(([name, type, inv], k) => {
     const a = cv && cv[name], b = pv && pv[name];
+    const closedOur = name === 'Заявок закрыто' && cv && cv['Закрыто наши'] != null
+      ? `<small class="dh-own-closed">(${fmt(cv['Закрыто наши'])} наши)</small>` : '';
     return `<div class="kpi${k === 0 ? ' main' : ''}"><div class="kl">${name}</div>
-      <div class="kv">${fmt(a)}${type === 'money' ? '<small>₽</small>' : ''}${pv ? delta(a, b, inv) : ''}</div>
+      <div class="kv">${fmt(a)}${type === 'money' ? '<small>₽</small>' : ''}${closedOur}${pv ? delta(a, b, inv) : ''}</div>
       <div class="ks">${pv ? esc(rg.cmpName) + ': ' + (type === 'money' ? money(b) : fmt(b)) : '&nbsp;'}</div></div>`;
   }).join('');
+  if (PERIOD === 'today') {
+    const origin = TODAY_ORIGIN && TODAY_ORIGIN.day === dayKeyForOrigin() ? TODAY_ORIGIN.data : null;
+    const incomplete = origin && origin.partial ? '≥' : '';
+    const total = origin && origin.dateField ? incomplete + fmt(origin.total) : '—';
+    const own = origin && origin.partnerColumnFound ? fmt(origin.our) : '—';
+    const partner = origin && origin.partnerColumnFound ? fmt(origin.partner) : '—';
+    const uncertainty = origin && origin.unknown ? ` · не определено: ${fmt(origin.unknown)}` : '';
+    const stale = TODAY_ORIGIN && TODAY_ORIGIN.day === dayKeyForOrigin() && TODAY_ORIGIN.err ? esc(TODAY_ORIGIN.err) : '';
+    kp += `<div class="kpi dh-created-kpi"><div class="kl">Создано сегодня</div>
+      <div class="kv">${total}</div><div class="ks">Наши: <b>${own}</b> · Партнёрские: <b>${partner}</b>${uncertainty}</div>
+      <div class="ks">${origin ? 'CRM · ' + esc(origin.dateField || 'дата не найдена') + (origin.partial ? ' · часть списка не проверена' : '')
+        : stale ? 'Источник недоступен: ' + stale : 'Проверяю список CRM…'}</div></div>`;
+  }
 
   const crit = CITY.map(([name, , type, inv]) => {
     const a = cv && cv[name], b = pv && pv[name];
@@ -749,7 +791,7 @@ function renderInner() {
       <tbody>${mrows || '<tr><td colspan="8" class="muted">Нет данных по мастерам</td></tr>'}</tbody></table></div></div>`;
 
   if (cv) donut($('#donut'), [
-    { label: 'Закрыто наши', value: cv['Закрыто наши'] || 0, color: '#15803d' },
+    { label: 'Закрыто наши (с рекламы)', value: cv['Закрыто наши'] || 0, color: '#0f766e' },
     { label: 'Закрыто партн.', value: cv['Закрыто партн.'] || 0, color: '#5cc58a' },
     { label: 'Отказов', value: cv['Отказов'] || 0, color: '#dc6b4a' }
   ].filter((x) => x.value > 0), { centerValue: cv['Оборот'], center: 'оборот, ₽' });
@@ -761,6 +803,7 @@ function renderInner() {
   }
   requestAnimationFrame(() => requestAnimationFrame(() => view.querySelectorAll('.tb').forEach((x) => x.classList.add('on'))));
   bindMotiv();
+  if (PERIOD === 'today') refreshOriginStats();
   const dg = $('#diag');
   if (dg) dg.onclick = async () => {
     const txt = 'Таблицы в отчёте:\n' + (cur.t.seen || []).join('\n');
@@ -1449,11 +1492,48 @@ async function tgText(m) {
     const cv = cityVals(cur.t.period);
     if (!cv) return { err: 'нет данных отчёта' };
     const ms = mastersOf(cur.t.masters, cur.reqRows).slice(0, 5);
-    return { text: `📊 ${m.dhSummary === 'month' ? 'Месяц' : 'Сегодня'} (${dd(rg.cur[0])}${m.dhSummary === 'month' ? ' – ' + dd(rg.cur[1]) : ''})\nОборот: ${money(cv['Оборот'])}\nЧистыми: ${money(cv['Чистыми'])}\nПринято: ${fmt(cv['Заявок принято'])} · закрыто: ${fmt(cv['Заявок закрыто'])} (наши ${fmt(cv['Закрыто наши'])})\nОтказов: ${fmt(cv['Отказов'])} · ср. чек ${money(cv['Чист. ср. чек'])}` +
+    let creationLine = '';
+    if (m.dhSummary !== 'month') {
+      const c = await browser.runtime.sendMessage({ tg: 'dhTodayCounts' }).catch(() => null);
+      const o = c && c.origin;
+      if (o && o.dateField) {
+        creationLine = `\nСоздано сегодня: ${o.partial ? '≥' : ''}${fmt(o.total)} · наши ${o.partnerColumnFound ? fmt(o.our) : '—'} · партн. ${o.partnerColumnFound ? fmt(o.partner) : '—'}` +
+          (o.unknown ? ` · не определено ${fmt(o.unknown)}` : '');
+      } else creationLine = '\nСоздано сегодня: нет данных из списка CRM';
+    }
+    return { text: `📊 ${m.dhSummary === 'month' ? 'Месяц' : 'Сегодня'} (${dd(rg.cur[0])}${m.dhSummary === 'month' ? ' – ' + dd(rg.cur[1]) : ''})\nОборот: ${money(cv['Оборот'])}\nЧистыми: ${money(cv['Чистыми'])}\nПринято: ${fmt(cv['Заявок принято'])} · закрыто: ${fmt(cv['Заявок закрыто'])} (наши ${fmt(cv['Закрыто наши'])})\nОтказов: ${fmt(cv['Отказов'])} · ср. чек ${money(cv['Чист. ср. чек'])}${creationLine}` +
       (ms.length ? '\n\n👷 Топ мастеров по ЗП:\n' + ms.map((x, i) => `${i + 1}. ${x.name.split(' ').slice(0, 2).join(' ')} — ${money(x.zp)}${x.refused != null ? ` · отказов ${x.refused}` : ''}`).join('\n') : '') };
   } catch (e) { return { err: e.message }; }
 }
 // оборот за сегодня: по городу и по мастерам (для общего чата мастеров)
+// Счётчики для вкладки «Раздача»: использует тот же «Отчёт по городу»,
+// что и аналитика, но каждый раз запрашивает свежие данные за сегодняшний день.
+async function todayMasterReport() {
+  try {
+    const r = ranges('today', 'day');
+    const data = await loadAll(r.cur, false);
+    const tb = data && data.t && data.t.masters;
+    if (!tb) throw new Error('В отчёте за сегодня не найдена таблица мастеров');
+    const iName = col(tb, /^фио$/i);
+    const iQty = col(tb, /количество\s+заявок/i);
+    const iSd = col(tb, /^сд$/i);
+    if (iName < 0 || iQty < 0) throw new Error('В отчёте нет колонок «ФИО» или «Количество заявок»');
+    const counts = {};
+    for (const row of tb.rows) {
+      const name = String(row[iName] || '').replace(/\s*\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()
+        .toLowerCase().replace(/ё/g, 'е');
+      if (!name) continue;
+      const all = parseNum(row[iQty]);
+      const sd = iSd >= 0 ? parseNum(row[iSd]) : null;
+      // СД — отдельная категория, не обычная раздача; если значение неизвестно,
+      // не вычитаем его наугад.
+      counts[name] = all == null ? null : Math.max(0, all - (sd == null ? 0 : sd));
+    }
+    if (!Object.keys(counts).length) throw new Error('Таблица мастеров за сегодня пустая');
+    return { ok: true, counts, at: Date.now(), source: 'city-report', period: 'today' };
+  } catch (e) { return { ok: false, err: e.message }; }
+}
+
 async function dayTurn() {
   try {
     const rg = ranges('today', 'day');
@@ -1494,5 +1574,5 @@ async function masterStat(a) {
       `Место среди мастеров: ${place} из ${all.length}` };
   } catch (e) { return { err: e.message }; }
 }
-window.__mncDash = { masterStat, dayTurn, tgText, refreshAll, open, close, toggle: (mode) => { mode = mode || 'an'; if (document.getElementById('mnc-dash') && MODE === mode) close(); else open(mode); } };
+window.__mncDash = { masterStat, dayTurn, todayMasterReport, tgText, refreshAll, open, close, toggle: (mode) => { mode = mode || 'an'; if (document.getElementById('mnc-dash') && MODE === mode) close(); else open(mode); } };
 })();
