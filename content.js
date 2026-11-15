@@ -131,7 +131,10 @@
       <div class="mnc-wrap"><div class="mnc-body">
         ${withId ? '<input class="mnc-id" type="text" inputmode="numeric" placeholder="№ заявки (галочка в списке)">' : ''}
         <input class="mnc-f" type="text" placeholder="Фамилия мастера…" autocomplete="off">
+        <label class="mnc-lbl">Мастера · заказы за сегодня (оценка)</label>
         <select class="mnc-s" size="6"></select>
+        <div class="mnc-lbl mnc-count-note" style="text-transform:none;letter-spacing:normal;margin:0">Откройте раздачу для подсчёта.</div>
+        <button type="button" class="mnc-count-diag" style="border:0;background:transparent;color:inherit;opacity:.75;cursor:pointer;font:inherit;font-size:11px;text-align:left;padding:0">ⓘ Скопировать диагностику счётчика</button>
         <button type="button" class="mnc-refresh-masters">↻ Обновить мастеров из CRM</button>
         <label class="mnc-lbl">Статус</label><select class="mnc-st"></select>
         <button class="mnc-b" disabled>Отдать мастеру ⏎</button>
@@ -164,21 +167,95 @@
   browser.storage.local.get('tg').then((r) => { const g = (r.tg && r.tg.groups) || {}; Object.values(g).forEach((x) => { if (x.empId) TG_PEOPLE[String(x.empId)] = x; }); }).catch(() => {});
   function wire(p, masters, go) {
     const f = p.querySelector('.mnc-f'), sel = p.querySelector('.mnc-s'), btn = p.querySelector('.mnc-b');
+    const note = p.querySelector('.mnc-count-note');
+    let counts = null, mode = 'unavailable', checkedAt = 0, counting = false, lastDiagnostic = null;
+    const keyOf = (s) => String(s || '').replace(/\s*\([^)]*\)/g, '').replace(/^мнч\s+/i, '')
+      .replace(/\s+/g, ' ').trim().toLowerCase().replace(/ё/g, 'е');
+    const normalizeName = (s) => String(s || '').replace(/\s*\([^)]*\)/g, ' ')
+      .replace(/^мнч\s+/i, '').replace(/[.,;:]+/g, ' ').replace(/\s+/g, ' ')
+      .trim().toLowerCase().replace(/ё/g, 'е');
+    const countInfoOf = (name) => {
+      if (!counts) return { count: '—', match: 'not-loaded', keys: [] };
+      const k = normalizeName(name);
+      const keys = Object.keys(counts);
+      if (Object.prototype.hasOwnProperty.call(counts, k))
+        return { count: counts[k], match: 'exact', keys: [k] };
+      // У имён может отличаться порядок имени и фамилии, присутствовать отчество.
+      // Допускаем только единственное однозначное совпадение.
+      const own = k.split(' ').filter(Boolean);
+      const matches = keys.filter((other) => {
+        const words = normalizeName(other).split(' ').filter(Boolean);
+        if (!own.length || !words.length) return false;
+        if (own.length > 1 && words.length > 1) {
+          const surnameAndName = own.slice(0, 2).every((w) => words.includes(w));
+          if (surnameAndName) return true;
+        }
+        // Фамилия + инициалы: «Кутузов С» / «Кутузов Сергей».
+        if (own.length >= 2 && words.length >= 2 && own[0] === words[0] &&
+            own[1][0] === words[1][0] && (own[1].length === 1 || words[1].length === 1)) return true;
+        // ФИО может быть сокращено в таблице до фамилии.
+        return own.length > 1 && words.length === 1 && own[0] === words[0];
+      });
+      if (matches.length === 1 && counts[matches[0]] != null)
+        return { count: counts[matches[0]], match: 'unique-name', keys: matches };
+      return { count: '—', match: matches.length ? 'ambiguous' : 'not-found', keys: matches };
+    };
+    const countOf = (name) => countInfoOf(name).count;
     const render = () => {
       const q = f.value.trim().toLowerCase();
       const previous = sel.value;
       sel.innerHTML = '';
-      masters.map((m) => { const t = TG_PEOPLE[String(m.id)]; return { id: m.id, name: t && t.how === 'free' ? `${t.person} · через ${clean(m.name)}` : (t ? `${clean(m.name)} ✈` : m.name) }; })
-        .filter((m) => !q || m.name.toLowerCase().includes(q)).forEach((m) => sel.add(new Option(m.name, m.id)));
+      masters.map((m) => {
+        const t = TG_PEOPLE[String(m.id)];
+        const name = t && t.how === 'free' ? t.person + ' · через ' + clean(m.name) : (t ? clean(m.name) + ' ✈' : m.name);
+        const count = countOf(m.name);
+        const prefix = typeof count === 'number' ? (mode === 'estimate' ? '≈' : '≥') : '';
+        const label = name + ' · ' + prefix + count + ' сегодня';
+        return { id: m.id, name, label };
+      }).filter((m) => !q || m.name.toLowerCase().includes(q)).forEach((m) => sel.add(new Option(m.label, m.id)));
       if (sel.options.length) { sel.selectedIndex = 0; if ([...sel.options].some(o => o.value === previous)) sel.value = previous; }
       btn.disabled = !sel.options.length;
+    };
+    async function refreshCounts(force = false) {
+      if (counting || (!force && checkedAt && Date.now() - checkedAt < 120000)) return;
+      counting = true;
+      note.textContent = 'Проверяю список CRM и журнал назначений…';
+      try {
+        const r = await browser.runtime.sendMessage({ tg: 'dhTodayCounts', force });
+        if (!r) throw new Error('Нет ответа от расширения');
+        lastDiagnostic = r.diagnostic || null;
+        if (!r.ok) throw new Error(r.err || 'Не удалось прочитать список CRM');
+        counts = r.counts || {}; mode = r.mode || 'unavailable'; checkedAt = r.at || Date.now();
+        const tm = new Date(checkedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        note.textContent = mode === 'estimate'
+          ? '≈ Оценка по созданным/закрытым сегодня · ' + tm
+          : mode === 'partial' ? '≥ По журналу + часть списка · ' + tm + ' (не все данные)'
+          : 'Нет достоверной статистики за сегодня · ' + tm;
+      } catch (e) {
+        if (!counts) { mode = 'unavailable'; checkedAt = 0; }
+        note.textContent = 'Данные не обновлены: ' + e.message;
+      } finally { counting = false; render(); }
+    }
+    p.querySelector('.mnc-count-diag').onclick = async () => {
+      const nameMatches = masters.map((m) => {
+        const info = countInfoOf(m.name);
+        return { master: m.name, displayed: info.count, matchedBy: info.match, sourceNames: info.keys };
+      });
+      const data = JSON.stringify({ version: browser.runtime.getManifest().version, mode, diagnostic: lastDiagnostic, nameMatches }, null, 2);
+      try { await navigator.clipboard.writeText(data); note.textContent = 'Диагностика скопирована — пришлите текст для проверки'; }
+      catch (e) { window.prompt('Скопируйте диагностику счётчика:', data); }
     };
     render();
     f.addEventListener('input', render);
     f.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
     sel.addEventListener('dblclick', go);
     btn.addEventListener('click', (e) => { e.preventDefault(); go(); });
-    return { f, sel, btn, setMasters: (list) => { masters = list; render(); }, show: (t, c) => { const m = p.querySelector('.mnc-m'); m.textContent = t; m.className = 'mnc-m ' + (c || ''); } };
+    new MutationObserver(() => { if (!p.classList.contains('mnc-min')) refreshCounts(); })
+      .observe(p, { attributes: true, attributeFilter: ['class'] });
+    setInterval(() => { if (!document.hidden && !p.classList.contains('mnc-min')) refreshCounts(); }, 120000);
+    return { f, sel, btn, setMasters: (list) => { masters = list; render(); },
+      getMaster: (id) => masters.find((m) => String(m.id) === String(id)), refreshCounts,
+      show: (t, c) => { const m = p.querySelector('.mnc-m'); m.textContent = t; m.className = 'mnc-m ' + (c || ''); } };
   }
 
   const DEFAULT_STATUSES = [{ id: '4', name: 'В пути' }];
@@ -233,7 +310,7 @@
     const refresh = p.querySelector('.mnc-refresh-masters');
     refresh.onclick = async () => {
       refresh.disabled = true; ui.setMasters([]); ui.show('Загружаю актуальных мастеров из CRM…');
-      try { const list = await loadMasters(idIn.value.trim()); ui.setMasters(list); ui.show(list.length ? `Мастеров в CRM: ${list.length}` : 'Не удалось получить мастеров. Проверьте вход в CRM и нажмите «Обновить мастеров».', list.length ? '' : 'err'); }
+      try { const list = await loadMasters(idIn.value.trim()); ui.setMasters(list); ui.show(list.length ? `Мастеров в CRM: ${list.length}` : 'Не удалось получить мастеров. Проверьте вход в CRM и нажмите «Обновить мастеров».', list.length ? '' : 'err'); if (list.length) ui.refreshCounts(true); }
       finally { refresh.disabled = false; }
     };
     refresh.click();
@@ -294,13 +371,15 @@
       const id = idIn.value.trim();
       if (!/^\d+$/.test(id)) return ui.show('Укажите № заявки', 'err');
       if (!ui.sel.value) return;
-      const master = { id: ui.sel.value, name: ui.sel.options[ui.sel.selectedIndex].text };
+      const master = ui.getMaster(ui.sel.value);
+      if (!master) return ui.show('Мастер не найден в актуальном списке CRM', 'err');
       ui.btn.disabled = true;
       const stName = stSel.options[stSel.selectedIndex] ? stSel.options[stSel.selectedIndex].text.trim() : 'В пути';
       const name = clean(master.name);
       ui.show(`Заявка ${id} → ${name}, ${stName}…`);
       try {
         const r = await bgAssign(id, master.id, stName, (m, c) => ui.show(m, c));
+        browser.runtime.sendMessage({ tg: 'dhTodayCountsReset' }).catch(() => {});
         browser.runtime.sendMessage({ tg: 'assigned', id, name, empId: master.id, st: stName, info: r.info }).catch(() => {});
         openTg(name);
         await browser.storage.local.set({ lastName: name, lastSt: stName, lastT: Date.now(), closeIds: r.blocking, closeAsked: r.asked, closeSelf: id, closeMaster: name.split(/\s+/)[0], closeSt: stName, closeT: Date.now() });
@@ -327,6 +406,7 @@
       ui.btn.disabled = true; ui.show(`${name} → ${stName}…`);
       try {
         const r = await bgAssign(reqId(), ui.sel.value, stName, (t, c) => ui.show(t, c));
+        browser.runtime.sendMessage({ tg: 'dhTodayCountsReset' }).catch(() => {});
         browser.runtime.sendMessage({ tg: 'assigned', id: reqId(), name, empId: ui.sel.value, st: stName, info: r.info }).catch(() => {});
         openTg(name);
         await browser.storage.local.set({ lastName: name, lastSt: stName, lastT: Date.now(), closeIds: r.blocking, closeAsked: r.asked, closeSelf: reqId(), closeMaster: name.split(/\s+/)[0], closeSt: stName, closeT: Date.now() });
@@ -335,7 +415,7 @@
       } catch (e) { ui.btn.disabled = false; ui.show('Ошибка: ' + e.message, 'err'); }
     });
     ui.show('Мастеров в списке: ' + masters.length);
-    p.querySelector('.mnc-refresh-masters').onclick = () => { masters = mastersFrom(empSelect); ui.setMasters(masters); browser.storage.local.set({ masters, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }).catch(() => {}); ui.show('Мастеров в CRM: ' + masters.length); };
+    p.querySelector('.mnc-refresh-masters').onclick = () => { masters = mastersFrom(empSelect); ui.setMasters(masters); ui.refreshCounts(true); browser.storage.local.set({ masters, mastersAt: Date.now(), mastersSource: 'crm-live-v2' }).catch(() => {}); ui.show('Мастеров в CRM: ' + masters.length); };
     new MutationObserver(() => p.querySelector('.mnc-refresh-masters').click()).observe(empSelect, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'hidden', 'label'] });
     closeSection(p, false);
 
@@ -847,6 +927,11 @@
       const real = await readReq(id);
       if (!real || !stRe.test(real.st)) throw new Error(`статус не поменялся (в CRM «${(real && real.st) || '?'}») — мастеру не отправлено` + (blocking.length ? `. Закройте заказ №${blocking.join(', №')}` : ''));
       if (real.emp && real.emp !== String(empId)) throw new Error('мастер в CRM не сохранился — мастеру не отправлено');
+      // Событие добавляем только после проверки сохранения CRM, без влияния на основную раздачу.
+      try {
+        const who = norm(e.selectedOptions && e.selectedOptions[0] && e.selectedOptions[0].text || String(empId));
+        await browser.runtime.sendMessage({ tg: 'dhRecordAssignment', id: String(id), empId: String(empId), name: who });
+      } catch (err) {} // при отказе хранилища не откатываем уже сохранённую заявку
       return { copied, info, blocking, asked: log.length > 0 };
     } finally { pg.close(); }
   }
@@ -1012,6 +1097,7 @@
       } catch (e) { return { err: e.message }; } finally { if (pg) pg.close(); }
     })();
     if (m && m.dhStatus) return bgStatus(String(m.dhStatus.id), m.dhStatus.st).catch((e) => ({ err: e.message }));
+    if (m && m.dhTodayMasterReport) return (window.__mncDash && window.__mncDash.todayMasterReport ? window.__mncDash.todayMasterReport() : Promise.resolve({ ok: false, err: 'Отчёт CRM недоступен в этой вкладке' }));
     if (m && m.dhDayTurn) return (window.__mncDash && window.__mncDash.dayTurn ? window.__mncDash.dayTurn() : Promise.resolve({ err: 'аналитика не загружена' }));
     if (m && m.dhMasterStat) return (window.__mncDash && window.__mncDash.masterStat ? window.__mncDash.masterStat(m.dhMasterStat) : Promise.resolve({ err: 'аналитика не загружена' }));
     if (m && (m.dhSummary || m.dhSalary)) return (window.__mncDash && window.__mncDash.tgText ? window.__mncDash.tgText(m) : Promise.resolve({ err: 'аналитика не загружена' }));
