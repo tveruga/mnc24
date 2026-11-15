@@ -131,7 +131,7 @@
       <div class="mnc-wrap"><div class="mnc-body">
         ${withId ? '<input class="mnc-id" type="text" inputmode="numeric" placeholder="№ заявки (галочка в списке)">' : ''}
         <input class="mnc-f" type="text" placeholder="Фамилия мастера…" autocomplete="off">
-        <label class="mnc-lbl">Мастера · заявок сегодня</label>
+        <label class="mnc-lbl">Мастера · заявок сегодня (отчёт)</label>
         <select class="mnc-s" size="6"></select>
         <div class="mnc-lbl mnc-count-note" style="text-transform:none;letter-spacing:normal;margin:0">Откройте раздачу для подсчёта.</div>
         <button type="button" class="mnc-refresh-masters">↻ Обновить мастеров из CRM</button>
@@ -173,9 +173,14 @@
     const countOf = (name) => {
       if (!counts) return '—';
       const k = keyOf(name);
-      if (Object.prototype.hasOwnProperty.call(counts, k)) return counts[k];
-      const similar = Object.keys(counts).filter((other) => other.startsWith(k + ' ') || k.startsWith(other + ' '));
-      return similar.length === 1 ? counts[similar[0]] : (similar.length ? '?' : 0);
+      const keys = Object.keys(counts);
+      if (Object.prototype.hasOwnProperty.call(counts, k)) return counts[k] == null ? '—' : counts[k];
+      // Сопоставляем по ФИО либо по уникальной фамилии, если CRM и отчёт
+      // показывают имя с разной длиной. Неоднозначность не превращаем в 0.
+      const parts = k.split(' ');
+      const full = keys.filter((other) => other === k || other.startsWith(k + ' ') || k.startsWith(other + ' '));
+      const similar = full.length ? full : keys.filter((other) => other.split(' ')[0] === parts[0]);
+      return similar.length === 1 && counts[similar[0]] != null ? counts[similar[0]] : '—';
     };
     const render = () => {
       const q = f.value.trim().toLowerCase();
@@ -185,7 +190,7 @@
         const t = TG_PEOPLE[String(m.id)];
         const name = t && t.how === 'free' ? t.person + ' · через ' + clean(m.name) : (t ? clean(m.name) + ' ✈' : m.name);
         const count = countOf(m.name);
-        const label = name + ' · ' + (partial && typeof count === 'number' ? '≥' : '') + count + ' сегодня';
+        const label = name + ' · ' + count + ' сегодня';
         return { id: m.id, name, label };
       }).filter((m) => !q || m.name.toLowerCase().includes(q)).forEach((m) => sel.add(new Option(m.label, m.id)));
       if (sel.options.length) { sel.selectedIndex = 0; if ([...sel.options].some(o => o.value === previous)) sel.value = previous; }
@@ -194,14 +199,14 @@
     async function refreshCounts(force = false) {
       if (counting || (!force && checkedAt && Date.now() - checkedAt < 120000)) return;
       counting = true;
-      note.textContent = 'Считаю заявки по списку CRM…';
+      counts = null; render();
+      note.textContent = 'Загружаю отчёт CRM за сегодня…';
       try {
         const r = await browser.runtime.sendMessage({ tg: 'dhTodayCounts', force });
         if (!r || !r.ok) throw new Error((r && r.err) || 'Нет ответа от расширения');
-        counts = r.counts; partial = r.partial === true; checkedAt = r.at || Date.now();
-        note.textContent = 'Созданы сегодня, закреплены сейчас · ' +
-          new Date(checkedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) +
-          (partial ? ' · неполный подсчёт (≥)' : '');
+        counts = r.counts; partial = false; checkedAt = r.at || Date.now();
+        note.textContent = 'Из «Отчёта по городу» · ' +
+          new Date(checkedAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
       } catch (e) {
         counts = null; partial = false; checkedAt = 0;
         note.textContent = 'Не удалось получить счётчики: ' + e.message;
@@ -1054,6 +1059,7 @@
       } catch (e) { return { err: e.message }; } finally { if (pg) pg.close(); }
     })();
     if (m && m.dhStatus) return bgStatus(String(m.dhStatus.id), m.dhStatus.st).catch((e) => ({ err: e.message }));
+    if (m && m.dhTodayMasterReport) return (window.__mncDash && window.__mncDash.todayMasterReport ? window.__mncDash.todayMasterReport() : Promise.resolve({ ok: false, err: 'Отчёт CRM недоступен в этой вкладке' }));
     if (m && m.dhDayTurn) return (window.__mncDash && window.__mncDash.dayTurn ? window.__mncDash.dayTurn() : Promise.resolve({ err: 'аналитика не загружена' }));
     if (m && m.dhMasterStat) return (window.__mncDash && window.__mncDash.masterStat ? window.__mncDash.masterStat(m.dhMasterStat) : Promise.resolve({ err: 'аналитика не загружена' }));
     if (m && (m.dhSummary || m.dhSalary)) return (window.__mncDash && window.__mncDash.tgText ? window.__mncDash.tgText(m) : Promise.resolve({ err: 'аналитика не загружена' }));
