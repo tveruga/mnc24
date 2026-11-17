@@ -46,6 +46,7 @@ dhThemeButton(document.getElementById('theme'));
 // «?» — что нового
 const news = document.getElementById('news');
 news.onclick = () => dhShowNews(document);
+document.getElementById('pcs').onclick = () => dhShowDevices(document);
 dhNewsDot(news);
 // версия — в подсказке «?» (обновиться: «?» → «⟳ Обновить»)
 try { news.title = 'Что нового и обновление (сейчас ' + browser.runtime.getManifest().version + ')'; } catch (e) {}
