@@ -1547,3 +1547,131 @@ async function tgCleanTemp(force) {
 }
 browser.alarms.create('dh-clean', { delayInMinutes: 5, periodInMinutes: 60 });
 browser.alarms.onAlarm.addListener((a) => { if (a.name === 'dh-clean') tgLoad().then(() => tgCleanTemp()).catch(() => {}); });
+
+
+// ================= Компьютеры DIR HELPER: отдельный закрытый канал =================
+// Синхронизация добровольная; не читаем историю браузера, IP, заявки или токен в реестр.
+const DH_PC_MARK = 'DIR HELPER · компьютеры · v1\n';
+const DH_PC_TTL = 30 * 864e5, DH_PC_ONLINE = 4 * 60e3;
+let dhPcBusy = false, dhPcTimer = null, dhPcPromise = null;
+const dhPcName = (s) => String(s || '').replace(/[\u0000-\u001f\u007f]/g,' ').replace(/\s+/g,' ').trim().slice(0,32);
+function dhPcChatId(s) {
+  s = String(s || '').trim();
+  if (/^-100\d{5,16}$/.test(s)) return s;
+  const m = s.match(/^https:\/\/t\.me\/c\/(\d{5,16})\/\d+(?:[/?#].*)?$/i);
+  return m ? '-100' + m[1] : '';
+}
+function dhPcParse(msg) {
+  if (!msg || typeof msg.text !== 'string' || !msg.text.startsWith(DH_PC_MARK)) throw new Error('В закрепе нет служебного реестра DIR HELPER');
+  let data; try { data = JSON.parse(msg.text.slice(DH_PC_MARK.length)); } catch(e) { throw new Error('Реестр повреждён'); }
+  if (!data || data.v !== 1 || !Array.isArray(data.pcs) || data.pcs.length > 40) throw new Error('Неизвестный формат реестра');
+  return data.pcs.filter(x => x && /^[A-Z0-9-]{4,40}$/i.test(x.id) && Number.isFinite(x.last) && x.last > 0).map(x => ({
+    id: x.id, name: dhPcName(x.name), ver: String(x.ver || '').slice(0,16), last: x.last,
+    bot: ['off','on','standby','active','paused'].includes(x.bot) ? x.bot : 'off'
+  }));
+}
+function dhPcMerge(...lists) {
+  const now = Date.now(), map = new Map();
+  for (const xs of lists) for (const x of xs || []) {
+    if (!x || x.last < now - DH_PC_TTL || x.last > now + 5 * 60e3) continue;
+    if (!map.has(x.id) || map.get(x.id).last <= x.last) map.set(x.id,x);
+  }
+  return [...map.values()].sort((a,b)=>b.last-a.last);
+}
+const dhPcText = (pcs) => DH_PC_MARK + JSON.stringify({v:1,pcs});
+async function dhPcCall(token,method,params) {
+  if (!token) throw new Error('Настройте общий токен Telegram-бота');
+  const ac = new AbortController(), timeout = setTimeout(()=>ac.abort(),12000);
+  try {
+    const r = await fetch('https://api.telegram.org/bot'+token+'/'+method,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params),signal:ac.signal});
+    const j = await r.json();
+    if (!j.ok) {
+      const err = new Error(j.error_code === 429 ? 'Telegram ограничил частоту запросов' : j.error_code === 403 ? 'У бота нет доступа к каналу' : j.error_code === 400 ? 'Проверьте ID канала и права бота' : 'Ошибка Telegram ('+j.error_code+')');
+      err.code=j.error_code; err.notModified=/message is not modified/i.test(j.description || ''); throw err;
+    }
+    return j.result;
+  } catch(e) { if(e.name==='AbortError') throw new Error('Telegram не ответил за 12 секунд'); if(e.code) throw e; throw new Error('Нет связи с Telegram'); }
+  finally { clearTimeout(timeout); }
+}
+async function dhPcLocal() {
+  const s = await browser.storage.local.get(['dhInstance','dhPcName','dhPcChannel','tg','tgDiag','tgHere','dhPcCache']);
+  // Сохраняем существующий код /версия, не снимаем системный hostname.
+  let id = s.dhInstance;
+  if (!id) { id = crypto.randomUUID().replace(/-/g,'').slice(0,12).toUpperCase(); await browser.storage.local.set({dhInstance:id}); }
+  const recent = s.tgDiag && s.tgDiag.ok && Date.now()-s.tgDiag.ok < 90e3;
+  const bot = s.tgHere !== true ? 'off' : TG_PAUSED ? 'paused' : recent ? 'active' : s.tgDiag && s.tgDiag.standby ? 'standby' : 'on';
+  return {s,token:(s.tg || {}).token || '',channel:s.dhPcChannel || '',self:{id,name:dhPcName(s.dhPcName)||('ПК '+id),ver:browser.runtime.getManifest().version,last:Date.now(),bot}};
+}
+async function dhPcRead(token,channel) {
+  const chat = await dhPcCall(token,'getChat',{chat_id:channel});
+  if (chat.type!=='channel' || chat.username || (chat.active_usernames || []).length) throw new Error('Нужен закрытый канал Telegram без публичного адреса');
+  return chat;
+}
+async function dhPcSync() {
+  if(dhPcPromise) return dhPcPromise;
+  dhPcPromise=(async()=>{
+    const local=await dhPcLocal(), {s,self,token,channel}=local;
+    if (!channel) return {ok:true,configured:false,self,pcs:[self]};
+    const key=channel;
+    try {
+      const chat=await dhPcRead(token,key), msg=chat.pinned_message;
+      let pcs=dhPcParse(msg);
+      const cache=s.dhPcCache && s.dhPcCache.channel===key && s.dhPcCache.mid===msg.message_id ? s.dhPcCache.pcs : [];
+      pcs=dhPcMerge(pcs,cache,[self]);
+      const body=dhPcText(pcs);
+      if (pcs.length>30 || body.length>3900) throw new Error('Реестр заполнен (не более 30 ПК)');
+      try { await dhPcCall(token,'editMessageText',{chat_id:key,message_id:msg.message_id,text:body}); }
+      catch(e){ if(!e.notModified) throw e; }
+      // Одновременные записи возможны: читаем результат и сохранить последнее увиденное.
+      const actual=await dhPcRead(token,key);
+      if(!actual.pinned_message || actual.pinned_message.message_id!==msg.message_id) throw new Error('Закреп реестра изменился');
+      const read=dhPcParse(actual.pinned_message), merged=dhPcMerge(pcs,read);
+      const visible=read.find(x=>x.id===self.id && x.last>=self.last);
+      await browser.storage.local.set({dhPcCache:{channel:key,mid:msg.message_id,pcs:merged,at:Date.now()}});
+      return {ok:true,configured:true,channel:key,self,pcs:merged,at:Date.now(),pending:!visible};
+    } catch(e) {
+      const cache=s.dhPcCache && s.dhPcCache.channel===key ? s.dhPcCache : null;
+      return {ok:false,configured:true,channel:key,self,pcs:dhPcMerge(cache && cache.pcs,[self]),at:cache && cache.at,err:e.message};
+    }
+  })().finally(()=>{dhPcPromise=null;});
+  return dhPcPromise;
+}
+async function dhPcSetup(m) {
+  if(dhPcBusy) throw new Error('Настройка уже выполняется');
+  dhPcBusy=true;
+  try {
+    if(dhPcPromise) await dhPcPromise;
+    const local=await dhPcLocal(), key=dhPcChatId(m.channel), name=dhPcName(m.name);
+    if(!key) throw new Error('Вставьте ID -100… или ссылку на сообщение t.me/c/…');
+    const chat=await dhPcRead(local.token,key);
+    if(!chat.pinned_message) {
+      if(m.create!==true) throw new Error('Реестр ещё не создан. Создайте его один раз на первом ПК.');
+      const text=dhPcText([]);
+      const msg=await dhPcCall(local.token,'sendMessage',{chat_id:key,text,disable_notification:true});
+      try { await dhPcCall(local.token,'pinChatMessage',{chat_id:key,message_id:msg.message_id,disable_notification:true}); }
+      catch(e){ throw new Error('Не удалось закрепить реестр. Дайте боту право редактировать сообщения.'); }
+      const verify=await dhPcRead(local.token,key);
+      if(!verify.pinned_message || verify.pinned_message.message_id!==msg.message_id) throw new Error('Закреп не подтверждён');
+      dhPcParse(verify.pinned_message);
+    } else { dhPcParse(chat.pinned_message); }
+    await browser.storage.local.set({dhPcChannel:key,dhPcName:name});
+    await browser.storage.local.remove('dhPcCache');
+  } finally {dhPcBusy=false;}
+  return dhPcSync();
+}
+function dhPcSchedule() {
+  clearTimeout(dhPcTimer);
+  dhPcTimer=setTimeout(async()=>{try{if(!dhPcBusy && (await browser.storage.local.get('dhPcChannel')).dhPcChannel) await dhPcSync();}catch(e){}finally{dhPcSchedule();}},60000+Math.random()*20000);
+}
+dhPcSchedule();
+browser.runtime.onMessage.addListener(m=>{
+  if(!m || !m.dhPc) return;
+  const run=async()=>{
+    if(m.dhPc==='setup') return dhPcSetup(m);
+    if(m.dhPc==='name') {await browser.storage.local.set({dhPcName:dhPcName(m.name)}); if(dhPcPromise) await dhPcPromise; return dhPcSync();}
+    if(m.dhPc==='disconnect') {if(dhPcPromise) await dhPcPromise; await browser.storage.local.remove(['dhPcChannel','dhPcCache']); return dhPcSync();}
+    if(m.dhPc==='list') return dhPcSync();
+    throw new Error('Неизвестная команда');
+  };
+  return run().catch(e=>({ok:false,err:e.message}));
+});
