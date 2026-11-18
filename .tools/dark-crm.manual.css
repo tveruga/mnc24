@@ -32,3 +32,6 @@ html.dh-dark .dropdown-item:hover,html.dh-dark .dropdown-item:focus{background-c
 html.dh-dark nav.navbar ul.nav>li.dropdown>.dropdown-menu a:hover{background-color:#166534!important}
 /* картинки — без изменений */
 html.dh-dark img{filter:none}
+
+/* СД: тёмный янтарь и золотой контур, без изменения размеров таблетки. */
+html.dh-dark .dh-lit.dh-work-sd .dh-pill,html.dh-lt .dh-lit.dh-work-sd .dh-pill,html.dh-dark .dh-lit.dh-work-sd:not(.dh-pilled),html.dh-lt .dh-lit.dh-work-sd:not(.dh-pilled){box-shadow:inset 0 0 0 1.2px var(--st-dot)!important}
