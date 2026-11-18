@@ -33,6 +33,7 @@ var DH_THEMES = [
   const ST_D = [
     [/^ожида/, '#145438', '#a1f4bf'],
     [/^в пути/, '#0c4f60', '#8eeafa'],
+    [/^в работе\s+сд(?:\s|\(|$)/i, '#3e290d', '#ffcf7a', '#bd852d'],
     [/^в работе/, '#62400c', '#ffdb87'],
     [/^гарант/, '#6a203b', '#ffc0d4'],
     [/^готов/, '#233f7a', '#bed5ff'],
@@ -44,6 +45,7 @@ var DH_THEMES = [
   const ST_L = [
     [/^ожида/, '#9ee8b6', '#10542b', '#22c55e'],
     [/^в пути/, '#9fe3f2', '#07556b', '#06b6d4'],
+    [/^в работе\s+сд(?:\s|\(|$)/i, '#fff1d0', '#793c04', '#b77919'],
     [/^в работе/, '#ffd28b', '#793c04', '#f59e0b'],
     [/^гарант/, '#ffb4ce', '#8c103b', '#f43f5e'],
     [/^готов/, '#b4ceff', '#183f96', '#3b82f6'],
@@ -66,7 +68,7 @@ var DH_THEMES = [
     if (isExt) return;
     const de = document.documentElement, dark = de.classList.contains('dh-dark'), light = de.classList.contains('dh-lt');
     const old = [...document.querySelectorAll('td.dh-lit,th.dh-lit')];
-    old.forEach((td) => td.classList.remove('dh-lit', 'dh-pilled'));   // читаем исходную заливку CRM (без нашей подмены)
+    old.forEach((td) => td.classList.remove('dh-lit', 'dh-pilled', 'dh-work-sd'));   // читаем исходную заливку CRM (без нашей подмены)
     if (!dark && !light) { if (mo) mo.takeRecords(); return; }
     // фоны самой светлой палитры — не статусы
     const own = new Set();
@@ -116,6 +118,7 @@ var DH_THEMES = [
     res.forEach(([td, bg, fg, dot]) => {
       td.style.setProperty('--st-bg', bg); td.style.setProperty('--st-fg', fg); td.style.setProperty('--st-dot', dot);
       td.classList.add('dh-lit'); if (pill(td)) td.classList.add('dh-pilled');
+      td.classList.toggle('dh-work-sd', /^в работе\s+сд(?:\s|\(|$)/i.test(String(td.textContent || '').trim().replace(/\s+/g, ' ')));
       td.classList.toggle('dh-pill-t', /^\d{1,2}\.\d{1,2}\.\d{2,4}/.test((td.textContent || '').trim()));   // дата/время — компактно, без точки
     });
     if (mo) mo.takeRecords();   // свои правки (классы, --st-*, обёртки) — не повод запускаться снова

@@ -1,6 +1,7 @@
 // «Что нового» — краткие патчноуты для админов (кнопка «?» справа в шапке).
 // При выпуске версии: добавить запись СВЕРХУ, коротко и понятным языком — что появилось и как этим пользоваться.
 var DH_CHANGELOG = [
+  { v: '15.17', d: '18.11.2026', items: ['В цветных темах статус «В работе СД» отличается от «В работе»: янтарный оттенок и золотой контур.', 'Кнопка «Компьютеры» рядом с «?» показывает версии, последний сигнал и состояние бота на подключённых ПК. Для общего списка подключите отдельный закрытый канал Telegram через настройки этой кнопки.'] },
   { v: '15.16', d: '16.11.2026', items: ['Раздача: рядом с мастерами появился ориентировочный счётчик заявок за день с учётом заявок, созданных раньше, но закрытых сегодня. Добавлена диагностика подсчёта.', 'В отчёте «Сегодня» появилась карточка «Создано сегодня»: наши заявки (без отметки «П») и партнёрские (с отметкой «П»).', 'В карточке «Заявок закрыто» видно, сколько из них наши. На круговой диаграмме наши заявки выделены отдельным цветом.', 'В отчёте Telegram /сегодня также показываются созданные сегодня заявки с разбивкой на наши и партнёрские.'] },
   { v: '15.15', d: '11.11.2026', items: ['Список заявок обновляется раз в минуту без перезагрузки страницы. Панель и аналитика остаются открытыми; при выборе заявки и работе с фильтрами обновление откладывается.'] },
   { v: '15.14', d: '11.11.2026', items: ['Новая анимация разворачивания и закрытия панели. На защищённых страницах панель открывается от значка Firefox с анимацией. На обычных сайтах — справа поверх страницы.', 'Основные показатели отчёта отображаются до окончания загрузки детализации заявок. Убраны повторные одновременные запросы; фоновая загрузка уступает открытому отчёту. Зарплата сразу показывается из памяти и затем обновляется.'] },
@@ -208,4 +209,53 @@ function dhNewsDot(btn) {
       if (ch.dhNewsSeen || ch.dhUpdAvail) upd();
     });
   } catch (e) {}
+}
+
+
+// Список компьютеров: отдельное окно, не меняет состояние Telegram-бота.
+function dhShowDevices(doc) {
+  doc=doc||document;
+  if(doc.getElementById('dh-pcs')) return;
+  if(!doc.getElementById('dh-pcs-css')) {
+    const st=doc.createElement('style'); st.id='dh-pcs-css';
+    st.textContent='#dh-pcs{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:flex-start;justify-content:flex-end;padding:54px 14px 14px;background:rgba(0,0,0,.32);box-sizing:border-box;color:#10231a;font:13px "Segoe UI",system-ui,sans-serif}#dh-pcs .pc-box{width:min(440px,100%);max-height:calc(100vh - 70px);overflow:auto;border-radius:14px;padding:16px;background:#fff;box-sizing:border-box;box-shadow:0 16px 42px #0003}#dh-pcs .pc-head,#dh-pcs .pc-row{display:flex;align-items:center;gap:8px;justify-content:space-between}#dh-pcs .pc-head{font-size:16px;font-weight:700}#dh-pcs button{cursor:pointer;border:1px solid #ccdcd2;border-radius:8px;background:#f0f7f3;color:#166534;padding:7px 10px;font:600 12px "Segoe UI",sans-serif}#dh-pcs button:disabled{opacity:.5;cursor:default}#dh-pcs .pc-list{margin:10px 0}#dh-pcs .pc-item{padding:10px 0;border-bottom:1px solid #dce7df}#dh-pcs .pc-sub{font-size:11px;opacity:.75;margin-top:4px;line-height:1.38}#dh-pcs .pc-status{font-weight:600;font-size:11px;white-space:nowrap}#dh-pcs .pc-online{color:#15803d}#dh-pcs input{width:100%;box-sizing:border-box;padding:8px;border:1px solid #ccdcd2;border-radius:7px;margin:5px 0 9px;background:inherit;color:inherit;font:13px "Segoe UI",sans-serif}#dh-pcs .pc-actions{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}#dh-pcs .pc-msg{color:#a14c23;margin:8px 0;font-size:12px}#dh-pcs details{margin-top:12px}#dh-pcs summary{cursor:pointer;font-weight:600}html.dh-dark #dh-pcs{color:var(--dh-ink,#e4eee9)}html.dh-dark #dh-pcs .pc-box{background:var(--dh-bg1,#17212b)}html.dh-dark #dh-pcs button{color:var(--dh-ink,#d6eade);background:var(--dh-bg2,#243342);border-color:var(--dh-line,#394653)}html.dh-dark #dh-pcs .pc-item,html.dh-dark #dh-pcs input{border-color:var(--dh-line,#394653)}html.dh-dark #dh-pcs .pc-online{color:#70dca2}html.dh-dark #dh-pcs .pc-msg{color:#ffc4a0}';
+    (doc.head||doc.documentElement).append(st);
+  }
+  const w=doc.createElement('div');w.id='dh-pcs';
+  w.innerHTML='<div class="pc-box" role="dialog" aria-label="Компьютеры DIR HELPER"><div class="pc-head"><span>Компьютеры DIR HELPER</span><button class="pc-close" aria-label="Закрыть">✕</button></div><div class="pc-sub pc-summary">Загрузка…</div><div class="pc-list"></div><div class="pc-msg" role="status"></div><div class="pc-actions"><button class="pc-refresh">⟳ Обновить</button></div><details class="pc-settings"><summary>Настройки подключения</summary><label class="pc-sub">Название этого компьютера</label><input class="pc-name" maxlength="32" placeholder="Например, офис / дом"><label class="pc-sub">ID закрытого Telegram-канала или ссылка на сообщение</label><input class="pc-channel" placeholder="-100… или https://t.me/c/…"><div class="pc-sub">Создайте отдельный закрытый канал, добавьте общего бота администратором с правом публикации и редактирования, отправьте тестовое сообщение и скопируйте ссылку на него. Реестр создаётся один раз на первом ПК, остальные подключаются к тому же каналу. Не используйте группы мастеров. Передаются только код, заданное имя ПК, версия, состояние бота и время связи.</div><div class="pc-actions"><button class="pc-connect">Подключить</button><button class="pc-create">Создать реестр</button><button class="pc-rename">Сохранить имя</button><button class="pc-off">Отключить этот ПК</button></div></details></div>';
+  const $=s=>w.querySelector(s), list=$('.pc-list'), msg=$('.pc-msg'), name=$('.pc-name'), ch=$('.pc-channel');
+  let busy=false, initial=true;
+  const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const state={off:'Бот выключен',on:'Бот включён · нет подтверждения',standby:'Бот ожидает',active:'Бот отвечает',paused:'Бот на паузе'};
+  async function run(op,extra={}) {
+    if (busy) return; busy=true;
+    w.querySelectorAll('button:not(.pc-close)').forEach(b=>b.disabled=true);
+    msg.textContent='Проверяю…';
+    try {
+      const r=await browser.runtime.sendMessage(Object.assign({dhPc:op},extra));
+      if(!r) throw new Error('Нет ответа расширения');
+      if(!r.self) throw new Error(r.err||'Нет данных');
+      if(initial) {name.value=r.self.name.startsWith('ПК '+r.self.id)?'':r.self.name;ch.value=r.channel||'';$('.pc-settings').open=!r.configured;initial=false;}
+      const now=Date.now(), pcs=(r.pcs||[]).filter(x=>x.id!==r.self.id).concat([r.self]).sort((a,b)=>Number(b.id===r.self.id)-Number(a.id===r.self.id)||b.last-a.last);
+      // Устаревшие данные при ошибке сети не выдаём за актуальный онлайн.
+      const online=x=>x.id===r.self.id || (r.ok && now-x.last<240000 && x.last<=now+300000);
+      $('.pc-summary').textContent=r.configured?(r.ok?'На связи: '+pcs.filter(online).length+' из '+pcs.length:'Нет актуальных данных реестра · известны '+pcs.length+' ПК'):'Сейчас виден только этот компьютер. Подключите общий реестр.';
+      list.innerHTML=pcs.map(x=>'<div class="pc-item"><div class="pc-row"><b>'+esc(x.name)+(x.id===r.self.id?' <small>· этот ПК</small>':'')+'</b><span class="pc-status '+(online(x)?'pc-online':'')+'">'+(online(x)?'● На связи':!r.ok?'○ Не проверено':'○ Нет связи')+'</span></div><div class="pc-sub">'+esc(x.id)+' · v'+esc(x.ver)+' · '+esc(state[x.bot]||'Бот: неизвестно')+'<br>Последний сигнал: '+esc(new Date(x.last).toLocaleString('ru-RU'))+'</div></div>').join('');
+      msg.textContent=r.err|| (r.pending?'Одновременное обновление: запись будет повторно синхронизирована.':'');
+      if(op==='disconnect'){ch.value='';$('.pc-settings').open=true;}
+    }catch(e){msg.textContent=e.message;}
+    finally{busy=false;w.querySelectorAll('button:not(.pc-close)').forEach(b=>b.disabled=false);}
+  }
+  $('.pc-refresh').onclick=()=>run('list');
+  $('.pc-connect').onclick=()=>run('setup',{name:name.value,channel:ch.value});
+  $('.pc-create').onclick=()=>{if(confirm('Создать служебный реестр в указанном отдельном закрытом канале? Делается только один раз.'))run('setup',{name:name.value,channel:ch.value,create:true});};
+  $('.pc-rename').onclick=()=>run('name',{name:name.value});
+  $('.pc-off').onclick=()=>{if(confirm('Прекратить отправку сигналов с этого ПК?'))run('disconnect');};
+  const close=()=>{clearInterval(timer);doc.removeEventListener('keydown',key,true);w.remove();};
+  const key=e=>{if(e.key==='Escape')close();};
+  w.addEventListener('click',e=>{if(e.target===w||e.target.closest('.pc-close'))close();});
+  doc.addEventListener('keydown',key,true);
+  (doc.body||doc.documentElement).append(w);
+  const timer=setInterval(()=>run('list'),75000);
+  run('list');
 }
